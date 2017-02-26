@@ -17,9 +17,10 @@ namespace Mmoreram\SearchBundle\Elastica;
 
 use Elastica\Client;
 use Elastica\Index;
-use Elastica\Query\AbstractQuery;
+use Elastica\Query;
 use Elastica\Type;
 use Elastica\Type\Mapping;
+
 use Mmoreram\SearchBundle\Model\Model;
 
 /**
@@ -91,7 +92,7 @@ class ElasticaWrapper
                         ],
                     ],
                 ],
-            ]
+            ],
         ], true);
         $tagIndex->clearCache();
         $tagIndex->refresh();
@@ -114,15 +115,23 @@ class ElasticaWrapper
     /**
      * Search.
      *
-     * @param AbstractQuery $query
+     * @param Query $query
+     * @param int   $from
+     * @param int   $size
      *
      * @return mixed
      */
-    public function search(AbstractQuery $query)
-    {
+    public function search(
+        Query $query,
+        int $from,
+        int $size
+    ) {
         return $this
             ->getSearchIndex()
-            ->search($query)
+            ->search($query, [
+                'from' => $from,
+                'size' => $size,
+            ])
             ->getResults();
     }
 
@@ -162,11 +171,16 @@ class ElasticaWrapper
             'family' => ['type' => 'keyword', 'include_in_all' => false],
             'ean' => ['type' => 'keyword', 'boost' => 10],
             'name' => ['type' => 'text', 'index' => false],
+            'sortable_name' => ['type' => 'keyword'],
             'description' => ['type' => 'text', 'index' => false],
             'long_description' => ['type' => 'text', 'index' => false],
             'price' => ['type' => 'integer', 'include_in_all' => false],
             'reduced_price' => ['type' => 'integer', 'include_in_all' => false],
             'real_price' => ['type' => 'integer', 'include_in_all' => false],
+            'discount' => ['type' => 'integer', 'include_in_all' => false],
+            'discount_percentage' => ['type' => 'integer', 'include_in_all' => false],
+            'image' => ['type' => 'keyword', 'include_in_all' => false],
+            'updated_at' => ['type' => 'date'],
             'manufacturer' => [
                 'type' => 'object',
                 'dynamic' => 'strict',
@@ -175,6 +189,9 @@ class ElasticaWrapper
                     'name' => [
                         'type' => 'text',
                         'boost' => 20,
+                    ],
+                    'sortable_name' => [
+                        'type' => 'keyword',
                     ],
                     'id' => [
                         'type' => 'keyword',
@@ -190,6 +207,9 @@ class ElasticaWrapper
                         'type' => 'text',
                         'boost' => 20,
                     ],
+                    'sortable_name' => [
+                        'type' => 'keyword',
+                    ],
                     'id' => [
                         'type' => 'keyword',
                     ],
@@ -203,6 +223,9 @@ class ElasticaWrapper
                     'name' => [
                         'type' => 'text',
                         'boost' => 20,
+                    ],
+                    'sortable_name' => [
+                        'type' => 'keyword',
                     ],
                     'id' => [
                         'type' => 'keyword',

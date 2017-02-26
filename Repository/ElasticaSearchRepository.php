@@ -26,7 +26,9 @@ use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Model;
 use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Model\Result;
+use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
+use Mmoreram\SearchBundle\Query\SortBy;
 
 /**
  * Class ElasticaSearchRepository.
@@ -73,7 +75,7 @@ class ElasticaSearchRepository implements SearchRepository
      * Search cross the index types.
      *
      * @param string $user
-     * @param Query $query
+     * @param Query  $query
      *
      * @return Result
      */
@@ -81,6 +83,7 @@ class ElasticaSearchRepository implements SearchRepository
         string $user,
         Query $query
     ) : Result {
+        $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
 
         $boolQuery->addFilter(
@@ -88,14 +91,15 @@ class ElasticaSearchRepository implements SearchRepository
         );
 
         $boolQuery->addMust(
-            new ElasticaQuery\Match('_all', $query->getQueryText())
+            $query->getQueryText() === Query::MATCH_ALL
+                ? new ElasticaQuery\MatchAll()
+                : new ElasticaQuery\Match('_all', $query->getQueryText())
         );
 
         $this->addTermsFilter($boolQuery, 'family', $query->getFamilies());
         $this->addNestedTermsFilter($boolQuery, 'category', 'id', $query->getCategories());
         $this->addTermsFilter($boolQuery, 'manufacturer.id', $query->getManufacturer());
         $this->addTermsFilter($boolQuery, 'brand.id', $query->getBrand());
-
 
         if (!empty($query->getTypes())) {
             $boolQuery->addFilter(
@@ -104,17 +108,32 @@ class ElasticaSearchRepository implements SearchRepository
         }
 
         if (!is_null($query->getPriceRange())) {
+            $priceRange = $query->getPriceRange();
+            $priceRangeData = [
+                'gte' => $priceRange->getFrom(),
+            ];
+
+            if ($priceRange->getTo() !== PriceRange::INFINITE) {
+                $priceRangeData['lte'] = $priceRange->getTo();
+            }
+
             $boolQuery->addFilter(
-                new ElasticaQuery\Range('real_price', [
-                    'gte' => $query->getPriceRange()->getFrom(),
-                    'lte' => $query->getPriceRange()->getFrom()
-                ])
+                new ElasticaQuery\Range('real_price', $priceRangeData)
             );
         }
 
+        $mainQuery->setQuery($boolQuery);
+        $mainQuery->setSort(
+            $this->addSortBys($query->getSorts())
+        );
+
         $results = $this
             ->elasticaWrapper
-            ->search($boolQuery);
+            ->search(
+                $mainQuery,
+                $query->getFrom(),
+                $query->getSize()
+            );
 
         return $this->elasticaResultToResult(
             $user,
@@ -143,11 +162,14 @@ class ElasticaSearchRepository implements SearchRepository
             'family' => $product->getFamily(),
             'ean' => $product->getEan(),
             'name' => $product->getName(),
+            'sortable_name' => $product->getName(),
             'description' => $product->getDescription(),
             'long_description' => $product->getLongDescription(),
             'price' => $product->getPrice(),
             'reduced_price' => $product->getReducedPrice(),
             'real_price' => $product->getRealPrice(),
+            'discount' => $product->getDiscount(),
+            'discount_percentage' => $product->getDiscountPercentage(),
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
             'second_level_searchable_data' => $product->getSecondLevelSearchableData(),
         ];
@@ -237,6 +259,7 @@ class ElasticaSearchRepository implements SearchRepository
         $rootDoc['category'][] = [
             'id' => $category->getId(),
             'name' => $category->getName(),
+            'sortable_name' => $category->getName(),
         ];
     }
 
@@ -270,6 +293,7 @@ class ElasticaSearchRepository implements SearchRepository
         $rootDoc['manufacturer'] = [
             'id' => $manufacturer->getId(),
             'name' => $manufacturer->getName(),
+            'sortable_name' => $manufacturer->getName(),
         ];
     }
 
@@ -303,6 +327,7 @@ class ElasticaSearchRepository implements SearchRepository
         $rootDoc['brand'] = [
             'id' => $brand->getId(),
             'name' => $brand->getName(),
+            'sortable_name' => $brand->getName(),
         ];
     }
 
@@ -352,20 +377,18 @@ class ElasticaSearchRepository implements SearchRepository
 
     /**
      * Filters by terms only if the field exists and the terms what to look for
-     * are not just an empty array
+     * are not just an empty array.
      *
      * @param ElasticaQuery\BoolQuery $boolQuery,
-     * @param string $fieldName
-     * @param null|string|array $elements
+     * @param string                  $fieldName
+     * @param null|string|array       $elements
      */
     private function addTermsFilter(
         ElasticaQuery\BoolQuery $boolQuery,
         string $fieldName,
         $elements
-    )
-    {
+    ) {
         if (!empty($elements)) {
-
             $boolQuery->addFilter(
                 $this->createTermsFilterDependingOnElement(
                     "$fieldName",
@@ -376,20 +399,19 @@ class ElasticaSearchRepository implements SearchRepository
     }
 
     /**
-     * Adds terms filter given a BoolQuery
+     * Adds terms filter given a BoolQuery.
      *
      * @param ElasticaQuery\BoolQuery $boolQuery,
-     * @param string $path
-     * @param string $fieldName
-     * @param null|string|array $elements
+     * @param string                  $path
+     * @param string                  $fieldName
+     * @param null|string|array       $elements
      */
     private function addNestedTermsFilter(
         ElasticaQuery\BoolQuery $boolQuery,
         string $path,
         string $fieldName,
         $elements
-    )
-    {
+    ) {
         if (!empty($elements)) {
             $nestedQuery = new ElasticaQuery\Nested();
             $nestedQuery->setPath($path);
@@ -405,9 +427,9 @@ class ElasticaSearchRepository implements SearchRepository
     }
 
     /**
-     * Creates Term/Terms query depending on the elements value
+     * Creates Term/Terms query depending on the elements value.
      *
-     * @param string $fieldName
+     * @param string            $fieldName
      * @param null|string|array $elements
      *
      * @return ElasticaQuery\AbstractQuery
@@ -415,10 +437,29 @@ class ElasticaSearchRepository implements SearchRepository
     private function createTermsFilterDependingOnElement(
         string $fieldName,
         $elements
-    ) : ElasticaQuery\AbstractQuery
-    {
+    ) : ElasticaQuery\AbstractQuery {
         return is_array($elements)
             ? new ElasticaQuery\Terms($fieldName, $elements)
-            : new ElasticaQuery\Term([$fieldName, (string) $elements]);
+            : new ElasticaQuery\Term([$fieldName => (string) $elements]);
+    }
+
+    /**
+     * Add a set of sortBy instances to query.
+     *
+     * @param SortBy[] $sortBys
+     *
+     * @return array
+     */
+    private function addSortBys(array $sortBys) : array
+    {
+        $sorts = [];
+        foreach ($sortBys as $sortBy) {
+            $sorts = array_merge(
+                $sorts,
+                [$sortBy]
+            );
+        }
+
+        return $sorts;
     }
 }

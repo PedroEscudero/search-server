@@ -75,7 +75,7 @@ abstract class IdNameWrapper
     }
 
     /**
-     * Get first level searchable data
+     * Get first level searchable data.
      *
      * @return string
      */

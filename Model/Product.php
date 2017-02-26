@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Model;
 
+use DateTime;
+
 /**
  * Class Product.
  */
@@ -77,13 +79,6 @@ class Product
     private $reducedPrice;
 
     /**
-     * @var int
-     *
-     * Real price
-     */
-    private $realPrice;
-
-    /**
      * @var Manufacturer
      *
      * Manufacturer
@@ -126,6 +121,13 @@ class Product
     private $secondLevelSearchableData;
 
     /**
+     * @var DateTime
+     *
+     * Updated at
+     */
+    private $updatedAt;
+
+    /**
      * Product constructor.
      *
      * @param string       $id
@@ -139,6 +141,7 @@ class Product
      * @param Manufacturer $manufacturer
      * @param Brand        $brand
      * @param string       $image
+     * @param DateTime     $updatedAt
      */
     public function __construct(
         string $id,
@@ -151,7 +154,8 @@ class Product
         ? int $reducedPrice,
         ? Manufacturer $manufacturer,
         ? Brand $brand,
-        ? string $image
+        ? string $image,
+        DateTime $updatedAt = null
     ) {
         $this->id = $id;
         $this->family = $family;
@@ -161,14 +165,11 @@ class Product
         $this->longDescription = ($longDescription ?? '');
         $this->price = $price;
         $this->reducedPrice = ($reducedPrice ?? $price);
-        $this->realPrice = min(
-            $this->price,
-            $this->reducedPrice
-        );
         $this->manufacturer = $manufacturer;
         $this->brand = $brand;
         $this->categories = [];
         $this->image = ($image ?? '');
+        $this->updatedAt = ($updatedAt ?? new DateTime());
 
         $this->firstLevelSearchableData = "$name {$manufacturer->getName()} {$brand->getId()}";
         $this->secondLevelSearchableData = "$description $longDescription";
@@ -255,13 +256,36 @@ class Product
     }
 
     /**
-     * Get real price
+     * Get real price.
      *
      * @return mixed
      */
     public function getRealPrice() : int
     {
-        return $this->realPrice;
+        return min(
+            $this->price,
+            $this->reducedPrice
+        );
+    }
+
+    /**
+     * Get discount.
+     *
+     * @return int
+     */
+    public function getDiscount() : int
+    {
+        return $this->price - $this->getRealPrice();
+    }
+
+    /**
+     * Get discount percentage.
+     *
+     * @return int
+     */
+    public function getDiscountPercentage() : int
+    {
+        return (int) round(100 * $this->getDiscount() / $this->getPrice());
     }
 
     /**
@@ -316,7 +340,17 @@ class Product
     }
 
     /**
-     * Get first level searchable data
+     * Get Updated at.
+     *
+     * @return DateTime
+     */
+    public function getUpdatedAt() : DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * Get first level searchable data.
      *
      * @return string
      */
@@ -326,7 +360,7 @@ class Product
     }
 
     /**
-     * Get second level searchable data
+     * Get second level searchable data.
      *
      * @return string
      */
@@ -355,7 +389,8 @@ class Product
             $array['reduced_price'] ?? null,
             Manufacturer::createFromArray($array['manufacturer']),
             Brand::createFromArray($array['brand']),
-            $array['image'] ?? null
+            $array['image'] ?? null,
+            $array['updated_at'] ?? null
         );
 
         if (

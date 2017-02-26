@@ -45,7 +45,7 @@ products:
                 name: Woman wear
 
     book_1:
-        id: 999
+        id: 3
         ean: 4789224532
         family: book
         name: Da Vinci Code
@@ -65,3 +65,44 @@ products:
             italian_book:
                 id: 66
                 name: Italian Book
+
+    bike_1:
+        id: 4
+        ean: 7483274892
+        family: bike
+        name: Mountain Bike extreme
+        description: Cross the mountain while flying on top of two wheels
+        price: 1500
+        reduced_price: 700
+        manufacturer:
+            id: 15
+            name: Kenda
+        brand:
+            id: 10
+            name: Decathlon
+        category:
+            bike:
+                id: 777
+                name: Bikes
+            mountain_bike:
+                id: 778
+                name: Mountain Bike
+
+    gum_1:
+        id: 5
+        ean: 784927839
+        family: gum
+        name: SuperBoomer
+        description: Super Boomer super lolazo
+        price: 10
+        reduced_price: 7
+        manufacturer:
+            id: 444
+            name: Superboomer
+        brand:
+            id: 444
+            name: Superboomer
+        category:
+            gum:
+                id: 800
+                name: Gum

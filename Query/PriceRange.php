@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the {Package name}.
+ * This file is part of the SearchBundle for Symfony2.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -10,10 +11,12 @@
  * @author Marc Morera <yuhu@mmoreram.com>
  */
 
+declare(strict_types=1);
+
 namespace Mmoreram\SearchBundle\Query;
 
 /**
- * Class PriceRange
+ * Class PriceRange.
  */
 class PriceRange
 {
@@ -54,14 +57,13 @@ class PriceRange
     public function __construct(
         int $from,
         int $to
-    )
-    {
+    ) {
         $this->from = $from;
         $this->to = $to;
     }
 
     /**
-     * Get from
+     * Get from.
      *
      * @return int
      */
@@ -71,7 +73,7 @@ class PriceRange
     }
 
     /**
-     * Get to
+     * Get to.
      *
      * @return int
      */

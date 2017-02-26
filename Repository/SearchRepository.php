@@ -39,7 +39,7 @@ interface SearchRepository
      * Search cross the index types.
      *
      * @param string $user
-     * @param Query $query
+     * @param Query  $query
      *
      * @return Result
      */
