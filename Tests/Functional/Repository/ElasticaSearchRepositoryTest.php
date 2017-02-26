@@ -339,7 +339,7 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
         $this->assertResultsRelativePositions(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_ASC)),
             Model::PRODUCT,
-            ['1', '3', '2']
+            ['1', '3', '4', '2', '5']
         );
     }
 
@@ -352,7 +352,33 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
         $this->assertResultsRelativePositions(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_DESC)),
             Model::PRODUCT,
-            ['2', '3', '1']
+            ['5', '2', '4', '3', '1']
+        );
+    }
+
+    /**
+     * Test sort by brand asc.
+     */
+    public function testSortByBrandASC()
+    {
+        $repository = $this->resetIndexAndGetRepository();
+        $this->assertResultsRelativePositions(
+            $repository->search('000', Query::createMatchAll()->sortBy(SortBy::BRAND_ASC)),
+            Model::PRODUCT,
+            ['1', '3', '4', '2', '5']
+        );
+    }
+
+    /**
+     * Test sort by brand desc.
+     */
+    public function testSortByBrandDESC()
+    {
+        $repository = $this->resetIndexAndGetRepository();
+        $this->assertResultsRelativePositions(
+            $repository->search('000', Query::createMatchAll()->sortBy(SortBy::BRAND_DESC)),
+            Model::PRODUCT,
+            ['5', '2', '4', '3', '1']
         );
     }
 

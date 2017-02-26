@@ -98,6 +98,20 @@ class SortBy
     const MANUFACTURER_DESC = ['manufacturer.sortable_name' => 'desc'];
 
     /**
+     * @var string
+     *
+     * Sort by manufacturer ASC
+     */
+    const BRAND_ASC = ['brand.sortable_name' => 'asc'];
+
+    /**
+     * @var string
+     *
+     * Sort by manufacturer DESC
+     */
+    const BRAND_DESC = ['brand.sortable_name' => 'desc'];
+
+    /**
      * @var array|string
      *
      * Sort value
