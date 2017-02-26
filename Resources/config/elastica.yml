@@ -1,0 +1,4 @@
+services:
+
+    search_bundle.elastica_wrapper:
+        class: Mmoreram\SearchBundle\Elastica\ElasticaWrapper

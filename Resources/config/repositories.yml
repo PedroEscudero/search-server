@@ -1,0 +1,13 @@
+services:
+
+    #
+    # Repositories
+    #
+    search_bundle.elastica_repository:
+        class: Mmoreram\SearchBundle\Repository\ElasticaSearchRepository
+        arguments:
+            - "@search_bundle.elastica_wrapper"
+
+    search_bundle.repository:
+        class: Mmoreram\SearchBundle\Repository\SearchRepository
+        alias: search_bundle.elastica_repository

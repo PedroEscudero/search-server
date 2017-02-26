@@ -1,0 +1,67 @@
+products:
+    prod_1:
+        id: 1
+        ean: 4768932798
+        family: product
+        name: green tshirt
+        description: Cool green t-shirt
+        long_description: Get dressed like the most spectacular guys in the world with this new green t-shirt Adidas
+        price: 1000
+        reduced_price: 950
+        manufacturer:
+            id: 1
+            name: Adidas
+        brand:
+            id: 1
+            name: Adidas
+        category:
+            t_shirt:
+                id: 1
+                name: T-shirt
+            man_wear:
+                id: 2
+                name: Man wear
+
+    prod_2:
+        id: 2
+        ean: 748329748
+        family: product
+        name: blue tshirt
+        description: Cool blue t-shirt
+        long_description: It's awesome how you will rock with this super new blue t-shirt
+        price: 1500
+        manufacturer:
+            id: 2
+            name: Nike
+        brand:
+            id: 2
+            name: Nike
+        category:
+            t_shirt:
+                id: 1
+                name: T-shirt
+            woman_wear:
+                id: 3
+                name: Woman wear
+
+    book_1:
+        id: 999
+        ean: 4789224532
+        family: book
+        name: Da Vinci Code
+        description: This is the awesome Da Vinci Code by Dan Brown
+        price: 2000
+        reduced_price: 2010
+        manufacturer:
+            id: 3
+            name: Factories El Percebe
+        brand:
+            id: 3
+            name: Books Santillana
+        category:
+            adventures_book:
+                id: 50
+                name: Adventures
+            italian_book:
+                id: 66
+                name: Italian Book
