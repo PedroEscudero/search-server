@@ -126,16 +126,17 @@ class ElasticaWrapper
         int $from,
         int $size
     ) {
-        $query = $this
+        $queryResult = $this
             ->getSearchIndex()
             ->search($query, [
                 'from' => $from,
                 'size' => $size,
             ]);
 
-        //print_r($query->getQuery()->toArray());
-
-        return $query->getResults();
+        return [
+            'results' => $queryResult->getResults(),
+            'aggregations' => $queryResult->getAggregations(),
+        ];
     }
 
     /**

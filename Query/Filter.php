@@ -37,6 +37,27 @@ class Filter
     /**
      * @var string
      *
+     * Filter type field
+     */
+    const TYPE_FIELD = 'field';
+
+    /**
+     * @var string
+     *
+     * Filter type field
+     */
+    const TYPE_NESTED = 'nested';
+
+    /**
+     * @var string
+     *
+     * Filter type field
+     */
+    const TYPE_RANGE = 'range';
+
+    /**
+     * @var string
+     *
      * Field
      */
     private $field;
@@ -53,33 +74,33 @@ class Filter
      *
      * Type
      */
-    private $type;
+    private $applicationType;
 
     /**
-     * @var bool
+     * @var string
      *
-     * Is nested
+     * Filter type
      */
-    private $nested;
+    private $filterType;
 
     /**
      * Filter constructor.
      *
      * @param string $field
      * @param array  $values
-     * @param string $type
-     * @param bool   $nested
+     * @param string $applicationType
+     * @param string $filterType
      */
     private function __construct(
         string $field,
         array $values,
-        string $type,
-        bool $nested
+        string $applicationType,
+        string $filterType
     ) {
         $this->field = $field;
         $this->values = $values;
-        $this->type = $type;
-        $this->nested = $nested;
+        $this->applicationType = $applicationType;
+        $this->filterType = $filterType;
     }
 
     /**
@@ -103,23 +124,23 @@ class Filter
     }
 
     /**
-     * Get type.
+     * Get application type.
      *
      * @return string
      */
-    public function getType(): string
+    public function getApplicationType(): string
     {
-        return $this->type;
+        return $this->applicationType;
     }
 
     /**
-     * Is nested.
+     * Get filter type.
      *
-     * @return bool
+     * @return string
      */
-    public function isNested(): bool
+    public function getFilterType(): string
     {
-        return $this->nested;
+        return $this->filterType;
     }
 
     /**
@@ -127,22 +148,22 @@ class Filter
      *
      * @param string $field
      * @param array  $values
-     * @param string $type
-     * @param bool   $nested
+     * @param string $applicationType
+     * @param string $filterType
      *
      * @return self
      */
     public static function create(
         string $field,
         array $values,
-        string $type,
-        bool $nested
+        string $applicationType,
+        string $filterType
     ) : self {
         return new self(
             $field,
             $values,
-            $type,
-            $nested
+            $applicationType,
+            $filterType
         );
     }
 }

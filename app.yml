@@ -1,4 +1,6 @@
 bundles: Mmoreram\SearchBundle\SearchBundle
+routes:
+    - "@SearchBundle/Resources/config/routing.yml"
 config:
     parameters:
         database_driver: pdo_mysql

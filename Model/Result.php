@@ -49,6 +49,13 @@ class Result
     private $brands = [];
 
     /**
+     * @var Aggregations
+     *
+     * Aggregations
+     */
+    private $aggregations;
+
+    /**
      * Add product.
      *
      * @param Product $product
@@ -126,5 +133,25 @@ class Result
     public function getBrands(): array
     {
         return $this->brands;
+    }
+
+    /**
+     * Set aggregations.
+     *
+     * @param Aggregations $aggregations
+     */
+    public function setAggregations(Aggregations $aggregations)
+    {
+        $this->aggregations = $aggregations;
+    }
+
+    /**
+     * Get aggregations.
+     *
+     * @return Aggregations
+     */
+    public function getAggregations(): Aggregations
+    {
+        return $this->aggregations;
     }
 }

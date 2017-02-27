@@ -83,8 +83,8 @@ products:
                 id: 66
                 name: Italian Book
         tags:
-            last_our:
-                name: last our
+            last_hour:
+                name: last_hour
             kids:
                 name: kids
 
@@ -140,3 +140,5 @@ products:
         tags:
             sugar:
                 name: sugar
+            kids:
+                name: kids

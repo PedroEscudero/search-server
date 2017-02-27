@@ -15,17 +15,21 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Repository;
 
+use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Document as ElasticaDocument;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
 
 use Mmoreram\SearchBundle\Elastica\ElasticaWrapper;
+use Mmoreram\SearchBundle\Model\Aggregation as ModelAggregation;
+use Mmoreram\SearchBundle\Model\Aggregations as ModelAggregations;
 use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Model;
 use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Model\Result;
+use Mmoreram\SearchBundle\Query\Aggregation as QueryAggregation;
 use Mmoreram\SearchBundle\Query\Filter;
 use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
@@ -97,26 +101,20 @@ class ElasticaSearchRepository implements SearchRepository
                 : new ElasticaQuery\Match('_all', $query->getQueryText())
         );
 
-        $this->addFilters($boolQuery, $query->getFilters());
-
-        if (!is_null($query->getPriceRange())) {
-            $priceRange = $query->getPriceRange();
-            $priceRangeData = [
-                'gte' => $priceRange->getFrom(),
-            ];
-
-            if ($priceRange->getTo() !== PriceRange::INFINITE) {
-                $priceRangeData['lte'] = $priceRange->getTo();
-            }
-
-            $boolQuery->addFilter(
-                new ElasticaQuery\Range('real_price', $priceRangeData)
-            );
-        }
+        $this->addFilters(
+            $boolQuery,
+            $query->getFilters()
+        );
 
         $mainQuery->setQuery($boolQuery);
         $mainQuery->setSort(
             $this->addSortBys($query->getSorts())
+        );
+
+        $this->addAggregations(
+            $mainQuery,
+            $query->getAggregations(),
+            $query->getFilters()
         );
 
         $results = $this
@@ -357,7 +355,10 @@ class ElasticaSearchRepository implements SearchRepository
     ) : Result {
         $result = new Result();
 
-        foreach ($elasticaResults as $elasticaResult) {
+        /**
+         * @var ElasticaResult $elasticaResult
+         */
+        foreach ($elasticaResults['results'] as $elasticaResult) {
             $source = $elasticaResult->getSource();
             $source['id'] = str_replace("$user~~", '', $elasticaResult->getId());
             switch ($elasticaResult->getType()) {
@@ -384,6 +385,28 @@ class ElasticaSearchRepository implements SearchRepository
             }
         }
 
+        if (
+            isset($elasticaResults['aggregations']['all_products']['doc_count']) &&
+            $elasticaResults['aggregations']['all_products']['doc_count'] > 0
+        ) {
+            $resultAggregations = $elasticaResults['aggregations']['all_products'];
+            $aggregations = new ModelAggregations($resultAggregations['doc_count']);
+            unset($resultAggregations['doc_count']);
+
+            foreach ($resultAggregations as $aggregationName => $resultAggregation) {
+                $aggregation = new ModelAggregation($resultAggregation['doc_count']);
+                $buckets = isset($resultAggregation[$aggregationName]['buckets'])
+                    ? $resultAggregation[$aggregationName]['buckets']
+                    : $resultAggregation[$aggregationName][$aggregationName]['buckets'];
+
+                foreach ($buckets as $bucket) {
+                    $aggregation->addCounter($bucket['key'], $bucket['doc_count']);
+                }
+                $aggregations->addAggregation($aggregationName, $aggregation);
+            }
+            $result->setAggregations($aggregations);
+        }
+
         return $result;
     }
 
@@ -392,13 +415,19 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter[]                $filters
+     * @param string                  $filterToIgnore
      */
     private function addFilters(
         ElasticaQuery\BoolQuery $boolQuery,
-        array $filters
+        array $filters,
+        string $filterToIgnore = null
     ) {
-        foreach ($filters as $filter) {
-            if (empty($filter->getValues())) {
+        foreach ($filters as $filterName => $filter) {
+            if (
+                empty($filter->getValues()) ||
+                $filterName === $filterToIgnore ||
+                $filterName === "tags.$filterToIgnore"
+            ) {
                 continue;
             }
 
@@ -419,66 +448,19 @@ class ElasticaSearchRepository implements SearchRepository
         ElasticaQuery\BoolQuery $boolQuery,
         Filter $filter
     ) {
-        $filter->isNested()
-            ? $this->addNestedTermsFilter(
-                $boolQuery,
-                $filter
-            )
-            : $this->addTermsFilter(
-                $boolQuery,
-                $filter
+        if ($filter->getFilterType() === Filter::TYPE_RANGE) {
+            $boolQuery->addFilter(
+                $this->createPriceRangeFilter($filter)
             );
-    }
 
-    /**
-     * Filters by terms only if the field exists and the terms what to look for
-     * are not just an empty array.
-     *
-     * @param ElasticaQuery\BoolQuery $boolQuery,
-     * @param Filter                  $filter
-     */
-    private function addTermsFilter(
-        ElasticaQuery\BoolQuery $boolQuery,
-        Filter $filter
-    ) {
+            return;
+        }
+
         $boolQuery->addFilter(
-            $this->createQueryFilter($filter)
+            $filter->getApplicationType() === Filter::MUST_ALL
+                ? $this->createQueryFilterMustAll($filter)
+                : $this->createQueryFilterAtLeastOne($filter)
         );
-    }
-
-    /**
-     * Adds terms filter given a BoolQuery.
-     *
-     * @param ElasticaQuery\BoolQuery $boolQuery,
-     * @param Filter                  $filter
-     */
-    private function addNestedTermsFilter(
-        ElasticaQuery\BoolQuery $boolQuery,
-        Filter $filter
-    ) {
-        list($path, $fieldName) = explode('.', $filter->getField(), 2);
-
-        $nestedQuery = new ElasticaQuery\Nested();
-        $nestedQuery->setPath($path);
-        $nestedQuery->setScoreMode('max');
-        $nestedQuery->setQuery(
-            $this->createQueryFilter($filter)
-        );
-        $boolQuery->addFilter($nestedQuery);
-    }
-
-    /**
-     * Creates Term/Terms query depending on the elements value.
-     *
-     * @param Filter $filter
-     *
-     * @return ElasticaQuery\AbstractQuery
-     */
-    private function createQueryFilter(Filter $filter) : ElasticaQuery\AbstractQuery
-    {
-        return $filter->getType() === Filter::MUST_ALL
-            ? $this->createQueryFilterMustAll($filter)
-            : $this->createQueryFilterAtLeastOne($filter);
     }
 
     /**
@@ -493,9 +475,10 @@ class ElasticaSearchRepository implements SearchRepository
         $queryFilter = new ElasticaQuery\BoolQuery();
         foreach ($filter->getValues() as $value) {
             $queryFilter->addMust(
-                new ElasticaQuery\Term([
-                    $filter->getField() => (string) $value,
-                ])
+                $this->createQueryFilter(
+                    $filter,
+                    (string) $value
+                )
             );
         }
 
@@ -514,13 +497,95 @@ class ElasticaSearchRepository implements SearchRepository
         $queryFilter = new ElasticaQuery\BoolQuery();
         foreach ($filter->getValues() as $value) {
             $queryFilter->addShould(
-                new ElasticaQuery\Term([
-                    $filter->getField() => (string) $value,
-                ])
+                $this->createQueryFilter(
+                    $filter,
+                    $value
+                )
             );
         }
 
         return $queryFilter;
+    }
+
+    /**
+     * Creates Term/Terms query depending on the elements value.
+     *
+     * @param Filter $filter
+     * @param string $value
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createQueryFilter(
+        Filter $filter,
+        string $value
+    ) : ElasticaQuery\AbstractQuery {
+        return $filter->getFilterType() === Filter::TYPE_NESTED
+            ? $this->createdNestedTermFilter($filter, $value)
+            : $this->createTermFilter($filter, $value);
+    }
+
+    /**
+     * Adds terms filter given a BoolQuery.
+     *
+     * @param Filter $filter
+     * @param string $value
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createdNestedTermFilter(
+        Filter $filter,
+        string $value
+    ) : ElasticaQuery\AbstractQuery {
+        list($path, $fieldName) = explode('.', $filter->getField(), 2);
+
+        $nestedQuery = new ElasticaQuery\Nested();
+        $nestedQuery->setPath($path);
+        $nestedQuery->setScoreMode('max');
+        $nestedQuery->setQuery(
+            new ElasticaQuery\Term([
+                $filter->getField() => (string) $value,
+            ])
+        );
+
+        return $nestedQuery;
+    }
+
+    /**
+     * Create Term filter.
+     *
+     * @param Filter $filter
+     * @param string $value
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createTermFilter(
+        Filter $filter,
+        string $value
+    ) : ElasticaQuery\AbstractQuery {
+        return new ElasticaQuery\Term([
+            $filter->getField() => $value,
+        ]);
+    }
+
+    /**
+     * Create PriceRange filter.
+     *
+     * @param Filter $filter
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    public function createPriceRangeFilter(Filter $filter) : ElasticaQuery\AbstractQuery
+    {
+        $range = $filter->getValues();
+        $priceRangeData = [
+            'gte' => $range['from'],
+        ];
+
+        if ($range['to'] !== PriceRange::INFINITE) {
+            $priceRangeData['lte'] = $range['to'];
+        }
+
+        return new ElasticaQuery\Range('real_price', $priceRangeData);
     }
 
     /**
@@ -541,5 +606,72 @@ class ElasticaSearchRepository implements SearchRepository
         }
 
         return $sorts;
+    }
+
+    /**
+     * Set aggregations.
+     *
+     * @param ElasticaQuery      $elasticaQuery
+     * @param QueryAggregation[] $aggregations
+     * @param Filter[]           $filters
+     */
+    private function addAggregations(
+        ElasticaQuery $elasticaQuery,
+        array $aggregations,
+        array $filters
+    ) {
+        $productsAggregation = new ElasticaAggregation\Filter('all_products', new ElasticaQuery\Term(['_type' => Model::PRODUCT]));
+        foreach ($aggregations as $aggregation) {
+            $elasticaAggregation = $aggregation->isNested()
+                ? $this->createNestedAggregation($aggregation)
+                : $this->createAggregation($aggregation);
+
+            $filteredAggregation = new ElasticaAggregation\Filter($aggregation->getName());
+            $boolQuery = new ElasticaQuery\BoolQuery();
+            $this->addFilters(
+                $boolQuery,
+                $filters,
+                $aggregation->getName()
+            );
+
+            $filteredAggregation->setFilter($boolQuery);
+            $filteredAggregation->addAggregation($elasticaAggregation);
+            $productsAggregation->addAggregation($filteredAggregation);
+        }
+
+        $elasticaQuery->addAggregation($productsAggregation);
+    }
+
+    /**
+     * Create nested aggregation.
+     *
+     * @param QueryAggregation $aggregation
+     *
+     * @return ElasticaAggregation\AbstractAggregation
+     */
+    private function createNestedAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
+    {
+        list($path, $field) = explode('.', $aggregation->getField());
+        $nestedAggregation = new ElasticaAggregation\Nested($aggregation->getName(), $path);
+        $nestedAggregation->addAggregation(
+            $this->createAggregation($aggregation)
+        );
+
+        return $nestedAggregation;
+    }
+
+    /**
+     * Create aggregation.
+     *
+     * @param QueryAggregation $aggregation
+     *
+     * @return ElasticaAggregation\AbstractAggregation
+     */
+    private function createAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
+    {
+        $termsAggregation = new ElasticaAggregation\Terms($aggregation->getName());
+        $termsAggregation->setField($aggregation->getField());
+
+        return $termsAggregation;
     }
 }

@@ -59,6 +59,14 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     }
 
     /**
+     * Testing zone.
+     */
+    public function testSomething()
+    {
+        $repository = self::$repository;
+    }
+
+    /**
      * test Basic Population.
      */
     public function testBasicPopulation()
@@ -178,6 +186,94 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     }
 
     /**
+     * Test type filter.
+     */
+    public function testTypeFilter()
+    {
+        $repository = self::$repository;
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT])),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '?5', '!800']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT, Model::CATEGORY])),
+            Model::PRODUCT,
+            ['!3', '!1', '!2', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::CATEGORY])),
+            Model::PRODUCT,
+            ['!3', '!1', '!2', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::CATEGORY])),
+            Model::CATEGORY,
+            ['?1', '?2', '?3', '?50', '?66', '?777', '?778', '?800']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT]))->getCategories()
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByTypes(['_nonexistent']))->getProducts()
+        );
+
+        $this->assertEmpty(
+            $repository->search('001', Query::createMatchAll()->filterByTypes([Model::PRODUCT]))->getProducts()
+        );
+    }
+
+    /**
+     * Test type filter.
+     */
+    public function testAtLeastOneTypeFilter()
+    {
+        $repository = self::$repository;
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '?5', '!800']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT, Model::CATEGORY], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT, Model::CATEGORY], Filter::AT_LEAST_ONE)),
+            Model::CATEGORY,
+            ['?1', '?2', '?3', '?50', '?66', '?777', '?778', '?800']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT, Model::CATEGORY, Model::BRAND], Filter::AT_LEAST_ONE)),
+            Model::BRAND,
+            ['?444']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByTypes([Model::PRODUCT], Filter::AT_LEAST_ONE))->getCategories()
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByTypes(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
+        );
+
+        $this->assertEmpty(
+            $repository->search('001', Query::createMatchAll()->filterByTypes([Model::PRODUCT], Filter::AT_LEAST_ONE))->getProducts()
+        );
+    }
+
+    /**
      * Test category filter.
      */
     public function testCategoryFilter()
@@ -204,6 +300,12 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
 
         $this->assertEmpty(
             $repository->search('001', Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '2'])),
+            Model::PRODUCT,
+            ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
@@ -418,6 +520,67 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     }
 
     /**
+     * Test tags filter.
+     */
+    public function testTagFilter()
+    {
+        $repository = self::$repository;
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTags('_', ['new'])),
+            Model::PRODUCT,
+            ['?1', '?2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByTags('_', ['new', 'shirt'])),
+            Model::PRODUCT,
+            ['?1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByTags('_', ['new', 'shirt', '_nonexistent']))->getProducts()
+        );
+
+        $this->assertEmpty(
+            $repository->search('001', Query::createMatchAll()->filterByTags('_', ['new']))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()
+                ->filterByTags('_', ['new', 'shirt', '_nonexistent'])
+                ->removeAllTagFilters()
+                ->filterByTags('_', ['new'])
+            ),
+            Model::PRODUCT,
+            ['?1', '?2', '!3', '!4', '!5']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()
+                ->filterByTags('_1', ['kids'])
+                ->filterByTags('_2', ['sugar', 'last_hour'])
+            )->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()
+                ->filterByTags('_1', ['kids'])
+                ->filterByTags('_2', ['sugar', 'last_hour'], Filter::AT_LEAST_ONE)
+            ),
+            Model::PRODUCT,
+            ['!1', '!2', '?3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()
+                ->filterByTags('_', ['sugar', 'kids', 'new'], Filter::AT_LEAST_ONE)
+            ),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '?5']
+        );
+    }
+
+    /**
      * Test sort by price asc.
      */
     public function testSortByPriceAsc()
@@ -558,6 +721,103 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
             ['5', '2', '4', '3', '1']
         );
     }
+
+    /**
+     * Test basic aggregations.
+     */
+    public function testBasicAggregations()
+    {
+        $repository = self::$repository;
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByManufacturers(['1'])
+                ->addBrandAggregation()
+                ->removeBrandAggregation()
+                ->addBrandAggregation()
+                ->addManufacturerAggregation()
+                ->removeManufacturerAggregation()
+                ->addManufacturerAggregation()
+        )
+        ->getAggregations();
+
+        $this->assertEquals(
+            1,
+            $aggregations
+                ->getAggregation('brand')
+                ->getCounter('Adidas')
+        );
+    }
+
+    /**
+     * Test nested aggregations.
+     */
+    public function testNestedAggregations()
+    {
+        $repository = self::$repository;
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->addCategoriesAggregation()
+                ->removeCategoriesAggregation()
+                ->addCategoriesAggregation()
+        )
+        ->getAggregations();
+
+        $this->assertEquals(
+            1,
+            $aggregations
+                ->getAggregation('categories')
+                ->getCounter('Man wear')
+        );
+
+        $this->assertEquals(
+            2,
+            $aggregations
+                ->getAggregation('categories')
+                ->getCounter('T-shirt')
+        );
+
+        $this->assertEquals(
+            1,
+            $aggregations
+                ->getAggregation('categories')
+                ->getCounter('Adventures')
+        );
+
+        $filteredAggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByCategories(['1'])
+                ->addCategoriesAggregation()
+                ->removeCategoriesAggregation()
+                ->addCategoriesAggregation()
+        )
+        ->getAggregations();
+
+        $this->assertEquals(
+            2,
+            $filteredAggregations->getTotalElements()
+        );
+
+        $this->assertEquals(
+            2,
+            $filteredAggregations
+                ->getAggregation('categories')
+                ->getCounter('T-shirt')
+        );
+
+        $this->assertEquals(
+            0,
+            $filteredAggregations
+                ->getAggregation('categories')
+                ->getCounter('Adventures')
+        );
+    }
+
+    /**
+     * TESTING HELPERS.
+     */
 
     /**
      * Assert IDS sequence.

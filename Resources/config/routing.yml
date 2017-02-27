@@ -1,0 +1,4 @@
+shop:
+    path: /
+    defaults:
+        _controller: Mmoreram\SearchBundle\ControllerShopController:indexAction
