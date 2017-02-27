@@ -15,11 +15,13 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Tests\Functional\Repository;
 
+use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
 use Mmoreram\SearchBundle\Model\Model;
 use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Model\Result;
+use Mmoreram\SearchBundle\Query\Filter;
 use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
 use Mmoreram\SearchBundle\Query\SortBy;
@@ -32,16 +34,39 @@ use Mmoreram\SearchBundle\Tests\Functional\SearchBundleFunctionalTest;
 class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
 {
     /**
+     * @var SearchRepository
+     *
+     * Repository
+     */
+    private static $repository;
+
+    /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     *
+     * @throws RuntimeException unable to start the application
+     */
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping();
+        self::$repository = self::get('search_bundle.elastica_repository');
+        $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
+        foreach ($products['products'] as $product) {
+            self::$repository->index('000', Product::createFromArray($product));
+        }
+    }
+
+    /**
      * test Basic Population.
      */
     public function testBasicPopulation()
     {
-        $this->resetIndexAndGetRepository();
-
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType('product')->count());
-        $this->assertEquals(8, $this->get('search_bundle.elastica_wrapper')->getType('category')->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType('manufacturer')->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType('brand')->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(Model::PRODUCT)->count());
+        $this->assertEquals(8, $this->get('search_bundle.elastica_wrapper')->getType(Model::CATEGORY)->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(Model::MANUFACTURER)->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(Model::BRAND)->count());
     }
 
     /**
@@ -49,23 +74,23 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testMatchAll()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
         $result = $repository->search('000', Query::createMatchAll());
         $this->assertEquals(
             count($result->getProducts()),
-            $this->get('search_bundle.elastica_wrapper')->getType('product')->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(Model::PRODUCT)->count()
         );
         $this->assertEquals(
             count($result->getCategories()),
-            $this->get('search_bundle.elastica_wrapper')->getType('category')->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(Model::CATEGORY)->count()
         );
         $this->assertEquals(
             count($result->getManufacturers()),
-            $this->get('search_bundle.elastica_wrapper')->getType('manufacturer')->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(Model::MANUFACTURER)->count()
         );
         $this->assertEquals(
             count($result->getBrands()),
-            $this->get('search_bundle.elastica_wrapper')->getType('brand')->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(Model::BRAND)->count()
         );
     }
 
@@ -74,7 +99,7 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testBasicSearch()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
 
         $result = $repository->search('000', Query::create('adidas'));
         $this->assertNTypeElementId($result, Model::PRODUCT, 0, '1');
@@ -87,28 +112,68 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testFamilyFilter()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByFamilies(['product'])),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['product'])),
             Model::PRODUCT,
-            ['1', '{*2', '*3}']
+            ['?1', '?2', '!3', '!4', '!5']
         );
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('da vinci')->filterByFamilies(['book'])),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book'])),
             Model::PRODUCT,
-            ['3', '{*1', '*2}']
-        );
-
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('da vinci')->filterByFamilies(['book', 'products'])),
-            Model::PRODUCT,
-            ['3', '{*1', '*2}']
+            ['?3', '!1', '!2', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::create('adidas')->filterByFamilies(['nonexistent']))->getProducts()
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book', 'products']))->getProducts()
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['_nonexistent']))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['_nonexistent'])->filterByFamilies([])),
+            Model::PRODUCT,
+            ['?3', '?1', '?2', '?4', '?5']
+        );
+    }
+
+    /**
+     * Test at least one family filter.
+     */
+    public function testAtLeastFamilyFilter()
+    {
+        $repository = self::$repository;
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['product'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?3', '!1', '!2', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book', 'product'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?3', '?1', '?2', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book', 'product', '_nonexistent'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?3', '?1', '?2', '!4', '!5']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByFamilies(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
         );
     }
 
@@ -117,70 +182,182 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testCategoryFilter()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByCategories(['1'])),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['1'])),
             Model::PRODUCT,
-            ['1', '2', '!3']
+            ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::create('adidas')->filterByCategories(['_99']))->getProducts()
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['_4578943']))->getProducts()
         );
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByCategories(['1', '_4578943'])),
-            Model::PRODUCT,
-            ['1', '2', '!3']
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '_4578943']))->getProducts()
         );
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByCategories(['2', '3'])),
-            Model::PRODUCT,
-            ['1', '2', '!3']
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
         );
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByCategories(['3'])),
+        $this->assertEmpty(
+            $repository->search('001', Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['3'])),
             Model::PRODUCT,
-            ['2', '!1', '!3']
+            ['?2', '!1', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '_4578943'])->filterByCategories([])),
+            Model::PRODUCT,
+            ['?2', '?1', '?3', '?4', '?5']
         );
     }
 
     /**
-     * Test filter by manufacturer.
+     * Test at least one category filter.
+     */
+    public function testAtLeastOneCategoryFilter()
+    {
+        $repository = self::$repository;
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['1'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '!3', '!4', '!5']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['_4578943'], Filter::AT_LEAST_ONE))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '_4578943'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByCategories(['2', '3', '800'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '!3', '!4', '?5']
+        );
+    }
+
+    /**
+     * Test manufacturer filter.
      */
     public function testManufacturerFilter()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByManufacturer('1')),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1'])),
             Model::PRODUCT,
-            ['1', '!2', '!3']
+            ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-             $repository->search('000', Query::create('shirt')->filterByManufacturer('_4543543'))->getProducts()
+            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1', '2']))->getProducts()
+        );
+
+        $this->assertEmpty(
+            $repository->search('001', Query::createMatchAll()->filterByManufacturers(['1']))->getProducts()
+        );
+
+        $this->assertEmpty(
+             $repository->search('000', Query::createMatchAll()->filterByManufacturers(['_4543543']))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['_4543543'])->filterByManufacturers([])),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '?5']
         );
     }
 
     /**
-     * Test filter by brand.
+     * Test at least one manufacturer filter.
      */
-    public function testBrandFilter()
+    public function testAtLeastOneManufacturerFilter()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('adidas')->filterByBrand('1')),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1'], Filter::AT_LEAST_ONE)),
             Model::PRODUCT,
-            ['1', '!2', '!3']
+            ['1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1', '2', '3', '444'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '!4', '?5']
         );
 
         $this->assertEmpty(
-             $repository->search('000', Query::create('shirt')->filterByManufacturer('_4543543'))->getProducts()
+             $repository->search('000', Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
+        );
+    }
+
+    /**
+     * Test brand filter.
+     */
+    public function testBrandFilter()
+    {
+        $repository = self::$repository;
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByBrands(['1'])),
+            Model::PRODUCT,
+            ['1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertEmpty(
+            $repository->search('000', Query::createMatchAll()->filterByBrands(['1', '2']))->getProducts()
+        );
+
+        $this->assertEmpty(
+            $repository->search('001', Query::createMatchAll()->filterByBrands(['1']))->getProducts()
+        );
+
+        $this->assertEmpty(
+             $repository->search('000', Query::createMatchAll()->filterByBrands(['_4543543']))->getProducts()
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByBrands(['_4543543'])->filterByBrands([])),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '?5']
+        );
+    }
+
+    /**
+     * Test at least one brand filter.
+     */
+    public function testAtLeastOneBrandFilter()
+    {
+        $repository = self::$repository;
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByBrands(['1'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByBrands(['1', '2', '3', '10'], Filter::AT_LEAST_ONE)),
+            Model::PRODUCT,
+            ['?1', '?2', '?3', '?4', '!5']
+        );
+
+        $this->assertEmpty(
+             $repository->search('000', Query::createMatchAll()->filterByBrands(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
         );
     }
 
@@ -189,24 +366,24 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testPriceRangeFilter()
     {
-        $repository = $this->resetIndexAndGetRepository();
+        $repository = self::$repository;
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('Dan Brown')->filterByPriceRange(1000, 2000)),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByPriceRange(1000, 2000)),
             Model::PRODUCT,
-            ['3', '2', '!1']
+            ['!1', '?2', '?3', '!4', '!5']
         );
 
-        $this->assertResultsRelativePositions(
-            $repository->search('000', Query::create('Dan Brown')->filterByPriceRange(1000, 2000)->filterByFamilies(['book'])),
+        $this->assertResults(
+            $repository->search('000', Query::createMatchAll()->filterByPriceRange(1000, 2000)->filterByFamilies(['book'])),
             Model::PRODUCT,
-            ['3', '!2', '!1']
+            ['!1', '!2', '?3', '!4', '!5']
         );
 
-        $this->assertResultsRelativePositions(
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(900, 1900)),
             Model::PRODUCT,
-            ['#1', '#2', '!3']
+            ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
@@ -221,22 +398,22 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE))->getProducts()
         );
 
-        $this->assertResultsRelativePositions(
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE)),
             Model::PRODUCT,
-            ['#1', '#2', '#3']
+            ['?1', '?2', '?3', '?4', '?5']
         );
 
-        $this->assertResultsRelativePositions(
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(1, PriceRange::INFINITE)),
             Model::PRODUCT,
-            ['#1', '#2', '#3']
+            ['?1', '?2', '?3', '?4', '?5']
         );
 
-        $this->assertResultsRelativePositions(
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE)->removeFilterByPriceRange()),
             Model::PRODUCT,
-            ['#1', '#2', '#3']
+            ['?1', '?2', '?3', '?4', '?5']
         );
     }
 
@@ -245,14 +422,14 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByPriceAsc()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::PRICE_ASC)),
             Model::PRODUCT,
             ['1', '2', '3']
         );
 
-        $this->assertResultsRelativePositions(
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(900, 1900)->sortBy(SortBy::PRICE_ASC)),
             Model::PRODUCT,
             ['1', '2', '!3']
@@ -264,14 +441,14 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByPriceDesc()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::PRICE_DESC)),
             Model::PRODUCT,
             ['3', '2', '1']
         );
 
-        $this->assertResultsRelativePositions(
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->filterByPriceRange(900, 1900)->sortBy(SortBy::PRICE_DESC)),
             Model::PRODUCT,
             ['2', '1', '!3']
@@ -283,8 +460,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByDiscountAsc()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::DISCOUNT_ASC)),
             Model::PRODUCT,
             ['{2', '3}', '5', '1', '4']
@@ -296,8 +473,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByDiscountDesc()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::DISCOUNT_DESC)),
             Model::PRODUCT,
             ['4', '1', '5', '{2', '3}']
@@ -309,8 +486,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByDiscountPercentageAsc()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::DISCOUNT_PERCENTAGE_ASC)),
             Model::PRODUCT,
             ['{2', '3}', '1', '5', '4']
@@ -322,8 +499,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByDiscountPercentageDesc()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::DISCOUNT_PERCENTAGE_DESC)),
             Model::PRODUCT,
             ['4', '5', '1', '{2', '3}']
@@ -335,8 +512,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByManufacturerASC()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_ASC)),
             Model::PRODUCT,
             ['1', '3', '4', '2', '5']
@@ -348,8 +525,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByManufacturerDESC()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_DESC)),
             Model::PRODUCT,
             ['5', '2', '4', '3', '1']
@@ -361,8 +538,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByBrandASC()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::BRAND_ASC)),
             Model::PRODUCT,
             ['1', '3', '4', '2', '5']
@@ -374,8 +551,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      */
     public function testSortByBrandDESC()
     {
-        $repository = $this->resetIndexAndGetRepository();
-        $this->assertResultsRelativePositions(
+        $repository = self::$repository;
+        $this->assertResults(
             $repository->search('000', Query::createMatchAll()->sortBy(SortBy::BRAND_DESC)),
             Model::PRODUCT,
             ['5', '2', '4', '3', '1']
@@ -383,32 +560,15 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     }
 
     /**
-     * Reset index.
-     *
-     * @return SearchRepository
-     */
-    private function resetIndexAndGetRepository()
-    {
-        $this->get('search_bundle.elastica_wrapper')->createIndexMapping();
-        $repository = $this->get('search_bundle.elastica_repository');
-        $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
-        foreach ($products['products'] as $product) {
-            $repository->index('000', Product::createFromArray($product));
-        }
-
-        return $repository;
-    }
-
-    /**
      * Assert IDS sequence.
      *
-     * ["1", "2", "#3", "*4" "!999"]
+     * ["1", "2", "?3", "*4" "!999"]
      *
      * Positions are relative, and will be checked, so at this case we
      * are asserting that 1 and 2 exists, and 1 is scored higher than 2. We
      * assert as well that 999 is not a result
      *
-     * An id with a # before means that should only check that the element
+     * An id with a ? before means that should only check that the element
      * exists, but the relativity is not checked
      *
      * An id with a * before means that should only check relativity and not
@@ -430,7 +590,7 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
      * @param string   $type
      * @param string[] $ids
      */
-    private function assertResultsRelativePositions(
+    private function assertResults(
         Result $result,
         string $type,
         array $ids
@@ -441,8 +601,8 @@ class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
             $idWithoutGrouping = trim($id, '{}');
             $mustCheckExistence = strpos($idWithoutGrouping, '*') !== 0;
             $mustExist = strpos($idWithoutGrouping, '!') !== 0;
-            $mustCheckRelativity = (strpos($idWithoutGrouping, '#') !== 0) && $mustExist;
-            $cleanId = trim($idWithoutGrouping, '#*!');
+            $mustCheckRelativity = (strpos($idWithoutGrouping, '?') !== 0) && $mustExist;
+            $cleanId = trim($idWithoutGrouping, '?*!');
 
             if ($mustCheckExistence) {
                 $this->assertEquals(

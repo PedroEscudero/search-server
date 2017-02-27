@@ -26,6 +26,7 @@ use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Model;
 use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Model\Result;
+use Mmoreram\SearchBundle\Query\Filter;
 use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
 use Mmoreram\SearchBundle\Query\SortBy;
@@ -96,16 +97,7 @@ class ElasticaSearchRepository implements SearchRepository
                 : new ElasticaQuery\Match('_all', $query->getQueryText())
         );
 
-        $this->addTermsFilter($boolQuery, 'family', $query->getFamilies());
-        $this->addNestedTermsFilter($boolQuery, 'category', 'id', $query->getCategories());
-        $this->addTermsFilter($boolQuery, 'manufacturer.id', $query->getManufacturer());
-        $this->addTermsFilter($boolQuery, 'brand.id', $query->getBrand());
-
-        if (!empty($query->getTypes())) {
-            $boolQuery->addFilter(
-                new ElasticaQuery\Terms('type', $query->getTypes())
-            );
-        }
+        $this->addFilters($boolQuery, $query->getFilters());
 
         if (!is_null($query->getPriceRange())) {
             $priceRange = $query->getPriceRange();
@@ -180,6 +172,11 @@ class ElasticaSearchRepository implements SearchRepository
             $productDocument
         );
 
+        $this->indexTags(
+            $product->getTags(),
+            $productDocument
+        );
+
         $manufacturer = $product->getManufacturer();
         if ($manufacturer instanceof Manufacturer) {
             $this->indexManufacturer(
@@ -219,7 +216,7 @@ class ElasticaSearchRepository implements SearchRepository
         array $categories,
         array &$rootDoc
     ) {
-        $rootDoc['category'] = [];
+        $rootDoc['categories'] = [];
         foreach ($categories as $category) {
             $this->indexCategory(
                 $user,
@@ -256,11 +253,28 @@ class ElasticaSearchRepository implements SearchRepository
             ->getType(Model::CATEGORY)
             ->updateDocument($document);
 
-        $rootDoc['category'][] = [
+        $rootDoc['categories'][] = [
             'id' => $category->getId(),
             'name' => $category->getName(),
-            'sortable_name' => $category->getName(),
         ];
+    }
+
+    /**
+     * Index Tags and complete root Doc.
+     *
+     * @param string[] $tags
+     * @param array    $rootDoc
+     */
+    private function indexTags(
+        array $tags,
+        array &$rootDoc
+    ) {
+        $rootDoc['tags'] = [];
+        foreach ($tags as $tag) {
+            $rootDoc['tags'][] = [
+                'name' => $tag,
+            ];
+        }
     }
 
     /**
@@ -293,7 +307,6 @@ class ElasticaSearchRepository implements SearchRepository
         $rootDoc['manufacturer'] = [
             'id' => $manufacturer->getId(),
             'name' => $manufacturer->getName(),
-            'sortable_name' => $manufacturer->getName(),
         ];
     }
 
@@ -327,7 +340,6 @@ class ElasticaSearchRepository implements SearchRepository
         $rootDoc['brand'] = [
             'id' => $brand->getId(),
             'name' => $brand->getName(),
-            'sortable_name' => $brand->getName(),
         ];
     }
 
@@ -349,22 +361,22 @@ class ElasticaSearchRepository implements SearchRepository
             $source = $elasticaResult->getSource();
             $source['id'] = str_replace("$user~~", '', $elasticaResult->getId());
             switch ($elasticaResult->getType()) {
-                case 'product':
+                case Model::PRODUCT:
                     $result->addProduct(
                         Product::createFromArray($source)
                     );
                     break;
-                case 'category':
+                case Model::CATEGORY:
                     $result->addCategory(
                         Category::createFromArray($source)
                     );
                     break;
-                case 'manufacturer':
+                case Model::MANUFACTURER:
                     $result->addManufacturer(
                         Manufacturer::createFromArray($source)
                     );
                     break;
-                case 'brand':
+                case Model::BRAND:
                     $result->addBrand(
                         Brand::createFromArray($source)
                     );
@@ -376,71 +388,139 @@ class ElasticaSearchRepository implements SearchRepository
     }
 
     /**
+     * Add filters to a Query.
+     *
+     * @param ElasticaQuery\BoolQuery $boolQuery
+     * @param Filter[]                $filters
+     */
+    private function addFilters(
+        ElasticaQuery\BoolQuery $boolQuery,
+        array $filters
+    ) {
+        foreach ($filters as $filter) {
+            if (empty($filter->getValues())) {
+                continue;
+            }
+
+            $this->addFilter(
+                $boolQuery,
+                $filter
+            );
+        }
+    }
+
+    /**
+     * Add filters to a Query.
+     *
+     * @param ElasticaQuery\BoolQuery $boolQuery
+     * @param Filter                  $filter
+     */
+    private function addFilter(
+        ElasticaQuery\BoolQuery $boolQuery,
+        Filter $filter
+    ) {
+        $filter->isNested()
+            ? $this->addNestedTermsFilter(
+                $boolQuery,
+                $filter
+            )
+            : $this->addTermsFilter(
+                $boolQuery,
+                $filter
+            );
+    }
+
+    /**
      * Filters by terms only if the field exists and the terms what to look for
      * are not just an empty array.
      *
      * @param ElasticaQuery\BoolQuery $boolQuery,
-     * @param string                  $fieldName
-     * @param null|string|array       $elements
+     * @param Filter                  $filter
      */
     private function addTermsFilter(
         ElasticaQuery\BoolQuery $boolQuery,
-        string $fieldName,
-        $elements
+        Filter $filter
     ) {
-        if (!empty($elements)) {
-            $boolQuery->addFilter(
-                $this->createTermsFilterDependingOnElement(
-                    "$fieldName",
-                    $elements
-                )
-            );
-        }
+        $boolQuery->addFilter(
+            $this->createQueryFilter($filter)
+        );
     }
 
     /**
      * Adds terms filter given a BoolQuery.
      *
      * @param ElasticaQuery\BoolQuery $boolQuery,
-     * @param string                  $path
-     * @param string                  $fieldName
-     * @param null|string|array       $elements
+     * @param Filter                  $filter
      */
     private function addNestedTermsFilter(
         ElasticaQuery\BoolQuery $boolQuery,
-        string $path,
-        string $fieldName,
-        $elements
+        Filter $filter
     ) {
-        if (!empty($elements)) {
-            $nestedQuery = new ElasticaQuery\Nested();
-            $nestedQuery->setPath($path);
-            $nestedQuery->setScoreMode('max');
-            $nestedQuery->setQuery(
-                $this->createTermsFilterDependingOnElement(
-                    "$path.$fieldName",
-                    $elements
-                )
-            );
-            $boolQuery->addFilter($nestedQuery);
-        }
+        list($path, $fieldName) = explode('.', $filter->getField(), 2);
+
+        $nestedQuery = new ElasticaQuery\Nested();
+        $nestedQuery->setPath($path);
+        $nestedQuery->setScoreMode('max');
+        $nestedQuery->setQuery(
+            $this->createQueryFilter($filter)
+        );
+        $boolQuery->addFilter($nestedQuery);
     }
 
     /**
      * Creates Term/Terms query depending on the elements value.
      *
-     * @param string            $fieldName
-     * @param null|string|array $elements
+     * @param Filter $filter
      *
      * @return ElasticaQuery\AbstractQuery
      */
-    private function createTermsFilterDependingOnElement(
-        string $fieldName,
-        $elements
-    ) : ElasticaQuery\AbstractQuery {
-        return is_array($elements)
-            ? new ElasticaQuery\Terms($fieldName, $elements)
-            : new ElasticaQuery\Term([$fieldName => (string) $elements]);
+    private function createQueryFilter(Filter $filter) : ElasticaQuery\AbstractQuery
+    {
+        return $filter->getType() === Filter::MUST_ALL
+            ? $this->createQueryFilterMustAll($filter)
+            : $this->createQueryFilterAtLeastOne($filter);
+    }
+
+    /**
+     * Creates a filter where all elements must match.
+     *
+     * @param Filter $filter
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createQueryFilterMustAll(Filter $filter) : ElasticaQuery\AbstractQuery
+    {
+        $queryFilter = new ElasticaQuery\BoolQuery();
+        foreach ($filter->getValues() as $value) {
+            $queryFilter->addMust(
+                new ElasticaQuery\Term([
+                    $filter->getField() => (string) $value,
+                ])
+            );
+        }
+
+        return $queryFilter;
+    }
+
+    /**
+     * Creates a filter where, at least, one element should match.
+     *
+     * @param Filter $filter
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createQueryFilterAtLeastOne(Filter $filter) : ElasticaQuery\AbstractQuery
+    {
+        $queryFilter = new ElasticaQuery\BoolQuery();
+        foreach ($filter->getValues() as $value) {
+            $queryFilter->addShould(
+                new ElasticaQuery\Term([
+                    $filter->getField() => (string) $value,
+                ])
+            );
+        }
+
+        return $queryFilter;
     }
 
     /**

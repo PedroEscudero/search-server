@@ -100,6 +100,13 @@ class Product
     private $categories;
 
     /**
+     * @var string[]
+     *
+     * Tags
+     */
+    private $tags;
+
+    /**
      * @var string
      *
      * Image
@@ -168,10 +175,11 @@ class Product
         $this->manufacturer = $manufacturer;
         $this->brand = $brand;
         $this->categories = [];
+        $this->tags = [];
         $this->image = ($image ?? '');
         $this->updatedAt = ($updatedAt ?? new DateTime());
 
-        $this->firstLevelSearchableData = "$name {$manufacturer->getName()} {$brand->getId()}";
+        $this->firstLevelSearchableData = "$name {$manufacturer->getName()} {$brand->getName()}";
         $this->secondLevelSearchableData = "$description $longDescription";
     }
 
@@ -316,7 +324,7 @@ class Product
     public function addCategory(Category $category)
     {
         $this->categories[] = $category;
-        $this->firstLevelSearchableData .= ' ' . $category->getName();
+        $this->firstLevelSearchableData .= " {$category->getName()}";
     }
 
     /**
@@ -327,6 +335,27 @@ class Product
     public function getCategories() : array
     {
         return $this->categories;
+    }
+
+    /**
+     * Add tag.
+     *
+     * @param string $tag
+     */
+    public function addTag(string $tag)
+    {
+        $this->tags[] = $tag;
+        $this->firstLevelSearchableData .= " $tag";
+    }
+
+    /**
+     * Get tags.
+     *
+     * @return array
+     */
+    public function getTags() : array
+    {
+        return $this->tags;
     }
 
     /**
@@ -394,13 +423,22 @@ class Product
         );
 
         if (
-            isset($array['category']) &&
-            is_array($array['category'])
+            isset($array['categories']) &&
+            is_array($array['categories'])
         ) {
-            foreach ($array['category'] as $category) {
+            foreach ($array['categories'] as $category) {
                 $product->addCategory(
                     Category::createFromArray($category)
                 );
+            }
+        }
+
+        if (
+            isset($array['tags']) &&
+            is_array($array['tags'])
+        ) {
+            foreach ($array['tags'] as $tag) {
+                $product->addTag($tag['name']);
             }
         }
 

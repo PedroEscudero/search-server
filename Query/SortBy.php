@@ -88,28 +88,28 @@ class SortBy
      *
      * Sort by manufacturer ASC
      */
-    const MANUFACTURER_ASC = ['manufacturer.sortable_name' => 'asc'];
+    const MANUFACTURER_ASC = ['manufacturer.name' => 'asc'];
 
     /**
      * @var string
      *
      * Sort by manufacturer DESC
      */
-    const MANUFACTURER_DESC = ['manufacturer.sortable_name' => 'desc'];
+    const MANUFACTURER_DESC = ['manufacturer.name' => 'desc'];
 
     /**
      * @var string
      *
      * Sort by manufacturer ASC
      */
-    const BRAND_ASC = ['brand.sortable_name' => 'asc'];
+    const BRAND_ASC = ['brand.name' => 'asc'];
 
     /**
      * @var string
      *
      * Sort by manufacturer DESC
      */
-    const BRAND_DESC = ['brand.sortable_name' => 'desc'];
+    const BRAND_DESC = ['brand.name' => 'desc'];
 
     /**
      * @var array|string

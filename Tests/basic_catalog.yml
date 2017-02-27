@@ -8,19 +8,27 @@ products:
         long_description: Get dressed like the most spectacular guys in the world with this new green t-shirt Adidas
         price: 1000
         reduced_price: 950
+        # real_price: 950
+        # discount: 50
+        # discount_percentage: 5%
         manufacturer:
             id: 1
             name: Adidas
         brand:
             id: 1
             name: Adidas
-        category:
+        categories:
             t_shirt:
                 id: 1
                 name: T-shirt
             man_wear:
                 id: 2
                 name: Man wear
+        tags:
+            new:
+                name: new
+            shirt:
+                name: shirt
 
     prod_2:
         id: 2
@@ -30,19 +38,25 @@ products:
         description: Cool blue t-shirt
         long_description: It's awesome how you will rock with this super new blue t-shirt
         price: 1500
+        # real_price: 1500
+        # discount: 0
+        # discount_percentage: 0%
         manufacturer:
             id: 2
             name: Nike
         brand:
             id: 2
             name: Nike
-        category:
+        categories:
             t_shirt:
                 id: 1
                 name: T-shirt
             woman_wear:
                 id: 3
                 name: Woman wear
+        tags:
+            new:
+                name: new
 
     book_1:
         id: 3
@@ -52,19 +66,27 @@ products:
         description: This is the awesome Da Vinci Code by Dan Brown
         price: 2000
         reduced_price: 2010
+        # real_price: 2000
+        # discount: 0
+        # discount_percentage: 0%
         manufacturer:
             id: 3
             name: Factories El Percebe
         brand:
             id: 3
             name: Books Santillana
-        category:
+        categories:
             adventures_book:
                 id: 50
                 name: Adventures
             italian_book:
                 id: 66
                 name: Italian Book
+        tags:
+            last_our:
+                name: last our
+            kids:
+                name: kids
 
     bike_1:
         id: 4
@@ -74,19 +96,25 @@ products:
         description: Cross the mountain while flying on top of two wheels
         price: 1500
         reduced_price: 700
+        # real_price: 700
+        # discount: 800
+        # discount_percentage: 53%
         manufacturer:
             id: 15
             name: Kenda
         brand:
             id: 10
             name: Decathlon
-        category:
+        categories:
             bike:
                 id: 777
                 name: Bikes
             mountain_bike:
                 id: 778
                 name: Mountain Bike
+        tags:
+            kids:
+                name: kids
 
     gum_1:
         id: 5
@@ -96,13 +124,19 @@ products:
         description: Super Boomer super lolazo
         price: 10
         reduced_price: 7
+        # real_price: 7
+        # discount: 3
+        # discount_percentage: 30%
         manufacturer:
             id: 444
             name: Superboomer
         brand:
             id: 444
             name: Superboomer
-        category:
+        categories:
             gum:
                 id: 800
                 name: Gum
+        tags:
+            sugar:
+                name: sugar

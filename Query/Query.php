@@ -35,39 +35,11 @@ class Query
     private $queryText;
 
     /**
-     * @var string[]
+     * @var Filter[]
      *
-     * Categories
+     * Filters
      */
-    private $categories = [];
-
-    /**
-     * @var string[]
-     *
-     * Families
-     */
-    private $families = [];
-
-    /**
-     * @var string[]
-     *
-     * Types
-     */
-    private $types = [];
-
-    /**
-     * @var string
-     *
-     * Manufacturer
-     */
-    private $manufacturer;
-
-    /**
-     * @var string
-     *
-     * Brand
-     */
-    private $brand;
+    private $filters = [];
 
     /**
      * @var PriceRange
@@ -145,13 +117,21 @@ class Query
     /**
      * Filter by families.
      *
-     * @param null|array $families
+     * @param array  $families
+     * @param string $filterType
      *
      * @return self
      */
-    public function filterByFamilies( ? array $families) : self
-    {
-        $this->families = $families ?? [];
+    public function filterByFamilies(
+        array $families,
+        string $filterType = Filter::MUST_ALL
+    ) : self {
+        $this->filters['families'] = Filter::create(
+            'family',
+            $families,
+            $filterType,
+            false
+        );
 
         return $this;
     }
@@ -159,13 +139,21 @@ class Query
     /**
      * Filter by types.
      *
-     * @param null|array $types
+     * @param array  $types
+     * @param string $filterType
      *
      * @return self
      */
-    public function filterByTypes( ? array $types) : self
-    {
-        $this->types = $types ?? [];
+    public function filterByTypes(
+        array $types,
+        string $filterType = Filter::MUST_ALL
+    ) : self {
+        $this->filters['types'] = Filter::create(
+            'type',
+            $types,
+            $filterType,
+            false
+        );
 
         return $this;
     }
@@ -173,13 +161,21 @@ class Query
     /**
      * Filter by categories.
      *
-     * @param null|array $categories
+     * @param array  $categories
+     * @param string $filterType
      *
      * @return self
      */
-    public function filterByCategories( ? array $categories) : self
-    {
-        $this->categories = $categories ?? [];
+    public function filterByCategories(
+        array $categories,
+        string $filterType = Filter::MUST_ALL
+    ) : self {
+        $this->filters['categories'] = Filter::create(
+            'categories.id',
+            $categories,
+            $filterType,
+            true
+        );
 
         return $this;
     }
@@ -187,13 +183,21 @@ class Query
     /**
      * Filter by manufacturer.
      *
-     * @param null|string $manufacturer
+     * @param array  $manufacturers
+     * @param string $filterType
      *
      * @return self
      */
-    public function filterByManufacturer( ? string $manufacturer) : self
-    {
-        $this->manufacturer = $manufacturer;
+    public function filterByManufacturers(
+        array $manufacturers,
+        string $filterType = Filter::MUST_ALL
+    ) : self {
+        $this->filters['manufacturers'] = Filter::create(
+            'manufacturer.id',
+            $manufacturers,
+            $filterType,
+            false
+        );
 
         return $this;
     }
@@ -201,13 +205,43 @@ class Query
     /**
      * Filter by brand.
      *
-     * @param null|string $brand
+     * @param array  $brands
+     * @param string $filterType
      *
      * @return self
      */
-    public function filterByBrand( ? string $brand) : self
-    {
-        $this->brand = $brand;
+    public function filterByBrands(
+        array $brands,
+        string $filterType = Filter::MUST_ALL
+    ) : self {
+        $this->filters['brands'] = Filter::create(
+            'brand.id',
+            $brands,
+            $filterType,
+            false
+        );
+
+        return $this;
+    }
+
+    /**
+     * Filter by tag.
+     *
+     * @param array  $tags
+     * @param string $filterType
+     *
+     * @return self
+     */
+    public function filterByTags(
+        array $tags,
+        string $filterType = Filter::MUST_ALL
+    ) : self {
+        $this->filters['tags'] = Filter::create(
+            'tag.name',
+            $tags,
+            $filterType,
+            false
+        );
 
         return $this;
     }
@@ -281,53 +315,13 @@ class Query
     }
 
     /**
-     * Get categories.
+     * Get filters.
      *
-     * @return string[]
+     * @return Filter[]
      */
-    public function getCategories() : array
+    public function getFilters() : array
     {
-        return $this->categories;
-    }
-
-    /**
-     * Get families.
-     *
-     * @return string[]
-     */
-    public function getFamilies(): array
-    {
-        return $this->families;
-    }
-
-    /**
-     * Get types.
-     *
-     * @return string[]
-     */
-    public function getTypes(): array
-    {
-        return $this->types;
-    }
-
-    /**
-     * Get manufacturer.
-     *
-     * @return null|string
-     */
-    public function getManufacturer(): ? string
-    {
-        return $this->manufacturer;
-    }
-
-    /**
-     * Get brand.
-     *
-     * @return null|string
-     */
-    public function getBrand() : ? string
-    {
-        return $this->brand;
+        return $this->filters;
     }
 
     /**

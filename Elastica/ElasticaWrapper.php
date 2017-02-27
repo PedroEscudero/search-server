@@ -126,13 +126,16 @@ class ElasticaWrapper
         int $from,
         int $size
     ) {
-        return $this
+        $query = $this
             ->getSearchIndex()
             ->search($query, [
                 'from' => $from,
                 'size' => $size,
-            ])
-            ->getResults();
+            ]);
+
+        //print_r($query->getQuery()->toArray());
+
+        return $query->getResults();
     }
 
     /**
@@ -187,10 +190,6 @@ class ElasticaWrapper
                 'include_in_all' => false,
                 'properties' => [
                     'name' => [
-                        'type' => 'text',
-                        'boost' => 20,
-                    ],
-                    'sortable_name' => [
                         'type' => 'keyword',
                     ],
                     'id' => [
@@ -204,10 +203,6 @@ class ElasticaWrapper
                 'include_in_all' => false,
                 'properties' => [
                     'name' => [
-                        'type' => 'text',
-                        'boost' => 20,
-                    ],
-                    'sortable_name' => [
                         'type' => 'keyword',
                     ],
                     'id' => [
@@ -215,19 +210,25 @@ class ElasticaWrapper
                     ],
                 ],
             ],
-            'category' => [
+            'categories' => [
                 'type' => 'nested',
                 'dynamic' => 'strict',
                 'include_in_all' => false,
                 'properties' => [
                     'name' => [
-                        'type' => 'text',
-                        'boost' => 20,
-                    ],
-                    'sortable_name' => [
                         'type' => 'keyword',
                     ],
                     'id' => [
+                        'type' => 'keyword',
+                    ],
+                ],
+            ],
+            'tags' => [
+                'type' => 'nested',
+                'dynamic' => 'strict',
+                'include_in_all' => false,
+                'properties' => [
+                    'name' => [
                         'type' => 'keyword',
                     ],
                 ],
