@@ -28,13 +28,6 @@ class Query
     const MATCH_ALL = '*';
 
     /**
-     * @var string
-     *
-     * Query text
-     */
-    private $queryText;
-
-    /**
      * @var Filter[]
      *
      * Filters
@@ -56,7 +49,7 @@ class Query
     private $sorts = [];
 
     /**
-     * @var string[]
+     * @var Aggregation[]
      *
      * Aggregations
      */
@@ -83,7 +76,12 @@ class Query
      */
     private function __construct(string $queryText)
     {
-        $this->queryText = $queryText;
+        $this->filters['_query'] = Filter::create(
+            $queryText,
+            ['_'],
+            self::MATCH_ALL,
+            Filter::TYPE_QUERY
+        );
     }
 
     /**
@@ -100,6 +98,10 @@ class Query
         int $from = 0,
         int $size = 10
     ) : self {
+        $queryText = empty($queryText)
+            ? self::MATCH_ALL
+            : $queryText;
+
         $query = new self($queryText);
         $query->from = $from;
         $query->size = $size;
@@ -184,6 +186,21 @@ class Query
             Filter::TYPE_NESTED
         );
 
+        $this->addCategoriesAggregation($filterType);
+
+        return $this;
+    }
+
+    /**
+     * Remove categories filter.
+     *
+     * @return self
+     */
+    public function removeCategoriesFilter() : self
+    {
+        unset($this->filters['categories']);
+        $this->removeCategoriesAggregation();
+
         return $this;
     }
 
@@ -205,6 +222,21 @@ class Query
             $filterType,
             Filter::TYPE_FIELD
         );
+
+        $this->addManufacturerAggregation($filterType);
+
+        return $this;
+    }
+
+    /**
+     * Remove manufacturers filter.
+     *
+     * @return self
+     */
+    public function removeManufacturersFilter() : self
+    {
+        unset($this->filters['manufacturer']);
+        $this->removeManufacturerAggregation();
 
         return $this;
     }
@@ -228,6 +260,21 @@ class Query
             Filter::TYPE_FIELD
         );
 
+        $this->addBrandAggregation($filterType);
+
+        return $this;
+    }
+
+    /**
+     * Remove brands filter.
+     *
+     * @return self
+     */
+    public function removeBrandsFilter() : self
+    {
+        unset($this->filters['brand']);
+        $this->removeBrandAggregation();
+
         return $this;
     }
 
@@ -249,30 +296,13 @@ class Query
             'tags.name',
             $tags,
             $filterType,
-            Filter::TYPE_NESTED
+            Filter::TYPE_NESTED,
+            [
+                'tags.group' => $groupName,
+            ]
         );
 
-        return $this;
-    }
-
-    /**
-     * Filter by tag.
-     *
-     * @param string $tag
-     * @param string $filterType
-     *
-     * @return self
-     */
-    public function filterByTag(
-        string $tag,
-        string $filterType = Filter::MUST_ALL
-    ) : self {
-        $this->tagFilters["tags.$tag"] = Filter::create(
-            'tags.name',
-            [$tag],
-            $filterType,
-            Filter::TYPE_NESTED
-        );
+        $this->addTagsAggregation($groupName, $filterType);
 
         return $this;
     }
@@ -280,25 +310,14 @@ class Query
     /**
      * Remove all tag filters.
      *
-     * @return self
-     */
-    public function removeAllTagFilters()
-    {
-        $this->tagFilters = [];
-
-        return $this;
-    }
-
-    /**
-     * Remove tag  by the tag name or the tag group name.
-     *
-     * @param string $tag
+     * @param string $groupName
      *
      * @return self
      */
-    public function removeTagFilter(string $tag) : self
+    public function removeAllTagFilters(string $groupName)
     {
-        unset($this->tagFilters["tags.$tag"]);
+        unset($this->tagFilters["tags.$groupName"]);
+        $this->removeTagsAggregation($groupName);
 
         return $this;
     }
@@ -347,7 +366,7 @@ class Query
      *
      * @return self
      */
-    public function sortBy($string)
+    public function sortBy($string) : self
     {
         $this->sorts[] = $string;
 
@@ -369,13 +388,16 @@ class Query
     /**
      * Add Manufacturer aggregation.
      *
+     * @param string $type
+     *
      * @return self
      */
-    public function addManufacturerAggregation()
+    private function addManufacturerAggregation(string $type = Filter::MUST_ALL) : self
     {
         $this->aggregations['manufacturer'] = Aggregation::create(
             'manufacturer',
-            'manufacturer.name',
+            'manufacturer.id|manufacturer.name',
+            $type,
             false
         );
 
@@ -387,7 +409,7 @@ class Query
      *
      * @return self
      */
-    public function removeManufacturerAggregation()
+    private function removeManufacturerAggregation() : self
     {
         unset($this->aggregations['manufacturer']);
 
@@ -397,13 +419,16 @@ class Query
     /**
      * Add Brand aggregation.
      *
+     * @param string $type
+     *
      * @return self
      */
-    public function addBrandAggregation()
+    private function addBrandAggregation(string $type = Filter::MUST_ALL) : self
     {
         $this->aggregations['brand'] = Aggregation::create(
             'brand',
-            'brand.name',
+            'brand.id|brand.name',
+            $type,
             false
         );
 
@@ -415,7 +440,7 @@ class Query
      *
      * @return self
      */
-    public function removeBrandAggregation()
+    private function removeBrandAggregation() : self
     {
         unset($this->aggregations['brand']);
 
@@ -425,13 +450,16 @@ class Query
     /**
      * Add categories aggregation.
      *
+     * @param string $type
+     *
      * @return self
      */
-    public function addCategoriesAggregation()
+    private function addCategoriesAggregation(string $type = Filter::MUST_ALL) : self
     {
         $this->aggregations['categories'] = Aggregation::create(
             'categories',
-            'categories.name',
+            'categories.id|categories.name|categories.level',
+            $type,
             true
         );
 
@@ -443,7 +471,7 @@ class Query
      *
      * @return self
      */
-    public function removeCategoriesAggregation()
+    private function removeCategoriesAggregation()
     {
         unset($this->aggregations['categories']);
 
@@ -451,27 +479,37 @@ class Query
     }
 
     /**
-     * Aggregate by.
+     * Add tags aggregation.
      *
-     * @param string $aggregation
+     * @param string $groupName
+     * @param string $type
      *
      * @return self
      */
-    public function aggregateBy(string $aggregation)
-    {
-        $this->aggregations[] = $aggregation;
+    private function addTagsAggregation(
+        string $groupName,
+        string $type = Filter::MUST_ALL
+    ) : self {
+        $this->aggregations["tags.$groupName"] = Aggregation::create(
+            "tags.$groupName",
+            'tags.name',
+            $type,
+            true
+        );
 
         return $this;
     }
 
     /**
-     * Remove aggregations.
+     * Remove tags aggregation.
+     *
+     * @param string $groupName
      *
      * @return self
      */
-    public function removeAggregations()
+    private function removeTagsAggregation(string $groupName)
     {
-        $this->aggregations = [];
+        unset($this->aggregations["tags.$groupName"]);
 
         return $this;
     }
@@ -479,11 +517,23 @@ class Query
     /**
      * Get aggregations.
      *
-     * @return string[]
+     * @return Aggregation[]
      */
     public function getAggregations()
     {
         return $this->aggregations;
+    }
+
+    /**
+     * Get aggregation.
+     *
+     * @param string $aggregationName
+     *
+     * @return Aggregation
+     */
+    public function getAggregation(string $aggregationName) : ? Aggregation
+    {
+        return $this->aggregations[$aggregationName] ?? null;
     }
 
     /**
@@ -493,7 +543,9 @@ class Query
      */
     public function getQueryText() : string
     {
-        return $this->queryText;
+        return $this
+            ->getFilter('_query')
+            ->getField();
     }
 
     /**
@@ -507,6 +559,18 @@ class Query
             $this->filters,
             $this->tagFilters
         );
+    }
+
+    /**
+     * Get filter.
+     *
+     * @param string $filterName
+     *
+     * @return null|Filter
+     */
+    public function getFilter(string $filterName) : ? Filter
+    {
+        return $this->getFilters()[$filterName] ?? null;
     }
 
     /**

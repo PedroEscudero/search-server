@@ -25,6 +25,13 @@ class Product
     /**
      * @var string
      *
+     * Name
+     */
+    const TYPE = 'product';
+
+    /**
+     * @var string
+     *
      * Id
      */
     private $id;

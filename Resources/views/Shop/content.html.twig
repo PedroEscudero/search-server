@@ -1,0 +1,42 @@
+{% set request_query = app.request.query.all %}
+
+<div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+        {% for aggregationName,aggregation in result.aggregations %}
+            <h4>{{ aggregationName }}</h4>
+            <ul class="nav nav-sidebar">
+                {% for name,counter in aggregation  %}
+                    <li>
+                        {% set url = counter.used
+                            ? search_query|remove_filter_value(aggregationName, counter.id)
+                            : search_query|add_filter_value(aggregationName, counter.id)
+                        %}
+
+                        <a href="{{ url("shop", url) }}">
+                            {% if aggregation.isFilter == false %}
+                                <input type="checkbox"{% if counter.used %} checked{% endif %}/>
+                            {% endif %}
+                            {{ counter.name }} ({{ counter.n }})
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="row">
+            {% for brand in result.brands %}
+                {% include "SearchBundle:Shop:brand.html.twig" with {
+                    'brand': brand
+                } %}
+            {% endfor %}
+        </div>
+        <div class="row">
+            {% for product in result.products %}
+                {% include "SearchBundle:Shop:product.html.twig" with {
+                    'product': product
+                } %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

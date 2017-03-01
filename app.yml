@@ -14,6 +14,9 @@ config:
         - { resource: "@BaseBundle/Resources/config/providers.yml" }
     framework:
         form: false
+        templating:
+            engines: ["twig"]
+        assets: false
     doctrine:
         dbal:
             connections:

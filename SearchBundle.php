@@ -17,10 +17,13 @@ namespace Mmoreram\SearchBundle;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\SimpleBaseBundle;
+use Mmoreram\SearchBundle\Command\GenerateProductsCommand;
 
 /**
  * Class SearchBundle.
@@ -37,6 +40,8 @@ class SearchBundle extends SimpleBaseBundle
         return [
             'repositories',
             'elastica',
+            'query',
+            'twig',
         ];
     }
 
@@ -49,10 +54,28 @@ class SearchBundle extends SimpleBaseBundle
      */
     public static function getBundleDependencies(KernelInterface $kernel) : array
     {
-        return [
+        $dependencies = [
             DoctrineBundle::class,
             FrameworkBundle::class,
             BaseBundle::class,
+        ];
+
+        if ($kernel->isDebug()) {
+            $dependencies[] = TwigBundle::class;
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Get command instance array.
+     *
+     * @return Command[]
+     */
+    public function getCommands() : array
+    {
+        return [
+            new GenerateProductsCommand(),
         ];
     }
 }

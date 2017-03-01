@@ -89,9 +89,9 @@ abstract class IdNameWrapper
      *
      * @param array $array
      *
-     * @return static|self
+     * @return static
      */
-    public static function createFromArray(array $array) : ? self
+    public static function createFromArray(array $array)
     {
         if (
             !isset($array['id']) ||

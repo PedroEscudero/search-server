@@ -30,6 +30,13 @@ class Aggregation
     /**
      * @var string
      *
+     * Type
+     */
+    private $type;
+
+    /**
+     * @var string
+     *
      * Field
      */
     private $field;
@@ -46,15 +53,18 @@ class Aggregation
      *
      * @param string $name
      * @param string $field
+     * @param string $type
      * @param bool   $nested
      */
     public function __construct(
         string $name,
         string $field,
+        string $type,
         bool $nested
     ) {
         $this->name = $name;
         $this->field = $field;
+        $this->type = $type;
         $this->nested = $nested;
     }
 
@@ -79,6 +89,16 @@ class Aggregation
     }
 
     /**
+     * Get type.
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
      * Is nested.
      *
      * @return bool
@@ -93,6 +113,7 @@ class Aggregation
      *
      * @param string $name
      * @param string $field
+     * @param string $type
      * @param bool   $nested
      *
      * @return self
@@ -100,11 +121,13 @@ class Aggregation
     public static function create(
         string $name,
         string $field,
+        string $type,
         bool $nested
     ) : self {
         return new self(
             $name,
             $field,
+            $type,
             $nested
         );
     }

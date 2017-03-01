@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace Mmoreram\SearchBundle\Repository;
 
 use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Model\Result;
 use Mmoreram\SearchBundle\Query\Query;
+use Mmoreram\SearchBundle\Result\Result;
 
 /**
  * Search repository.

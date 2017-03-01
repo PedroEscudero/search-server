@@ -16,35 +16,14 @@ declare(strict_types=1);
 namespace Mmoreram\SearchBundle\Model;
 
 /**
- * Class Model.
+ * Interface WithLevel.
  */
-class Model
+interface WithLevel
 {
     /**
-     * @var string
+     * Get level.
      *
-     * Product
+     * @return int
      */
-    const PRODUCT = 'product';
-
-    /**
-     * @var string
-     *
-     * Category
-     */
-    const CATEGORY = 'category';
-
-    /**
-     * @var string
-     *
-     * Manufacturer
-     */
-    const MANUFACTURER = 'manufacturer';
-
-    /**
-     * @var string
-     *
-     * Brand
-     */
-    const BRAND = 'brand';
+    public function getLevel(): int;
 }

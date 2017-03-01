@@ -21,9 +21,11 @@ products:
             t_shirt:
                 id: 1
                 name: T-shirt
+                level: 1
             man_wear:
                 id: 2
                 name: Man wear
+                level: 2
         tags:
             new:
                 name: new
@@ -51,9 +53,11 @@ products:
             t_shirt:
                 id: 1
                 name: T-shirt
+                level: 1
             woman_wear:
                 id: 3
                 name: Woman wear
+                level: 2
         tags:
             new:
                 name: new
@@ -79,9 +83,11 @@ products:
             adventures_book:
                 id: 50
                 name: Adventures
+                level: 1
             italian_book:
                 id: 66
                 name: Italian Book
+                level: 2
         tags:
             last_hour:
                 name: last_hour
@@ -109,9 +115,11 @@ products:
             bike:
                 id: 777
                 name: Bikes
+                level: 1
             mountain_bike:
                 id: 778
                 name: Mountain Bike
+                level: 2
         tags:
             kids:
                 name: kids
@@ -137,6 +145,7 @@ products:
             gum:
                 id: 800
                 name: Gum
+                level: 1
         tags:
             sugar:
                 name: sugar

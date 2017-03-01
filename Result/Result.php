@@ -13,7 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Model;
+namespace Mmoreram\SearchBundle\Result;
+
+use Mmoreram\SearchBundle\Model\Brand;
+use Mmoreram\SearchBundle\Model\Category;
+use Mmoreram\SearchBundle\Model\Manufacturer;
+use Mmoreram\SearchBundle\Model\Product;
 
 /**
  * Class Result.
@@ -93,6 +98,16 @@ class Result
     public function getCategories(): array
     {
         return $this->categories;
+    }
+
+    /**
+     * Get categories filtered by levels.
+     *
+     * @return Category[]
+     */
+    public function getFilteredCategories(): array
+    {
+        $allCategories = $this->getCategories();
     }
 
     /**

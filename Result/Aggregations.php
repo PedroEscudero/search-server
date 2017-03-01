@@ -13,12 +13,16 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Model;
+namespace Mmoreram\SearchBundle\Result;
+
+use ArrayIterator;
+use IteratorAggregate;
+use Traversable;
 
 /**
  * Class Aggregations.
  */
-class Aggregations
+class Aggregations implements IteratorAggregate
 {
     /**
      * @var Aggregation[]
@@ -87,5 +91,20 @@ class Aggregations
     public function getTotalElements() : int
     {
         return $this->totalElements;
+    }
+
+    /**
+     * Retrieve an external iterator.
+     *
+     * @link  http://php.net/manual/en/iteratoraggregate.getiterator.php
+     *
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     *                     <b>Traversable</b>
+     *
+     * @since 5.0.0
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->aggregations);
     }
 }

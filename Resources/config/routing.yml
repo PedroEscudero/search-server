@@ -1,4 +1,9 @@
 shop:
     path: /
     defaults:
-        _controller: Mmoreram\SearchBundle\ControllerShopController:indexAction
+        _controller: SearchBundle:Shop:index
+
+shop_content:
+    path: /content/
+    defaults:
+        _controller: SearchBundle:Shop:content

@@ -21,7 +21,10 @@ use Elastica\Query;
 use Elastica\Type;
 use Elastica\Type\Mapping;
 
-use Mmoreram\SearchBundle\Model\Model;
+use Mmoreram\SearchBundle\Model\Brand;
+use Mmoreram\SearchBundle\Model\Category;
+use Mmoreram\SearchBundle\Model\Manufacturer;
+use Mmoreram\SearchBundle\Model\Product;
 
 /**
  * Class ElasticaWrapper.
@@ -168,7 +171,7 @@ class ElasticaWrapper
     private function createProductIndexMapping()
     {
         $productMapping = new Mapping();
-        $productMapping->setType($this->getType(Model::PRODUCT));
+        $productMapping->setType($this->getType(Product::TYPE));
         $productMapping->setProperties([
             'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
@@ -222,6 +225,9 @@ class ElasticaWrapper
                     'id' => [
                         'type' => 'keyword',
                     ],
+                    'level' => [
+                        'type' => 'integer',
+                    ],
                 ],
             ],
             'tags' => [
@@ -229,6 +235,9 @@ class ElasticaWrapper
                 'dynamic' => 'strict',
                 'include_in_all' => false,
                 'properties' => [
+                    'group' => [
+                        'type' => 'keyword',
+                    ],
                     'name' => [
                         'type' => 'keyword',
                     ],
@@ -247,11 +256,12 @@ class ElasticaWrapper
     private function createCategoryIndexMapping()
     {
         $categoryMapping = new Mapping();
-        $categoryMapping->setType($this->getType(Model::CATEGORY));
+        $categoryMapping->setType($this->getType(Category::TYPE));
         $categoryMapping->setProperties([
             'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
+            'level' => ['type' => 'integer', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
         ]);
 
@@ -264,7 +274,7 @@ class ElasticaWrapper
     private function createManufacturerIndexMapping()
     {
         $manufacturerMapping = new Mapping();
-        $manufacturerMapping->setType($this->getType(Model::MANUFACTURER));
+        $manufacturerMapping->setType($this->getType(Manufacturer::TYPE));
         $manufacturerMapping->setProperties([
             'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
@@ -281,7 +291,7 @@ class ElasticaWrapper
     private function createBrandIndexMapping()
     {
         $brandMapping = new Mapping();
-        $brandMapping->setType($this->getType(Model::BRAND));
+        $brandMapping->setType($this->getType(Brand::TYPE));
         $brandMapping->setProperties([
             'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],

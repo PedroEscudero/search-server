@@ -20,4 +20,10 @@ namespace Mmoreram\SearchBundle\Model;
  */
 class Manufacturer extends IdNameWrapper
 {
+    /**
+     * @var string
+     *
+     * Name
+     */
+    const TYPE = 'manufacturer';
 }

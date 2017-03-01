@@ -58,6 +58,13 @@ class Filter
     /**
      * @var string
      *
+     * Filter type query
+     */
+    const TYPE_QUERY = 'query';
+
+    /**
+     * @var string
+     *
      * Field
      */
     private $field;
@@ -84,23 +91,33 @@ class Filter
     private $filterType;
 
     /**
+     * @var array
+     *
+     * Terms to filter
+     */
+    private $filterTerms;
+
+    /**
      * Filter constructor.
      *
      * @param string $field
      * @param array  $values
      * @param string $applicationType
      * @param string $filterType
+     * @param array  $filterTerms
      */
     private function __construct(
         string $field,
         array $values,
         string $applicationType,
-        string $filterType
+        string $filterType,
+        array $filterTerms
     ) {
         $this->field = $field;
         $this->values = $values;
         $this->applicationType = $applicationType;
         $this->filterType = $filterType;
+        $this->filterTerms = $filterTerms;
     }
 
     /**
@@ -124,6 +141,18 @@ class Filter
     }
 
     /**
+     * Has value.
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    public function hasValue(string $value) : bool
+    {
+        return in_array($value, $this->getValues());
+    }
+
+    /**
      * Get application type.
      *
      * @return string
@@ -144,12 +173,23 @@ class Filter
     }
 
     /**
+     * Get filter terms.
+     *
+     * @return array
+     */
+    public function getFilterTerms(): array
+    {
+        return $this->filterTerms;
+    }
+
+    /**
      * Create filter.
      *
      * @param string $field
      * @param array  $values
      * @param string $applicationType
      * @param string $filterType
+     * @param array  $filterTerms
      *
      * @return self
      */
@@ -157,13 +197,15 @@ class Filter
         string $field,
         array $values,
         string $applicationType,
-        string $filterType
+        string $filterType,
+        array $filterTerms = []
     ) : self {
         return new self(
             $field,
             $values,
             $applicationType,
-            $filterType
+            $filterType,
+            $filterTerms
         );
     }
 }
