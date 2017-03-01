@@ -32,6 +32,13 @@
             {% endfor %}
         </div>
         <div class="row">
+            {% for tag in result.tags %}
+                {% include "SearchBundle:Shop:tag.html.twig" with {
+                    'tag': tag
+                } %}
+            {% endfor %}
+        </div>
+        <div class="row">
             {% for product in result.products %}
                 {% include "SearchBundle:Shop:product.html.twig" with {
                     'product': product

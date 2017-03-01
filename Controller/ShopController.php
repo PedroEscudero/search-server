@@ -28,6 +28,10 @@ use Mmoreram\SearchBundle\Query\Query;
 class ShopController extends Controller
 {
     /**
+     * Index action.
+     *
+     * @param Request $request
+     *
      * @return Response
      */
     public function indexAction(Request $request)
@@ -40,6 +44,8 @@ class ShopController extends Controller
     /**
      * Load products and facets page.
      *
+     * @param Request $request
+     *
      * @return Response
      */
     public function contentAction(Request $request)
@@ -49,17 +55,44 @@ class ShopController extends Controller
         $brands = $requestQuery->get('brand', []);
         $categories = $requestQuery->get('categories', []);
         $qualityTags = $requestQuery->get('quality', []);
-        $stock = $requestQuery->get('stock', []);
-        $shipping = $requestQuery->get('shipping', []);
+        $stockTags = $requestQuery->get('stock', []);
+        $shippingTags = $requestQuery->get('shipping', []);
         $q = $requestQuery->get('q', '');
 
-        $searchQuery = Query::create($q, 0, 100)
+        $searchQuery = Query::create($q, 0, 1000)
             ->filterByCategories($categories, Filter::MUST_ALL)
             ->filterByBrands($brands, Filter::AT_LEAST_ONE)
             ->filterByManufacturers($manufacturers, Filter::AT_LEAST_ONE)
-            ->filterByTags('quality', $qualityTags, Filter::AT_LEAST_ONE)
-            ->filterByTags('stock', $qualityTags, Filter::AT_LEAST_ONE)
-            ->filterByTags('shipping', $shipping, Filter::AT_LEAST_ONE);
+            ->filterByTags(
+                'quality',
+                [
+                    'amazing',
+                    'new',
+                    'next generation',
+                    'healthy',
+                ],
+                $qualityTags,
+                Filter::AT_LEAST_ONE
+            )
+            ->filterByTags(
+                'stock',
+                [
+                    'last units',
+                    'infinite stock',
+                ],
+                $stockTags,
+                Filter::AT_LEAST_ONE
+            )
+            ->filterByTags(
+                'shipping',
+                [
+                    'express',
+                    'two-day delivery',
+                    'one-week delivery',
+                ],
+                $shippingTags,
+                Filter::AT_LEAST_ONE
+            );
 
         $result = $this
             ->get('search_bundle.repository')

@@ -21,6 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Product;
+use Mmoreram\SearchBundle\Model\Tag;
 
 /**
  * Class GenerateProductsCommand.
@@ -57,7 +58,11 @@ class GenerateProductsCommand extends ContainerAwareCommand
             ->get('search_bundle.elastica_wrapper')
             ->createIndexMapping();
 
-        for ($id = 1; $id < 1000; ++$id) {
+        $index = $this
+            ->getContainer()
+            ->get('search_bundle.index');
+
+        for ($id = 1; $id < 100; ++$id) {
             $family = array_keys($this->categories())[rand(0, 1)];
             $mainCategory = $this->categories()[$family][rand(0, 2)];
             $lastCategory = $mainCategory['categories'][rand(0, 2)];
@@ -89,6 +94,7 @@ class GenerateProductsCommand extends ContainerAwareCommand
                     'level' => 1,
                 ])
             );
+
             $product->addCategory(
                 Category::createFromArray([
                     'id' => $lastCategory['id'],
@@ -101,17 +107,19 @@ class GenerateProductsCommand extends ContainerAwareCommand
                 $this->tags(),
                 rand(2, 4)
             );
+
             foreach ($tags as $tagIndex) {
                 $product->addTag(
-                    $this->tags()[$tagIndex]
+                    Tag::createFromArray([
+                        'name' => $this->tags()[$tagIndex],
+                    ])
                 );
             }
 
-            $this
-                ->getContainer()
-                ->get('search_bundle.repository')
-                ->index('000', $product);
+            $index->addProduct('000', $product);
         }
+
+        $index->flush(500);
     }
 
     /**

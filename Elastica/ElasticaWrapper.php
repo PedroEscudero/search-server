@@ -25,6 +25,7 @@ use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Product;
+use Mmoreram\SearchBundle\Model\Tag;
 
 /**
  * Class ElasticaWrapper.
@@ -162,6 +163,7 @@ class ElasticaWrapper
         $this->createCategoryIndexMapping();
         $this->createManufacturerIndexMapping();
         $this->createBrandIndexMapping();
+        $this->createTagIndexMapping();
         $this->refresh();
     }
 
@@ -235,9 +237,6 @@ class ElasticaWrapper
                 'dynamic' => 'strict',
                 'include_in_all' => false,
                 'properties' => [
-                    'group' => [
-                        'type' => 'keyword',
-                    ],
                     'name' => [
                         'type' => 'keyword',
                     ],
@@ -300,5 +299,21 @@ class ElasticaWrapper
         ]);
 
         $brandMapping->send();
+    }
+
+    /**
+     * Create tag index mapping.
+     */
+    private function createTagIndexMapping()
+    {
+        $tagMapping = new Mapping();
+        $tagMapping->setType($this->getType(Tag::TYPE));
+        $tagMapping->setProperties([
+            'user' => ['type' => 'keyword', 'include_in_all' => false],
+            'name' => ['type' => 'text', 'index' => false],
+            'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
+        ]);
+
+        $tagMapping->send();
     }
 }

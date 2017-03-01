@@ -19,6 +19,7 @@ use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Product;
+use Mmoreram\SearchBundle\Model\Tag;
 
 /**
  * Class Result.
@@ -52,6 +53,13 @@ class Result
      * Brands
      */
     private $brands = [];
+
+    /**
+     * @var Tag[]
+     *
+     * Tags
+     */
+    private $tags = [];
 
     /**
      * @var Aggregations
@@ -101,16 +109,6 @@ class Result
     }
 
     /**
-     * Get categories filtered by levels.
-     *
-     * @return Category[]
-     */
-    public function getFilteredCategories(): array
-    {
-        $allCategories = $this->getCategories();
-    }
-
-    /**
      * Add manufacturer.
      *
      * @param Manufacturer $manufacturer
@@ -148,6 +146,26 @@ class Result
     public function getBrands(): array
     {
         return $this->brands;
+    }
+
+    /**
+     * Add tag.
+     *
+     * @param Tag $tag
+     */
+    public function addTag(Tag $tag)
+    {
+        $this->tags[] = $tag;
+    }
+
+    /**
+     * Get tags.
+     *
+     * @return Tag[]
+     */
+    public function getTags(): array
+    {
+        return $this->tags;
     }
 
     /**

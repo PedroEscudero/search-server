@@ -107,7 +107,7 @@ class Product
     private $categories;
 
     /**
-     * @var string[]
+     * @var Tag[]
      *
      * Tags
      */
@@ -347,18 +347,18 @@ class Product
     /**
      * Add tag.
      *
-     * @param string $tag
+     * @param Tag $tag
      */
-    public function addTag(string $tag)
+    public function addTag(Tag $tag)
     {
         $this->tags[] = $tag;
-        $this->firstLevelSearchableData .= " $tag";
+        $this->firstLevelSearchableData .= " {$tag->getName()}";
     }
 
     /**
      * Get tags.
      *
-     * @return array
+     * @return Tag[]
      */
     public function getTags() : array
     {
@@ -445,7 +445,9 @@ class Product
             is_array($array['tags'])
         ) {
             foreach ($array['tags'] as $tag) {
-                $product->addTag($tag['name']);
+                $product->addTag(
+                    Tag::createFromArray($tag)
+                );
             }
         }
 

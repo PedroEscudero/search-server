@@ -16,39 +16,60 @@ declare(strict_types=1);
 namespace Mmoreram\SearchBundle\Model;
 
 /**
- * Class Category.
+ * Class Tag.
  */
-class Category extends IdNameWrapper implements WithLevel
+class Tag
 {
     /**
      * @var string
      *
      * Name
      */
-    const TYPE = 'category';
+    const TYPE = 'tag';
 
     /**
-     * @var int
+     * @var string
      *
-     * Level
+     * Name
      */
-    private $level;
+    private $name;
+
+    /**
+     * @var string
+     *
+     * First level searchable data
+     */
+    private $firstLevelSearchableData;
 
     /**
      * Category constructor.
      *
-     * @param string $id
      * @param string $name
-     * @param int    $level
      */
-    public function __construct(
-        string $id,
-        string $name,
-        int $level = 1
-    ) {
-        parent::__construct($id, $name);
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+        $this->firstLevelSearchableData = $name;
+    }
 
-        $this->level = $level;
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Get first level searchable data.
+     *
+     * @return string
+     */
+    public function getFirstLevelSearchableData(): string
+    {
+        return $this->firstLevelSearchableData;
     }
 
     /**
@@ -60,27 +81,12 @@ class Category extends IdNameWrapper implements WithLevel
      */
     public static function createFromArray(array $array)
     {
-        if (
-            !isset($array['id']) ||
-            !isset($array['name'])
-        ) {
+        if (!isset($array['name'])) {
             return null;
         }
 
         return new static(
-            (string) $array['id'],
-            (string) $array['name'],
-            $array['level'] ?? 1
+            (string) $array['name']
         );
-    }
-
-    /**
-     * Get level.
-     *
-     * @return int
-     */
-    public function getLevel(): int
-    {
-        return $this->level;
     }
 }

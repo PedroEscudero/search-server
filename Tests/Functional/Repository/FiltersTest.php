@@ -438,30 +438,30 @@ class FiltersTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTags('_', ['new'])),
+            $repository->search('000', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new'])),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTags('_', ['new', 'shirt'])),
+            $repository->search('000', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt'])),
             Product::TYPE,
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByTags('_', ['new', 'shirt', '_nonexistent']))->getProducts()
+            $repository->search('000', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByTags('_', ['new']))->getProducts()
+            $repository->search('001', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new']))->getProducts()
         );
 
         $this->assertResults(
             $repository->search('000', Query::createMatchAll()
-                ->filterByTags('_', ['new', 'shirt', '_nonexistent'])
-                ->removeAllTagFilters()
-                ->filterByTags('_', ['new'])
+                ->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent'])
+                ->removeTagFilter('_')
+                ->filterByTags('_', $this->allFilters(), ['new'])
             ),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
@@ -469,15 +469,15 @@ class FiltersTest extends ElasticaSearchRepositoryTest
 
         $this->assertEmpty(
             $repository->search('000', Query::createMatchAll()
-                ->filterByTags('_1', ['kids'])
-                ->filterByTags('_2', ['sugar', 'last_hour'])
+                ->filterByTags('_1', $this->allFilters(), ['kids'])
+                ->filterByTags('_2', $this->allFilters(), ['sugar', 'last_hour'])
             )->getProducts()
         );
 
         $this->assertResults(
             $repository->search('000', Query::createMatchAll()
-                ->filterByTags('_1', ['kids'])
-                ->filterByTags('_2', ['sugar', 'last_hour'], Filter::AT_LEAST_ONE)
+                ->filterByTags('_1', $this->allFilters(), ['kids'])
+                ->filterByTags('_2', $this->allFilters(), ['sugar', 'last_hour'], Filter::AT_LEAST_ONE)
             ),
             Product::TYPE,
             ['!1', '!2', '?3', '!4', '?5']
@@ -485,10 +485,26 @@ class FiltersTest extends ElasticaSearchRepositoryTest
 
         $this->assertResults(
             $repository->search('000', Query::createMatchAll()
-                ->filterByTags('_', ['sugar', 'kids', 'new'], Filter::AT_LEAST_ONE)
+                ->filterByTags('_', $this->allFilters(), ['sugar', 'kids', 'new'], Filter::AT_LEAST_ONE)
             ),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
+    }
+
+    /**
+     * Get all filters.
+     *
+     * @return string[]
+     */
+    private function allFilters() : array
+    {
+        return [
+            'new',
+            'shirt',
+            'last_hour',
+            'kids',
+            'sugar',
+        ];
     }
 }

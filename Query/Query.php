@@ -282,6 +282,7 @@ class Query
      * Filter by tags.
      *
      * @param string $groupName
+     * @param array  $options
      * @param array  $tags
      * @param string $filterType
      *
@@ -289,34 +290,36 @@ class Query
      */
     public function filterByTags(
         string $groupName,
+        array $options,
         array $tags,
         string $filterType = Filter::MUST_ALL
     ) : self {
-        $this->tagFilters["tags.$groupName"] = Filter::create(
+        $this->tagFilters[$groupName] = Filter::create(
             'tags.name',
             $tags,
             $filterType,
             Filter::TYPE_NESTED,
             [
-                'tags.group' => $groupName,
+                'tags.name',
+                $options,
             ]
         );
 
-        $this->addTagsAggregation($groupName, $filterType);
+        $this->addTagsAggregation($groupName, $options, $filterType);
 
         return $this;
     }
 
     /**
-     * Remove all tag filters.
+     * Remove tag filter.
      *
      * @param string $groupName
      *
      * @return self
      */
-    public function removeAllTagFilters(string $groupName)
+    public function removeTagFilter(string $groupName)
     {
-        unset($this->tagFilters["tags.$groupName"]);
+        unset($this->tagFilters[$groupName]);
         $this->removeTagsAggregation($groupName);
 
         return $this;
@@ -482,19 +485,22 @@ class Query
      * Add tags aggregation.
      *
      * @param string $groupName
+     * @param array  $options
      * @param string $type
      *
      * @return self
      */
     private function addTagsAggregation(
         string $groupName,
+        array $options,
         string $type = Filter::MUST_ALL
     ) : self {
-        $this->aggregations["tags.$groupName"] = Aggregation::create(
-            "tags.$groupName",
+        $this->aggregations[$groupName] = Aggregation::create(
+            $groupName,
             'tags.name',
             $type,
-            true
+            true,
+            $options
         );
 
         return $this;
@@ -509,7 +515,7 @@ class Query
      */
     private function removeTagsAggregation(string $groupName)
     {
-        unset($this->aggregations["tags.$groupName"]);
+        unset($this->aggregations[$groupName]);
 
         return $this;
     }

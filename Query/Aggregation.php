@@ -49,23 +49,33 @@ class Aggregation
     private $nested;
 
     /**
+     * @var string[]
+     *
+     * Subgroup
+     */
+    private $subgroup;
+
+    /**
      * Aggregation constructor.
      *
      * @param string $name
      * @param string $field
      * @param string $type
      * @param bool   $nested
+     * @param array  $subgroup
      */
-    public function __construct(
+    private function __construct(
         string $name,
         string $field,
         string $type,
-        bool $nested
+        bool $nested,
+        array $subgroup
     ) {
         $this->name = $name;
         $this->field = $field;
         $this->type = $type;
         $this->nested = $nested;
+        $this->subgroup = $subgroup;
     }
 
     /**
@@ -99,6 +109,16 @@ class Aggregation
     }
 
     /**
+     * Get subgroup.
+     *
+     * @return string[]
+     */
+    public function getSubgroup(): array
+    {
+        return $this->subgroup;
+    }
+
+    /**
      * Is nested.
      *
      * @return bool
@@ -115,6 +135,7 @@ class Aggregation
      * @param string $field
      * @param string $type
      * @param bool   $nested
+     * @param array  $subgroup
      *
      * @return self
      */
@@ -122,13 +143,15 @@ class Aggregation
         string $name,
         string $field,
         string $type,
-        bool $nested
+        bool $nested,
+        array $subgroup = []
     ) : self {
         return new self(
             $name,
             $field,
             $type,
-            $nested
+            $nested,
+            $subgroup
         );
     }
 }

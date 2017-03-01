@@ -24,6 +24,14 @@ use Mmoreram\SearchBundle\Query\Query;
 class AggregationsTest extends ElasticaSearchRepositoryTest
 {
     /**
+     * Test something.
+     */
+    public function testSomething()
+    {
+        $repository = static::$repository;
+    }
+
+    /**
      * Test basic aggregations.
      */
     public function testBasicAggregations()
@@ -138,5 +146,19 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $categoryAggregation = $aggregations->getAggregation('categories');
         $this->assertEquals(1, $categoryAggregation->getCounter('66')->getN());
         $this->assertCount(1, $categoryAggregation->getCounters());
+    }
+
+    /**
+     * Test Tag filter aggregations.
+     */
+    public function testTagsFilterAggregations()
+    {
+        $repository = static::$repository;
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByTags('specials', ['new', 'last_hour'], [], Filter::AT_LEAST_ONE)
+        )
+        ->getAggregations();
     }
 }

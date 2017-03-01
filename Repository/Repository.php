@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Mmoreram\SearchBundle\Repository;
 
 use Elastica\Aggregation as ElasticaAggregation;
-use Elastica\Document as ElasticaDocument;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
 
@@ -25,7 +24,7 @@ use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Query\Aggregation;
+use Mmoreram\SearchBundle\Model\Tag;
 use Mmoreram\SearchBundle\Query\Aggregation as QueryAggregation;
 use Mmoreram\SearchBundle\Query\Filter;
 use Mmoreram\SearchBundle\Query\PriceRange;
@@ -36,9 +35,9 @@ use Mmoreram\SearchBundle\Result\Aggregations as ResultAggregations;
 use Mmoreram\SearchBundle\Result\Result;
 
 /**
- * Class ElasticaSearchRepository.
+ * Class Repository.
  */
-class ElasticaSearchRepository implements SearchRepository
+class Repository
 {
     /**
      * @var ElasticaWrapper
@@ -55,25 +54,6 @@ class ElasticaSearchRepository implements SearchRepository
     public function __construct(ElasticaWrapper $elasticaWrapper)
     {
         $this->elasticaWrapper = $elasticaWrapper;
-    }
-
-    /**
-     * Index product.
-     *
-     * @param string  $user
-     * @param Product $product
-     */
-    public function index(
-        string $user,
-        Product $product
-    ) {
-        $this->indexProduct(
-            $user,
-            $product
-        );
-        $this
-            ->elasticaWrapper
-            ->refresh();
     }
 
     /**
@@ -97,7 +77,9 @@ class ElasticaSearchRepository implements SearchRepository
 
         $this->addFilters(
             $boolQuery,
-            $query->getFilters()
+            $query->getFilters(),
+            null,
+            false
         );
 
         $mainQuery->setQuery($boolQuery);
@@ -124,218 +106,6 @@ class ElasticaSearchRepository implements SearchRepository
             $user,
             $results
         );
-    }
-
-    /**
-     * Private methods.
-     */
-
-    /**
-     * Index product.
-     *
-     * @param string  $user
-     * @param Product $product
-     */
-    private function indexProduct(
-        string $user,
-        Product $product
-    ) {
-        $productId = "$user~~{$product->getId()}";
-        $productDocument = [
-            'user' => $user,
-            'id' => $productId,
-            'family' => $product->getFamily(),
-            'ean' => $product->getEan(),
-            'name' => $product->getName(),
-            'sortable_name' => $product->getName(),
-            'description' => $product->getDescription(),
-            'long_description' => $product->getLongDescription(),
-            'price' => $product->getPrice(),
-            'reduced_price' => $product->getReducedPrice(),
-            'real_price' => $product->getRealPrice(),
-            'discount' => $product->getDiscount(),
-            'discount_percentage' => $product->getDiscountPercentage(),
-            'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
-            'second_level_searchable_data' => $product->getSecondLevelSearchableData(),
-        ];
-
-        $this->indexCategories(
-            $user,
-            $product->getCategories(),
-            $productDocument
-        );
-
-        $this->indexTags(
-            $product->getTags(),
-            $productDocument
-        );
-
-        $manufacturer = $product->getManufacturer();
-        if ($manufacturer instanceof Manufacturer) {
-            $this->indexManufacturer(
-                $user,
-                $manufacturer,
-                $productDocument
-            );
-        }
-
-        $brand = $product->getBrand();
-        if ($brand instanceof Brand) {
-            $this->indexBrand(
-                $user,
-                $brand,
-                $productDocument
-            );
-        }
-
-        $document = new ElasticaDocument($productId, $productDocument);
-        $document->setDocAsUpsert(true);
-
-        $this
-            ->elasticaWrapper
-            ->getType(Product::TYPE)
-            ->updateDocument($document);
-    }
-
-    /**
-     * Index Categories and complete root Doc.
-     *
-     * @param string     $user
-     * @param Category[] $categories
-     * @param array      $rootDoc
-     */
-    private function indexCategories(
-        string $user,
-        array $categories,
-        array &$rootDoc
-    ) {
-        $rootDoc['categories'] = [];
-        foreach ($categories as $category) {
-            $this->indexCategory(
-                $user,
-                $category,
-                $rootDoc
-            );
-        }
-    }
-
-    /**
-     * Index Category.
-     *
-     * @param string   $user
-     * @param Category $category
-     * @param array    $rootDoc
-     */
-    private function indexCategory(
-        string $user,
-        Category $category,
-        array &$rootDoc
-    ) {
-        $categoryId = "$user~~{$category->getId()}";
-        $document = new ElasticaDocument(
-            $categoryId,
-            [
-                'user' => $user,
-                'name' => $category->getName(),
-                'level' => $category->getLevel(),
-                'first_level_searchable_data' => $category->getFirstLevelSearchableData(),
-            ]
-        );
-        $document->setDocAsUpsert(true);
-        $this
-            ->elasticaWrapper
-            ->getType(Category::TYPE)
-            ->updateDocument($document);
-
-        $rootDoc['categories'][] = [
-            'id' => $category->getId(),
-            'name' => $category->getName(),
-            'level' => $category->getLevel(),
-        ];
-    }
-
-    /**
-     * Index Tags and complete root Doc.
-     *
-     * @param string[] $tags
-     * @param array    $rootDoc
-     */
-    private function indexTags(
-        array $tags,
-        array &$rootDoc
-    ) {
-        $rootDoc['tags'] = [];
-        foreach ($tags as $tag) {
-            $rootDoc['tags'][] = [
-                'name' => $tag,
-            ];
-        }
-    }
-
-    /**
-     * Index manufacturer.
-     *
-     * @param string       $user
-     * @param Manufacturer $manufacturer
-     * @param array        $rootDoc
-     */
-    private function indexManufacturer(
-        string $user,
-        Manufacturer $manufacturer,
-        array &$rootDoc
-    ) {
-        $manufacturerId = "$user~~{$manufacturer->getId()}";
-        $document = new ElasticaDocument(
-            $manufacturerId,
-            [
-                'user' => $user,
-                'name' => $manufacturer->getName(),
-                'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
-            ]
-        );
-        $document->setDocAsUpsert(true);
-        $this
-            ->elasticaWrapper
-            ->getType(Manufacturer::TYPE)
-            ->updateDocument($document);
-
-        $rootDoc['manufacturer'] = [
-            'id' => $manufacturer->getId(),
-            'name' => $manufacturer->getName(),
-        ];
-    }
-
-    /**
-     * Index brand.
-     *
-     * @param string $user
-     * @param Brand  $brand
-     * @param array  $rootDoc
-     */
-    private function indexBrand(
-        string $user,
-        Brand $brand,
-        array &$rootDoc
-    ) {
-        $brandId = "$user~~{$brand->getId()}";
-        $document = new ElasticaDocument(
-            $brandId,
-            [
-                'user' => $user,
-                'name' => $brand->getName(),
-                'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),
-            ]
-        );
-        $document->setDocAsUpsert(true);
-        $this
-            ->elasticaWrapper
-            ->getType(Brand::TYPE)
-            ->updateDocument($document);
-
-        $rootDoc['brand'] = [
-            'id' => $brand->getId(),
-            'name' => $brand->getName(),
-        ];
     }
 
     /**
@@ -381,6 +151,11 @@ class ElasticaSearchRepository implements SearchRepository
                         Brand::createFromArray($source)
                     );
                     break;
+                case Tag::TYPE:
+                    $result->addTag(
+                        Tag::createFromArray($source)
+                    );
+                    break;
             }
         }
 
@@ -406,11 +181,16 @@ class ElasticaSearchRepository implements SearchRepository
             $relatedFilter = $query->getFilter($aggregationName);
 
             foreach ($buckets as $bucket) {
-                $aggregation->addCounter(
-                    $bucket['key'],
-                    $bucket['doc_count'],
-                    $relatedFilter->getValues()
-                );
+                if (
+                    empty($queryAggregation->getSubgroup()) ||
+                    in_array($bucket['key'], $queryAggregation->getSubgroup())
+                ) {
+                    $aggregation->addCounter(
+                        $bucket['key'],
+                        $bucket['doc_count'],
+                        $relatedFilter->getValues()
+                    );
+                }
             }
 
             /**
@@ -435,24 +215,26 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter[]                $filters
-     * @param string                  $filterToIgnore
+     * @param null|string             $filterToIgnore
+     * @param bool                    $takeInAccountDefinedTermFilter
      */
     private function addFilters(
         ElasticaQuery\BoolQuery $boolQuery,
         array $filters,
-        string $filterToIgnore = null
+        ? string $filterToIgnore,
+        bool $takeInAccountDefinedTermFilter
     ) {
         foreach ($filters as $filterName => $filter) {
             $onlyAddDefinedTermFilter = (
                 empty($filter->getValues()) ||
-                $filterName === $filterToIgnore ||
-                $filterName === "tags.$filterToIgnore"
+                $filterName === $filterToIgnore
             );
 
             $this->addFilter(
                 $boolQuery,
                 $filter,
-                $onlyAddDefinedTermFilter
+                $onlyAddDefinedTermFilter,
+                $takeInAccountDefinedTermFilter
             );
         }
     }
@@ -463,11 +245,13 @@ class ElasticaSearchRepository implements SearchRepository
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter                  $filter
      * @param bool                    $onlyAddDefinedTermFilter
+     * @param bool                    $takeInAccountDefinedTermFilter
      */
     private function addFilter(
         ElasticaQuery\BoolQuery $boolQuery,
         Filter $filter,
-        bool $onlyAddDefinedTermFilter
+        bool $onlyAddDefinedTermFilter,
+        bool $takeInAccountDefinedTermFilter
     ) {
         if ($filter->getFilterType() === Filter::TYPE_RANGE) {
             $boolQuery->addFilter(
@@ -488,10 +272,41 @@ class ElasticaSearchRepository implements SearchRepository
         }
 
         $boolQuery->addFilter(
-            $filter->getApplicationType() === Filter::MUST_ALL
-                ? $this->createQueryFilterMustAll($filter, $onlyAddDefinedTermFilter)
-                : $this->createQueryFilterAtLeastOne($filter, $onlyAddDefinedTermFilter)
+            $this->createQueryFilterByApplicationType(
+                $filter,
+                $onlyAddDefinedTermFilter,
+                $takeInAccountDefinedTermFilter
+            )
         );
+    }
+
+    /**
+     * Create a filter and decide type of match.
+     *
+     * @param Filter $filter
+     * @param bool   $onlyAddDefinedTermFilter
+     * @param bool   $takeInAccountDefinedTermFilter
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createQueryFilterByApplicationType(
+        Filter $filter,
+        bool $onlyAddDefinedTermFilter,
+        bool $takeInAccountDefinedTermFilter
+    ) {
+        return $filter->getApplicationType() === Filter::MUST_ALL
+            ? $this
+                ->createQueryFilterMustAll(
+                    $filter,
+                    $onlyAddDefinedTermFilter,
+                    $takeInAccountDefinedTermFilter
+                )
+            : $this
+                ->createQueryFilterAtLeastOne(
+                    $filter,
+                    $onlyAddDefinedTermFilter,
+                    $takeInAccountDefinedTermFilter
+                );
     }
 
     /**
@@ -499,27 +314,21 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param Filter $filter
      * @param bool   $onlyAddDefinedTermFilter
+     * @param bool   $takeInAccountDefinedTermFilter
      *
      * @return ElasticaQuery\AbstractQuery
      */
     private function createQueryFilterMustAll(
         Filter $filter,
-        bool $onlyAddDefinedTermFilter
+        bool $onlyAddDefinedTermFilter,
+        bool $takeInAccountDefinedTermFilter
     ) : ElasticaQuery\AbstractQuery {
-        $boolQueryFilter = new ElasticaQuery\BoolQuery();
-        foreach ($filter->getValues() as $value) {
-            $queryFilter = $this->createQueryFilter(
-                $filter,
-                (string) $value,
-                $onlyAddDefinedTermFilter
-            );
-
-            if ($queryFilter instanceof ElasticaQuery\AbstractQuery) {
-                $boolQueryFilter->addMust($queryFilter);
-            }
-        }
-
-        return $boolQueryFilter;
+        return $this->createQueryFilterByMethod(
+            $filter,
+            'addMust',
+            $onlyAddDefinedTermFilter,
+            $takeInAccountDefinedTermFilter
+        );
     }
 
     /**
@@ -527,24 +336,66 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param Filter $filter
      * @param bool   $onlyAddDefinedTermFilter
+     * @param bool   $takeInAccountDefinedTermFilter
      *
      * @return ElasticaQuery\AbstractQuery
      */
     private function createQueryFilterAtLeastOne(
         Filter $filter,
-        bool $onlyAddDefinedTermFilter
+        bool $onlyAddDefinedTermFilter,
+        bool $takeInAccountDefinedTermFilter
     ) : ElasticaQuery\AbstractQuery {
-        $boolQueryFilter = new ElasticaQuery\BoolQuery();
-        foreach ($filter->getValues() as $value) {
-            $queryFilter = $this->createQueryFilter(
-                $filter,
-                (string) $value,
-                $onlyAddDefinedTermFilter
-            );
+        return $this->createQueryFilterByMethod(
+            $filter,
+            'addShould',
+            $onlyAddDefinedTermFilter,
+            $takeInAccountDefinedTermFilter
+        );
+    }
 
-            if ($queryFilter instanceof ElasticaQuery\AbstractQuery) {
-                $boolQueryFilter->addShould($queryFilter);
+    /**
+     * Creates query filter by method.
+     *
+     * @param Filter $filter
+     * @param string $method
+     * @param bool   $onlyAddDefinedTermFilter
+     * @param bool   $takeInAccountDefinedTermFilter
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createQueryFilterByMethod(
+        Filter $filter,
+        string $method,
+        bool $onlyAddDefinedTermFilter,
+        bool $takeInAccountDefinedTermFilter
+    ) {
+        $boolQueryFilter = new ElasticaQuery\BoolQuery();
+        if (!$onlyAddDefinedTermFilter) {
+            foreach ($filter->getValues() as $value) {
+                $queryFilter = $this->createQueryFilter(
+                    $filter,
+                    (string) $value
+                );
+
+                if ($queryFilter instanceof ElasticaQuery\AbstractQuery) {
+                    $boolQueryFilter->$method($queryFilter);
+                }
             }
+        }
+
+        if ($takeInAccountDefinedTermFilter && !empty($filter->getFilterTerms())) {
+            list($field, $value) = $filter->getFilterTerms();
+            $filteringFilter = Filter::create(
+                $field, $value, $filter->getApplicationType(), $filter->getFilterType(), []
+            );
+            $boolQueryFilter->addFilter(
+                $this
+                    ->createQueryFilterByApplicationType(
+                        $filteringFilter,
+                        false,
+                        false
+                    )
+            );
         }
 
         return $boolQueryFilter;
@@ -555,25 +406,21 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param Filter $filter
      * @param string $value
-     * @param bool   $onlyAddDefinedTermFilter
      *
      * @return null|ElasticaQuery\AbstractQuery
      */
     private function createQueryFilter(
         Filter $filter,
-        string $value,
-        bool $onlyAddDefinedTermFilter
+        string $value
     ) : ? ElasticaQuery\AbstractQuery {
         return $filter->getFilterType() === Filter::TYPE_NESTED
             ? $this->createdNestedTermFilter(
                 $filter,
-                $value,
-                $onlyAddDefinedTermFilter
+                $value
             )
             : $this->createTermFilter(
                 $filter,
-                $value,
-                $onlyAddDefinedTermFilter
+                $value
             );
     }
 
@@ -582,29 +429,22 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param Filter $filter
      * @param string $value
-     * @param bool   $onlyAddDefinedTermFilter
      *
      * @return ElasticaQuery\AbstractQuery
      */
     private function createdNestedTermFilter(
         Filter $filter,
-        string $value,
-        bool $onlyAddDefinedTermFilter
+        string $value
     ) : ElasticaQuery\AbstractQuery {
         list($path, $fieldName) = explode('.', $filter->getField(), 2);
 
         $nestedQuery = new ElasticaQuery\Nested();
         $nestedQuery->setPath($path);
         $nestedQuery->setScoreMode('max');
-        $queryFilter = $this->createTermFilter(
+        $nestedQuery->setQuery($this->createTermFilter(
             $filter,
-            $value,
-            $onlyAddDefinedTermFilter
-        );
-
-        if ($queryFilter instanceof ElasticaQuery\AbstractQuery) {
-            $nestedQuery->setQuery($queryFilter);
-        }
+            $value
+        ));
 
         return $nestedQuery;
     }
@@ -615,50 +455,40 @@ class ElasticaSearchRepository implements SearchRepository
      *
      * @param Filter $filter
      * @param string $value
-     * @param bool   $onlyAddDefinedTermFilter
      *
-     * @return null|ElasticaQuery\AbstractQuery
+     * @return ElasticaQuery\AbstractQuery
      */
     private function createTermFilter(
         Filter $filter,
-        string $value,
-        bool $onlyAddDefinedTermFilter
+        string $value
     ) : ? ElasticaQuery\AbstractQuery {
-        $terms = $filter->getFilterTerms();
-        if (!$onlyAddDefinedTermFilter) {
-            $terms = array_merge(
-                $terms,
-                [
-                    $filter->getField() => $value,
-                ]
-            );
-        }
-        if (empty($terms)) {
-            return null;
-        }
-
-        return count($terms) > 1
-            ? $this->createMultipleTermFilter($terms)
-            : new ElasticaQuery\Term($terms);
+        return $this->createMultipleTermFilter($filter->getField(), $value);
     }
 
     /**
      * Create multiple Term filter.
      *
-     * @param array $terms
+     * @param string          $field
+     * @param string|string[] $value
      *
      * @return ElasticaQuery\AbstractQuery
      */
-    private function createMultipleTermFilter(array $terms) : ElasticaQuery\AbstractQuery
-    {
-        $boolQuery = new ElasticaQuery\BoolQuery();
-        foreach ($terms as $termName => $termValue) {
-            $boolQuery->addMust(
-                new ElasticaQuery\Term([$termName => $termValue])
+    private function createMultipleTermFilter(
+        string $field,
+        $value
+    ) : ElasticaQuery\AbstractQuery {
+        if (!is_array($value)) {
+            return new ElasticaQuery\Term([$field => $value]);
+        }
+
+        $multipleBoolQuery = new ElasticaQuery\BoolQuery();
+        foreach ($value as $singleValue) {
+            $multipleBoolQuery->addShould(
+                new ElasticaQuery\Term([$field => $singleValue])
             );
         }
 
-        return $boolQuery;
+        return $multipleBoolQuery;
     }
 
     /**
@@ -729,7 +559,8 @@ class ElasticaSearchRepository implements SearchRepository
                 $filters,
                 $aggregation->getType() !== Filter::MUST_ALL
                     ? $aggregation->getName()
-                    : null
+                    : null,
+                true
             );
 
             $filteredAggregation->setFilter($boolQuery);

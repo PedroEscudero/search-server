@@ -21,7 +21,8 @@ use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Repository\SearchRepository;
+use Mmoreram\SearchBundle\Repository\Index;
+use Mmoreram\SearchBundle\Repository\Repository;
 use Mmoreram\SearchBundle\Result\Result;
 use Mmoreram\SearchBundle\Tests\Functional\SearchBundleFunctionalTest;
 
@@ -31,7 +32,7 @@ use Mmoreram\SearchBundle\Tests\Functional\SearchBundleFunctionalTest;
 abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
 {
     /**
-     * @var SearchRepository
+     * @var Repository
      *
      * Repository
      */
@@ -45,21 +46,19 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     {
         parent::setUpBeforeClass();
 
-        if (self::$repository instanceof SearchRepository) {
+        if (self::$repository instanceof Repository) {
             return self::$repository;
         }
 
         self::get('search_bundle.elastica_wrapper')->createIndexMapping();
-        self::$repository = self::get('search_bundle.elastica_repository');
+        $index = self::get('search_bundle.index');
+        self::$repository = self::get('search_bundle.repository');
         $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
         foreach ($products['products'] as $product) {
-            self::$repository->index('000', Product::createFromArray($product));
+            $index->index('000', Product::createFromArray($product));
         }
+        $index->flush();
     }
-
-    /**
-     * TESTING HELPERS.
-     */
 
     /**
      * Assert IDS sequence.

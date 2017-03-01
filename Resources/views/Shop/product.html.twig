@@ -3,4 +3,9 @@
     <p>{{ product.description }}</p>
     <p>Manufactured by <strong>{{ product.manufacturer.name }}</strong></p>
     <p>Branded by <strong>{{ product.brand.name }}</strong></p>
+    <p>
+        {% for tag in product.tags %}
+            <span class="label label-default">{{ tag.name }}</span>
+        {% endfor %}
+    </p>
 </div>
