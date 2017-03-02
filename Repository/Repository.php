@@ -111,9 +111,9 @@ class Repository
     /**
      * Build a Result object given elastica result object.
      *
-     * @param Query            $query
-     * @param string           $user
-     * @param ElasticaResult[] $elasticaResults
+     * @param Query  $query
+     * @param string $user
+     * @param array  $elasticaResults
      *
      * @return Result
      */
@@ -122,7 +122,17 @@ class Repository
         string $user,
         array $elasticaResults
     ) : Result {
-        $result = new Result();
+        $resultAggregations = $elasticaResults['aggregations']['all']['all_products'];
+        $commonAggregations = $this->getCommonAggregations($resultAggregations);
+        unset($resultAggregations['common']);
+
+        $result = new Result(
+            $elasticaResults['aggregations']['all']['doc_count'],
+            $elasticaResults['aggregations']['all']['all_products']['doc_count'],
+            $elasticaResults['total_hits'],
+            $commonAggregations['min_price'],
+            $commonAggregations['max_price']
+        );
 
         /**
          * @var ElasticaResult $elasticaResult
@@ -159,16 +169,27 @@ class Repository
             }
         }
 
-        $resultAggregations = $elasticaResults['aggregations']['all']['all_products'];
         $aggregations = new ResultAggregations($resultAggregations['doc_count']);
         unset($resultAggregations['doc_count']);
 
         foreach ($resultAggregations as $aggregationName => $resultAggregation) {
             $queryAggregation = $query->getAggregation($aggregationName);
+            $relatedFilter = $query->getFilter($aggregationName);
+            $relatedFilterValues = $relatedFilter instanceof Filter
+                ? $relatedFilter->getValues()
+                : [];
+
+            $elementsToTakeInAccount = $relatedFilter instanceof Filter && $relatedFilter->getApplicationType() & Filter::MUST_ALL_WITH_LEVELS
+                ? $relatedFilterValues
+                : [];
+
             $aggregation = new ResultAggregation(
+                $aggregationName,
                 $queryAggregation->getType(),
-                $resultAggregation['doc_count']
+                $resultAggregation['doc_count'],
+                $relatedFilterValues
             );
+
             $aggregations->addAggregation($aggregationName, $aggregation);
             $buckets = isset($resultAggregation[$aggregationName]['buckets'])
                 ? $resultAggregation[$aggregationName]['buckets']
@@ -178,8 +199,6 @@ class Repository
                 continue;
             }
 
-            $relatedFilter = $query->getFilter($aggregationName);
-
             foreach ($buckets as $bucket) {
                 if (
                     empty($queryAggregation->getSubgroup()) ||
@@ -188,7 +207,7 @@ class Repository
                     $aggregation->addCounter(
                         $bucket['key'],
                         $bucket['doc_count'],
-                        $relatedFilter->getValues()
+                        $elementsToTakeInAccount
                     );
                 }
             }
@@ -201,13 +220,28 @@ class Repository
              * * Elements already filtered
              * * Elements with level (if exists) than the highest one
              */
-            if ($relatedFilter->getApplicationType() === Filter::MUST_ALL) {
+            if ($queryAggregation->getType() & Filter::MUST_ALL_WITH_LEVELS) {
                 $aggregation->cleanCountersByLevel();
             }
         }
         $result->setAggregations($aggregations);
 
         return $result;
+    }
+
+    /**
+     * Get common aggregations from ElasticaResult.
+     *
+     * @param array $elasticaResult
+     *
+     * @return array
+     */
+    private function getCommonAggregations(array $elasticaResult) : array
+    {
+        return [
+            'min_price' => (int) $elasticaResult['common']['min_price']['value'],
+            'max_price' => (int) $elasticaResult['common']['max_price']['value'],
+        ];
     }
 
     /**
@@ -262,10 +296,11 @@ class Repository
         }
 
         if ($filter->getFilterType() === Filter::TYPE_QUERY) {
+            $queryString = $filter->getValues()[0];
             $boolQuery->addMust(
-                $filter->getField() === Query::MATCH_ALL
+                empty($queryString)
                     ? new ElasticaQuery\MatchAll()
-                    : new ElasticaQuery\Match('_all', $filter->getField())
+                    : new ElasticaQuery\Match('_all', $queryString)
             );
 
             return;
@@ -294,7 +329,7 @@ class Repository
         bool $onlyAddDefinedTermFilter,
         bool $takeInAccountDefinedTermFilter
     ) {
-        return $filter->getApplicationType() === Filter::MUST_ALL
+        return $filter->getApplicationType() & Filter::MUST_ALL
             ? $this
                 ->createQueryFilterMustAll(
                     $filter,
@@ -383,11 +418,17 @@ class Repository
             }
         }
 
+        /**
+         * This is specifically for Tags.
+         * Because you can make subgroups of Tags, each aggregation must define
+         * its values from this given subgroup.
+         */
         if ($takeInAccountDefinedTermFilter && !empty($filter->getFilterTerms())) {
             list($field, $value) = $filter->getFilterTerms();
             $filteringFilter = Filter::create(
-                $field, $value, $filter->getApplicationType(), $filter->getFilterType(), []
+                $field, $value, Filter::AT_LEAST_ONE, $filter->getFilterType(), []
             );
+
             $boolQueryFilter->addFilter(
                 $this
                     ->createQueryFilterByApplicationType(
@@ -533,7 +574,7 @@ class Repository
     }
 
     /**
-     * Set aggregations.
+     * Add aggregations.
      *
      * @param ElasticaQuery      $elasticaQuery
      * @param QueryAggregation[] $aggregations
@@ -557,7 +598,7 @@ class Repository
             $this->addFilters(
                 $boolQuery,
                 $filters,
-                $aggregation->getType() !== Filter::MUST_ALL
+                $aggregation->getType() & Filter::AT_LEAST_ONE
                     ? $aggregation->getName()
                     : null,
                 true
@@ -569,6 +610,37 @@ class Repository
         }
 
         $elasticaQuery->addAggregation($globalAggregation);
+        $this->addCommonAggregations($productsAggregation, $filters);
+    }
+
+    /**
+     * Add common aggregations.
+     *
+     * @param ElasticaAggregation\AbstractAggregation $productsAggregation
+     * @param Filter[]                                $filters
+     */
+    private function addCommonAggregations(
+        ElasticaAggregation\AbstractAggregation $productsAggregation,
+        array $filters
+    ) {
+        $commonAggregations = new ElasticaAggregation\Filter('common');
+        $boolQuery = new ElasticaQuery\BoolQuery();
+        $this->addFilters(
+            $boolQuery,
+            $filters,
+            '',
+            false
+        );
+        $commonAggregations->setFilter($boolQuery);
+
+        $minPriceAggregation = new ElasticaAggregation\Min('min_price');
+        $minPriceAggregation->setField('real_price');
+        $commonAggregations->addAggregation($minPriceAggregation);
+
+        $maxPriceAggregation = new ElasticaAggregation\Max('max_price');
+        $maxPriceAggregation->setField('real_price');
+        $commonAggregations->addAggregation($maxPriceAggregation);
+        $productsAggregation->addAggregation($commonAggregations);
     }
 
     /**

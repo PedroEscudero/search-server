@@ -1,0 +1,81 @@
+{% macro printAggregation(search_query, result, aggregationName) %}
+    {% set aggregation = result.aggregation(aggregationName) %}
+    {% if aggregation != null %}
+        {{ aggregation.sortByName }}
+        <h4>{{ aggregationName }}</h4>
+        <ul class="nav nav-sidebar">
+
+            {% if aggregation.counters is empty %}
+                <li>
+                    <a href="{{ url("shop", search_query|remove_filter_value(aggregationName)) }}">
+                        <span class="glyphicon glyphicon-remove-circle"></span> Remove all {{ aggregationName }} filters
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if aggregation.hasLevels %}
+                {% for activeElement in aggregation.activeElements %}
+                    <li>
+                        <a href="{{ url("shop", search_query|remove_filter_value(aggregationName, activeElement.id)) }}">
+                            <span class="glyphicon glyphicon-remove-circle"></span> {{ activeElement.name }}
+                        </a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            {% for name,counter in aggregation  %}
+                <li>
+                    {% set url = counter.used
+                        ? search_query|remove_filter_value(aggregationName, counter.id)
+                        : search_query|add_filter_value(aggregationName, counter.id)
+                    %}
+
+                    <a href="{{ url("shop", url) }}">
+                        {% if
+                            not aggregation.isFilter or
+                            not aggregation.hasLevels
+                        %}
+                            <input type="checkbox"{% if counter.used %} checked{% endif %}/>
+                        {% endif %}
+                        {{ counter.name }} ({{ counter.n }})
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro printAggregation %}
+
+
+{% macro printPriceRange(search_query, result, from, to) %}
+
+    {% set result_min_price = (result.minPrice/100)|round  %}
+    {% set result_max_price = (result.maxPrice/100)|round  %}
+
+    <div id="price_range_wrapper"
+        data-url-placeholder = "{{ url("shop", search_query|remove_price_range_filter) }}"
+        data-slider-max = "{{ result_max_price }}"
+    >
+        <h4>Price</h4>
+        {% if
+            app.request.query.has('from') or
+            app.request.query.has('to')
+        %}
+            <div>
+                <a href="{{ url("shop", search_query|remove_price_range_filter) }}">
+                    Remove filter from {{ from }}€ to {{ to }}€
+                </a>
+            </div>
+        {% endif %}
+        <input
+                id="price_range"
+                type="text"
+                class="span2"
+                value=""
+                data-slider-min="{{ result_min_price }}"
+                data-slider-max="{{ result_max_price }}"
+                data-slider-step="1"
+                data-slider-value="[{{ from }},{{ to }}]"
+        />
+    </div>
+
+{% endmacro printPriceRange %}

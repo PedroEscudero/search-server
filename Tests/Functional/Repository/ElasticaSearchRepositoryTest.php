@@ -55,9 +55,9 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
         self::$repository = self::get('search_bundle.repository');
         $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
         foreach ($products['products'] as $product) {
-            $index->index('000', Product::createFromArray($product));
+            $index->addProduct('000', Product::createFromArray($product));
         }
-        $index->flush();
+        $index->flush(500);
     }
 
     /**

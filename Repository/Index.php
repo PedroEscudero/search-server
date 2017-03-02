@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Repository;
 
-use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
 
 use Mmoreram\SearchBundle\Elastica\ElasticaWrapper;
@@ -80,6 +79,7 @@ class Index
         $this
             ->elasticaWrapper
             ->refresh();
+        $this->resetDocumentCache();
     }
 
     /**

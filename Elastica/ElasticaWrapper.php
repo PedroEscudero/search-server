@@ -140,6 +140,7 @@ class ElasticaWrapper
         return [
             'results' => $queryResult->getResults(),
             'aggregations' => $queryResult->getAggregations(),
+            'total_hits' => $queryResult->getTotalHits(),
         ];
     }
 

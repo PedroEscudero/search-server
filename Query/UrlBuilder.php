@@ -63,9 +63,14 @@ class UrlBuilder
     public function removeFilterValue(
         Query $query,
         string $filterName,
-        string $value
+        string $value = null
     ) : array {
         $urlParameters = $this->generateQueryUrlParameters($query);
+        if (is_null($value)) {
+            unset($urlParameters[$filterName]);
+
+            return $urlParameters;
+        }
 
         /**
          * Silent pass if the filter does not exist.
@@ -77,6 +82,22 @@ class UrlBuilder
         if (($key = array_search($value, $urlParameters[$filterName])) !== false) {
             unset($urlParameters[$filterName][$key]);
         }
+
+        return $urlParameters;
+    }
+
+    /**
+     * Change price range.
+     *
+     * @param Query $query
+     *
+     * @return array
+     */
+    public function removePriceRangeFilter(Query $query) : array
+    {
+        $urlParameters = $this->generateQueryUrlParameters($query);
+        unset($urlParameters['from']);
+        unset($urlParameters['to']);
 
         return $urlParameters;
     }
@@ -95,14 +116,29 @@ class UrlBuilder
                 return $filter->getValues();
             }, $query->getFilters())
         );
-
         unset($parameters['_query']);
+        unset($parameters['price_range']);
+
         $queryString = $query
             ->getFilter('_query')
-            ->getField();
+            ->getValues()[0];
 
-        if ($queryString !== Query::MATCH_ALL) {
+        if (!empty($queryString)) {
             $parameters['q'] = $queryString;
+        }
+
+        $priceRangeFilter = $query->getFilter('price_range');
+        if ($priceRangeFilter instanceof Filter) {
+            $from = $priceRangeFilter->getValues()['from'];
+            $to = $priceRangeFilter->getValues()['to'];
+
+            if ($from > PriceRange::FREE) {
+                $parameters['from'] = $from;
+            }
+
+            if ($to >= PriceRange::FREE) {
+                $parameters['to'] = $to;
+            }
         }
 
         return $parameters;

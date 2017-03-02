@@ -28,7 +28,7 @@ class Aggregation
     private $name;
 
     /**
-     * @var string
+     * @var int
      *
      * Type
      */
@@ -60,14 +60,14 @@ class Aggregation
      *
      * @param string $name
      * @param string $field
-     * @param string $type
+     * @param int    $type
      * @param bool   $nested
      * @param array  $subgroup
      */
     private function __construct(
         string $name,
         string $field,
-        string $type,
+        int $type,
         bool $nested,
         array $subgroup
     ) {
@@ -101,9 +101,9 @@ class Aggregation
     /**
      * Get type.
      *
-     * @return string
+     * @return int
      */
-    public function getType(): string
+    public function getType(): int
     {
         return $this->type;
     }
@@ -133,7 +133,7 @@ class Aggregation
      *
      * @param string $name
      * @param string $field
-     * @param string $type
+     * @param int    $type
      * @param bool   $nested
      * @param array  $subgroup
      *
@@ -142,7 +142,7 @@ class Aggregation
     public static function create(
         string $name,
         string $field,
-        string $type,
+        int $type,
         bool $nested,
         array $subgroup = []
     ) : self {

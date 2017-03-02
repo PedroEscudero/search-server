@@ -425,7 +425,7 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE)->removeFilterByPriceRange()),
+            $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE)->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
@@ -460,7 +460,6 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $this->assertResults(
             $repository->search('000', Query::createMatchAll()
                 ->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent'])
-                ->removeTagFilter('_')
                 ->filterByTags('_', $this->allFilters(), ['new'])
             ),
             Product::TYPE,

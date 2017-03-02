@@ -103,3 +103,10 @@ body {
   display: inline-block;
   border-radius: 50%;
 }
+
+/**
+ * Slider
+ */
+#price_range_slider .slider-selection {
+	background: cornflowerblue;
+}

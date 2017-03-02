@@ -69,6 +69,64 @@ class Result
     private $aggregations;
 
     /**
+     * Total elements.
+     *
+     * @var int
+     */
+    private $totalElements;
+
+    /**
+     * Total products.
+     *
+     * @var int
+     */
+    private $totalProducts;
+
+    /**
+     * Total hits.
+     *
+     * @var int
+     */
+    private $totalHits;
+
+    /**
+     * Min price.
+     *
+     * @var int
+     */
+    private $minPrice;
+
+    /**
+     * Max price.
+     *
+     * @var int
+     */
+    private $maxPrice;
+
+    /**
+     * Result constructor.
+     *
+     * @param int $totalElements
+     * @param int $totalProducts
+     * @param int $totalHits
+     * @param int $minPrice
+     * @param int $maxPrice
+     */
+    public function __construct(
+        int $totalElements,
+        int $totalProducts,
+        int $totalHits,
+        int $minPrice,
+        int $maxPrice
+    ) {
+        $this->totalElements = $totalElements;
+        $this->totalProducts = $totalProducts;
+        $this->totalHits = $totalHits;
+        $this->minPrice = $minPrice;
+        $this->maxPrice = $maxPrice;
+    }
+
+    /**
      * Add product.
      *
      * @param Product $product
@@ -186,5 +244,69 @@ class Result
     public function getAggregations(): Aggregations
     {
         return $this->aggregations;
+    }
+
+    /**
+     * Get aggregation.
+     *
+     * @param string $name
+     *
+     * @return null|Aggregation
+     */
+    public function getAggregation(string $name) : ? Aggregation
+    {
+        return $this
+            ->getAggregations()
+            ->getAggregation($name);
+    }
+
+    /**
+     * Total elements.
+     *
+     * @return int
+     */
+    public function getTotalElements() : int
+    {
+        return $this->totalElements;
+    }
+
+    /**
+     * Total products.
+     *
+     * @return int
+     */
+    public function getTotalProducts(): int
+    {
+        return $this->totalProducts;
+    }
+
+    /**
+     * Get total hits.
+     *
+     * @return int
+     */
+    public function getTotalHits() : int
+    {
+        return $this->totalHits;
+    }
+
+    /**
+     * Get min price.
+     *
+     * @return int
+     */
+    public function getMinPrice(): int
+    {
+        return $this->minPrice;
+    }
+
+    /**
+     * Get max price.
+     *
+     * @return int
+     */
+    public function getMaxPrice(): int
+    {
+        return $this->maxPrice;
     }
 }

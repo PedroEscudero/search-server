@@ -27,6 +27,13 @@ use Mmoreram\SearchBundle\Query\Filter;
 class Aggregation implements IteratorAggregate
 {
     /**
+     * @var string
+     *
+     * Name
+     */
+    private $name;
+
+    /**
      * @var Counter[]
      *
      * Counters
@@ -34,7 +41,7 @@ class Aggregation implements IteratorAggregate
     private $counters = [];
 
     /**
-     * @var string
+     * @var int
      *
      * Aggregation type
      */
@@ -48,6 +55,13 @@ class Aggregation implements IteratorAggregate
     private $totalElements;
 
     /**
+     * @var array
+     *
+     * Active elements
+     */
+    private $activeElements;
+
+    /**
      * @var int
      *
      * Lowest level
@@ -57,15 +71,21 @@ class Aggregation implements IteratorAggregate
     /**
      * Aggregation constructor.
      *
-     * @param string $type
+     * @param string $name
+     * @param int    $type
      * @param int    $totalElements
+     * @param array  $activeElements
      */
     public function __construct(
-        string $type,
-        int $totalElements
+        string $name,
+        int $type,
+        int $totalElements,
+        array $activeElements
     ) {
+        $this->name = $name;
         $this->type = $type;
         $this->totalElements = $totalElements;
+        $this->activeElements = array_flip($activeElements);
     }
 
     /**
@@ -86,10 +106,18 @@ class Aggregation implements IteratorAggregate
             $activeElements
         );
 
+        /**
+         * The entry is used.
+         * This block should take in account when the filter is of type
+         * levels, but only levels.
+         */
         if (
-            $this->type === Filter::MUST_ALL &&
+            $this->type & Filter::MUST_ALL_WITH_LEVELS &&
+            $this->type & ~Filter::MUST_ALL &&
             $counter->isUsed()
         ) {
+            $this->activeElements[$counter->getId()] = $counter;
+
             return;
         }
 
@@ -97,6 +125,16 @@ class Aggregation implements IteratorAggregate
         $this->lowestLevel = is_null($this->lowestLevel)
             ? $counter->getLevel()
             : min($this->lowestLevel, $counter->getLevel());
+    }
+
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**
@@ -120,6 +158,16 @@ class Aggregation implements IteratorAggregate
     }
 
     /**
+     * Aggregation has levels.
+     *
+     * @return bool
+     */
+    public function hasLevels() : bool
+    {
+        return (bool) ($this->type & Filter::MUST_ALL_WITH_LEVELS);
+    }
+
+    /**
      * Get counter.
      *
      * @param string $name
@@ -132,12 +180,63 @@ class Aggregation implements IteratorAggregate
     }
 
     /**
+     * Get total elements.
+     *
+     * @return int
+     */
+    public function getTotalElements() : int
+    {
+        return $this->totalElements;
+    }
+
+    /**
+     * Get active elements.
+     *
+     * @return array
+     */
+    public function getActiveElements(): array
+    {
+        if (empty($this->activeElements)) {
+            return [];
+        }
+
+        if ($this->type === FILTER::MUST_ALL_WITH_LEVELS) {
+            return [array_reduce(
+                $this->activeElements,
+                function ($carry, Counter $counter) {
+                    if (is_null($carry)) {
+                        return $counter;
+                    }
+
+                    return $carry->getLevel() > $counter->getLevel()
+                        ? $carry
+                        : $counter;
+                }, null)];
+        }
+
+        return $this->activeElements;
+    }
+
+    /**
+     * Sort by value.
+     */
+    public function sortByName()
+    {
+        usort($this->counters, function (Counter $a, Counter $b) {
+            return $a->getName() > $b->getName();
+        });
+    }
+
+    /**
      * Clean results by level and remove all levels higher than the lowest.
      */
     public function cleanCountersByLevel()
     {
         foreach ($this->counters as $pos => $counter) {
             if ($counter->getLevel() !== $this->lowestLevel) {
+                if ($counter->isUsed()) {
+                    $this->activeElements[] = $counter;
+                }
                 unset($this->counters[$pos]);
             }
         }

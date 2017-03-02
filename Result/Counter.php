@@ -35,7 +35,7 @@ class Counter
     private $name;
 
     /**
-     * @var string
+     * @var null|string
      *
      * Level
      */
@@ -60,14 +60,14 @@ class Counter
      *
      * @param string $id
      * @param string $name
-     * @param int    $level
+     * @param ?int   $level
      * @param bool   $used
      * @param int    $n
      */
     private function __construct(
         string $id,
         string $name,
-        int $level,
+        ? int $level,
         bool $used,
         int $n
     ) {
@@ -83,7 +83,7 @@ class Counter
      *
      * @return string
      */
-    public function getId(): string
+    public function getId() : string
     {
         return $this->id;
     }
@@ -101,9 +101,9 @@ class Counter
     /**
      * Get level.
      *
-     * @return int
+     * @return null|int
      */
-    public function getLevel() : int
+    public function getLevel() : ? int
     {
         return $this->level;
     }
@@ -113,7 +113,7 @@ class Counter
      *
      * @return bool
      */
-    public function isUsed(): bool
+    public function isUsed() : bool
     {
         return $this->used;
     }
@@ -143,7 +143,7 @@ class Counter
         array $activeElements
     ) : self {
         $id = $name;
-        $level = 0;
+        $level = null;
         $splittedParts = explode('~~', $name);
         if (count($splittedParts) > 1) {
             $id = $splittedParts[0];

@@ -1,27 +1,20 @@
-{% set request_query = app.request.query.all %}
+{% import "SearchBundle:Search:aggregations.html.twig" as _aggregations %}
 
 <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
-        {% for aggregationName,aggregation in result.aggregations %}
-            <h4>{{ aggregationName }}</h4>
-            <ul class="nav nav-sidebar">
-                {% for name,counter in aggregation  %}
-                    <li>
-                        {% set url = counter.used
-                            ? search_query|remove_filter_value(aggregationName, counter.id)
-                            : search_query|add_filter_value(aggregationName, counter.id)
-                        %}
-
-                        <a href="{{ url("shop", url) }}">
-                            {% if aggregation.isFilter == false %}
-                                <input type="checkbox"{% if counter.used %} checked{% endif %}/>
-                            {% endif %}
-                            {{ counter.name }} ({{ counter.n }})
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
+        <div class="progress">
+            {% set percent = result.totalHits/10 %}
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="{{ result.totalProducts }}" style="width: {{ percent }}%;">
+                {{ result.totalProducts }}
+            </div>
+        </div>
+        {{ _aggregations.printAggregation(search_query, result, 'categories') }}
+        {{ _aggregations.printPriceRange(search_query, result, from, to) }}
+        {{ _aggregations.printAggregation(search_query, result, 'manufacturer') }}
+        {{ _aggregations.printAggregation(search_query, result, 'brand') }}
+        {{ _aggregations.printAggregation(search_query, result, 'quality') }}
+        {{ _aggregations.printAggregation(search_query, result, 'stock') }}
+        {{ _aggregations.printAggregation(search_query, result, 'shipping') }}
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <div class="row">
@@ -47,3 +40,4 @@
         </div>
     </div>
 </div>
+

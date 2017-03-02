@@ -17,6 +17,7 @@ namespace Mmoreram\SearchBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Mmoreram\SearchBundle\Model\Category;
@@ -33,7 +34,15 @@ class GenerateProductsCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName('load-catalog');
+        $this
+            ->setName('load-catalog')
+            ->addOption(
+                'number-of-products',
+                '',
+                InputOption::VALUE_OPTIONAL,
+                '',
+                100
+            );
     }
 
     /**
@@ -62,11 +71,12 @@ class GenerateProductsCommand extends ContainerAwareCommand
             ->getContainer()
             ->get('search_bundle.index');
 
-        for ($id = 1; $id < 100; ++$id) {
+        for ($id = 1; $id <= $input->getOption('number-of-products'); ++$id) {
             $family = array_keys($this->categories())[rand(0, 1)];
             $mainCategory = $this->categories()[$family][rand(0, 2)];
             $lastCategory = $mainCategory['categories'][rand(0, 2)];
             $price = rand(100, 20000);
+            $reducedPrice = max(min($price, rand($price - 2000, $price + 2000)), 0);
             $manufacturerId = rand(0, 3);
             $brandId = rand(0, 3);
             $product = Product::createFromArray([
@@ -76,7 +86,7 @@ class GenerateProductsCommand extends ContainerAwareCommand
                 'name' => "$family #$id",
                 'description' => "This is the $family number #$id, with categories {$mainCategory['name']} and {$lastCategory['name']}",
                 'price' => $price,
-                'reduced_price' => max(min($price, rand($price - 5000, $price + 500)), 0),
+                'reduced_price' => $reducedPrice,
                 'manufacturer' => [
                     'id' => $manufacturerId,
                     'name' => $this->manufacturers()[$manufacturerId],

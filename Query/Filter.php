@@ -21,18 +21,25 @@ namespace Mmoreram\SearchBundle\Query;
 class Filter
 {
     /**
-     * @var string
-     *
-     * Accumulative
-     */
-    const AT_LEAST_ONE = 'at_least_one';
-
-    /**
-     * @var string
+     * @var int
      *
      * Filter
      */
-    const MUST_ALL = 'must_all';
+    const MUST_ALL = 1;
+
+    /**
+     * @var int
+     *
+     * Accumulative
+     */
+    const AT_LEAST_ONE = 2;
+
+    /**
+     * @var int
+     *
+     * Filter
+     */
+    const MUST_ALL_WITH_LEVELS = 5;
 
     /**
      * @var string
@@ -77,7 +84,7 @@ class Filter
     private $values;
 
     /**
-     * @var string
+     * @var int
      *
      * Type
      */
@@ -102,14 +109,14 @@ class Filter
      *
      * @param string $field
      * @param array  $values
-     * @param string $applicationType
+     * @param int    $applicationType
      * @param string $filterType
      * @param array  $filterTerms
      */
     private function __construct(
         string $field,
         array $values,
-        string $applicationType,
+        int $applicationType,
         string $filterType,
         array $filterTerms
     ) {
@@ -155,9 +162,9 @@ class Filter
     /**
      * Get application type.
      *
-     * @return string
+     * @return int
      */
-    public function getApplicationType(): string
+    public function getApplicationType(): int
     {
         return $this->applicationType;
     }
@@ -187,7 +194,7 @@ class Filter
      *
      * @param string $field
      * @param array  $values
-     * @param string $applicationType
+     * @param int    $applicationType
      * @param string $filterType
      * @param array  $filterTerms
      *
@@ -196,7 +203,7 @@ class Filter
     public static function create(
         string $field,
         array $values,
-        string $applicationType,
+        int $applicationType,
         string $filterType,
         array $filterTerms = []
     ) : self {

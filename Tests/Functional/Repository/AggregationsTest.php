@@ -64,7 +64,6 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
             '000',
             Query::createMatchAll()
                 ->filterByCategories([])
-                ->removeCategoriesFilter()
                 ->filterByCategories([])
         )
         ->getAggregations();
@@ -112,7 +111,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $aggregations = $repository->search(
             '000',
             Query::createMatchAll()
-                ->filterByCategories([], Filter::MUST_ALL)
+                ->filterByCategories([], Filter::MUST_ALL_WITH_LEVELS)
                 ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
         )
         ->getAggregations();
@@ -125,7 +124,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $aggregations = $repository->search(
             '000',
             Query::createMatchAll()
-                ->filterByCategories(['1'], Filter::MUST_ALL)
+                ->filterByCategories(['1'], Filter::MUST_ALL_WITH_LEVELS)
                 ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
         )
         ->getAggregations();
@@ -138,7 +137,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $aggregations = $repository->search(
             '000',
             Query::createMatchAll()
-                ->filterByCategories(['50'], Filter::MUST_ALL)
+                ->filterByCategories(['50'], Filter::MUST_ALL_WITH_LEVELS)
                 ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
         )
         ->getAggregations();
@@ -160,5 +159,56 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
                 ->filterByTags('specials', ['new', 'last_hour'], [], Filter::AT_LEAST_ONE)
         )
         ->getAggregations();
+
+        $this->assertEquals(
+            2,
+            $aggregations->getAggregation('specials')->getCounter('new')->getN()
+        );
+        $this->assertEquals(
+            1,
+            $aggregations->getAggregation('specials')->getCounter('last_hour')->getN()
+        );
+
+        $this->assertCount(
+            3,
+            $repository->search(
+                '000',
+                Query::createMatchAll()
+                    ->filterByTags('specials', ['new', 'last_hour'], ['new', 'last_hour'], Filter::AT_LEAST_ONE)
+            )->getProducts()
+        );
+
+        $this->assertCount(
+            1,
+            $repository->search(
+                '000',
+                Query::createMatchAll()
+                    ->filterByTags('specials', ['new', 'last_hour'], ['last_hour'], Filter::AT_LEAST_ONE)
+            )->getProducts()
+        );
+
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByTags('specials', ['new', 'shirt'], [], Filter::MUST_ALL)
+        )
+        ->getAggregations();
+        $this->assertEquals(
+            2,
+            $aggregations->getAggregation('specials')->getCounter('new')->getN()
+        );
+        $this->assertEquals(
+            1,
+            $aggregations->getAggregation('specials')->getCounter('shirt')->getN()
+        );
+
+        $this->assertCount(
+            1,
+            $repository->search(
+                '000',
+                Query::createMatchAll()
+                    ->filterByTags('specials', ['new', 'shirt'], ['new', 'shirt'], Filter::MUST_ALL)
+            )->getProducts()
+        );
     }
 }

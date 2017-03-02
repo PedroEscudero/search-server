@@ -20,7 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use Mmoreram\SearchBundle\Query\Filter;
+use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
+use Mmoreram\SearchBundle\Result\Result;
 
 /**
  * Class ShopController.
@@ -57,10 +59,13 @@ class ShopController extends Controller
         $qualityTags = $requestQuery->get('quality', []);
         $stockTags = $requestQuery->get('stock', []);
         $shippingTags = $requestQuery->get('shipping', []);
+        $from = (int) $requestQuery->get('from', PriceRange::FREE);
+        $to = (int) $requestQuery->get('to', PriceRange::INFINITE);
         $q = $requestQuery->get('q', '');
 
-        $searchQuery = Query::create($q, 0, 1000)
-            ->filterByCategories($categories, Filter::MUST_ALL)
+        $searchQuery = Query::create($q, 0, 100)
+            ->filterByPriceRange($from * 100, $to === PriceRange::INFINITE ? $to : ($to * 100))
+            ->filterByCategories($categories, Filter::MUST_ALL_WITH_LEVELS)
             ->filterByBrands($brands, Filter::AT_LEAST_ONE)
             ->filterByManufacturers($manufacturers, Filter::AT_LEAST_ONE)
             ->filterByTags(
@@ -72,7 +77,7 @@ class ShopController extends Controller
                     'healthy',
                 ],
                 $qualityTags,
-                Filter::AT_LEAST_ONE
+                Filter::MUST_ALL
             )
             ->filterByTags(
                 'stock',
@@ -94,6 +99,9 @@ class ShopController extends Controller
                 Filter::AT_LEAST_ONE
             );
 
+        /**
+         * @var Result $result
+         */
         $result = $this
             ->get('search_bundle.repository')
             ->search('000', $searchQuery);
@@ -101,6 +109,10 @@ class ShopController extends Controller
         return $this->render('SearchBundle:Shop:content.html.twig', [
             'search_query' => $searchQuery,
             'result' => $result,
+            'from' => $from,
+            'to' => $to === PriceRange::INFINITE
+                ? ceil($result->getMaxPrice() / 100)
+                : $to,
         ]);
     }
 }
