@@ -5,7 +5,7 @@
         <strong>{{ product.realPrice/100 }}€</strong>
         {% if product.realPrice < product.price %}
             <span class="glyphicon glyphicon-fire"></span>
-            <i style="color:#777777">Discount of {{ product.discount }} ({{ product.discount_percentage }}%)</i>
+            <i style="color:#777777">Discount of {{ product.discount }}€ ({{ product.discountPercentage }}%)</i>
         {% endif %}
     </p>
     <p>Manufactured by <strong>{{ product.manufacturer.name }}</strong></p>

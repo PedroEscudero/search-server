@@ -75,8 +75,8 @@ class GenerateProductsCommand extends ContainerAwareCommand
             $family = array_keys($this->categories())[rand(0, 1)];
             $mainCategory = $this->categories()[$family][rand(0, 2)];
             $lastCategory = $mainCategory['categories'][rand(0, 2)];
-            $price = rand(100, 20000);
-            $reducedPrice = max(min($price, rand($price - 2000, $price + 2000)), 0);
+            $price = rand(5000, 15000);
+            $reducedPrice = max(min($price, rand($price - 4000, $price + 4000)), 0);
             $manufacturerId = rand(0, 3);
             $brandId = rand(0, 3);
             $product = Product::createFromArray([
