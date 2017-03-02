@@ -201,10 +201,14 @@ class Aggregation implements IteratorAggregate
         }
 
         if ($this->type === FILTER::MUST_ALL_WITH_LEVELS) {
-            return [array_reduce(
+            $value = [array_reduce(
                 $this->activeElements,
-                function ($carry, Counter $counter) {
-                    if (is_null($carry)) {
+                function ($carry, $counter) {
+                    if (!$counter instanceof Counter) {
+                        return $carry;
+                    }
+
+                    if (!$carry instanceof Counter) {
                         return $counter;
                     }
 
@@ -212,6 +216,10 @@ class Aggregation implements IteratorAggregate
                         ? $carry
                         : $counter;
                 }, null)];
+
+            return is_null($value)
+                ? []
+                : $value;
         }
 
         return $this->activeElements;

@@ -129,8 +129,8 @@ class UrlBuilder
 
         $priceRangeFilter = $query->getFilter('price_range');
         if ($priceRangeFilter instanceof Filter) {
-            $from = $priceRangeFilter->getValues()['from'];
-            $to = $priceRangeFilter->getValues()['to'];
+            $from = $priceRangeFilter->getValues()['from'] / 100;
+            $to = $priceRangeFilter->getValues()['to'] / 100;
 
             if ($from > PriceRange::FREE) {
                 $parameters['from'] = $from;
