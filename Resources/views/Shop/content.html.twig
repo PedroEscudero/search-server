@@ -5,7 +5,7 @@
         <div class="progress">
             {% set percent = result.totalHits/10 %}
             <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="{{ result.totalProducts }}" style="width: {{ percent }}%;">
-                {{ result.totalProducts }}
+                {{ result.totalHits }}
             </div>
         </div>
         {{ _aggregations.printAggregation(search_query, result, 'categories') }}
