@@ -58,11 +58,8 @@ class SearchBundle extends SimpleBaseBundle
             DoctrineBundle::class,
             FrameworkBundle::class,
             BaseBundle::class,
+            TwigBundle::class,
         ];
-
-        if ($kernel->isDebug()) {
-            $dependencies[] = TwigBundle::class;
-        }
 
         return $dependencies;
     }
