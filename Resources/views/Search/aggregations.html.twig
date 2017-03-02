@@ -31,11 +31,8 @@
                     %}
 
                     <a href="{{ url("shop", url) }}">
-                        {% if
-                            not aggregation.isFilter or
-                            not aggregation.hasLevels
-                        %}
-                            <input type="checkbox"{% if counter.used %} checked{% endif %}/>
+                        {% if not aggregation.hasLevels %}
+                            <input type="checkbox"{% if counter.isUsed %} checked{% endif %}/>
                         {% endif %}
                         {{ counter.name }} ({{ counter.n }})
                     </a>

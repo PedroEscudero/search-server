@@ -179,10 +179,6 @@ class Repository
                 ? $relatedFilter->getValues()
                 : [];
 
-            $elementsToTakeInAccount = $relatedFilter instanceof Filter && $relatedFilter->getApplicationType() & Filter::MUST_ALL_WITH_LEVELS
-                ? $relatedFilterValues
-                : [];
-
             $aggregation = new ResultAggregation(
                 $aggregationName,
                 $queryAggregation->getType(),
@@ -207,7 +203,7 @@ class Repository
                     $aggregation->addCounter(
                         $bucket['key'],
                         $bucket['doc_count'],
-                        $elementsToTakeInAccount
+                        $relatedFilterValues
                     );
                 }
             }

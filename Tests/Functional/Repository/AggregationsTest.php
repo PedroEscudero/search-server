@@ -40,18 +40,35 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $aggregations = $repository->search(
             '000',
             Query::createMatchAll()
-                ->filterByManufacturers(['1'])
-                ->filterByBrands([])
+                ->filterByManufacturers(['1'], FILTER::AT_LEAST_ONE)
+                ->filterByBrands([], FILTER::AT_LEAST_ONE)
         )
         ->getAggregations();
+        $brandAggregation = $aggregations->getAggregation('brand');
+        $manufacturerAggregation = $aggregations->getAggregation('manufacturer');
+
+        $this->assertCount(1, $brandAggregation->getCounters());
+        $this->assertCount(5, $manufacturerAggregation->getCounters());
 
         $this->assertEquals(
             1,
-            $aggregations
-                ->getAggregation('brand')
+                $brandAggregation
                 ->getCounter('1')
                 ->getN()
         );
+
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByManufacturers(['1', '3'], FILTER::AT_LEAST_ONE)
+                ->filterByBrands([], FILTER::AT_LEAST_ONE)
+        )
+        ->getAggregations();
+        $brandAggregation = $aggregations->getAggregation('brand');
+        $manufacturerAggregation = $aggregations->getAggregation('manufacturer');
+
+        $this->assertCount(2, $brandAggregation->getCounters());
+        $this->assertCount(5, $manufacturerAggregation->getCounters());
     }
 
     /**
@@ -210,5 +227,44 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
                     ->filterByTags('specials', ['new', 'shirt'], ['new', 'shirt'], Filter::MUST_ALL)
             )->getProducts()
         );
+    }
+
+    /**
+     * Test leveled filter and aggregations.
+     */
+    public function testLeveledFilterAndAggregation()
+    {
+        $repository = static::$repository;
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByCategories(['1', '2'])
+        )
+        ->getAggregations();
+
+        $usedCategoryElements = $aggregations->getAggregation('categories')->getActiveElements();
+        $this->assertCount(
+            1,
+            $usedCategoryElements
+        );
+        $firstUsedCategoryElements = reset($usedCategoryElements);
+        $this->assertEquals('2', $firstUsedCategoryElements->getId());
+        $this->assertTrue($firstUsedCategoryElements->isUsed());
+
+        $aggregations = $repository->search(
+            '000',
+            Query::createMatchAll()
+                ->filterByCategories(['1'])
+        )
+        ->getAggregations();
+
+        $usedCategoryElements = $aggregations->getAggregation('categories')->getActiveElements();
+        $this->assertCount(
+            1,
+            $usedCategoryElements
+        );
+        $firstUsedCategoryElements = reset($usedCategoryElements);
+        $this->assertEquals('1', $firstUsedCategoryElements->getId());
+        $this->assertTrue($firstUsedCategoryElements->isUsed());
     }
 }
