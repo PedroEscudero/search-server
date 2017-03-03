@@ -5,7 +5,7 @@
 <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
         <div class="progress">
-            {% set percent = result.totalHits/10 %}
+            {% set percent = result.totalHits*100/result.totalProducts %}
             <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="{{ result.totalProducts }}" style="width: {{ percent }}%;">
                 {{ result.totalHits }}
             </div>
