@@ -53,6 +53,10 @@ class QueryExtension extends Twig_Extension
             new Twig_SimpleFilter('add_filter_value', [$this->urlBuilder, 'addFilterValue']),
             new Twig_SimpleFilter('remove_filter_value', [$this->urlBuilder, 'removeFilterValue']),
             new Twig_SimpleFilter('remove_price_range_filter', [$this->urlBuilder, 'removePriceRangeFilter']),
+            new Twig_SimpleFilter('add_prev_page', [$this->urlBuilder, 'addPrevPage']),
+            new Twig_SimpleFilter('add_page', [$this->urlBuilder, 'addPage']),
+            new Twig_SimpleFilter('add_next_page', [$this->urlBuilder, 'addNextPage']),
+            new Twig_SimpleFilter('add_sort_by', [$this->urlBuilder, 'addSortBy']),
         ];
     }
 

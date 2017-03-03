@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Query;
 
+use Mmoreram\SearchBundle\Result\Result;
+
 /**
  * Class UrlBuilder.
  */
@@ -103,6 +105,97 @@ class UrlBuilder
     }
 
     /**
+     * Set pagination.
+     *
+     * @param Query $query
+     * @param int   $page
+     *
+     * @return array
+     */
+    public function addPage(
+        Query $query,
+        int $page
+    ) : array {
+        $urlParameters = $this->generateQueryUrlParameters($query);
+        $urlParameters['page'] = $page;
+
+        return $urlParameters;
+    }
+
+    /**
+     * Add previous page.
+     *
+     * @param Query $query
+     *
+     * @return null|array
+     */
+    public function addPrevPage(Query $query) : ? array
+    {
+        $urlParameters = $this->generateQueryUrlParameters($query);
+        $page = $query->getPage();
+        $prevPage = $page - 1;
+
+        if ($prevPage < 1) {
+            return null;
+        }
+
+        $urlParameters['page'] = $prevPage;
+
+        return $urlParameters;
+    }
+
+    /**
+     * Add next page.
+     *
+     * @param Query  $query
+     * @param Result $result
+     *
+     * @return null|array
+     */
+    public function addNextPage(Query $query, Result $result) : ? array
+    {
+        $urlParameters = $this->generateQueryUrlParameters($query);
+        $page = $query->getPage();
+        $nextPage = $page + 1;
+
+        if ((($nextPage - 1) * $query->getSize()) > $result->getTotalHits()) {
+            return null;
+        }
+
+        $urlParameters['page'] = $nextPage;
+
+        return $urlParameters;
+    }
+
+    /**
+     * Add sort by. Return null if doesn't change.
+     *
+     * @param Query  $query
+     * @param string $field
+     * @param string $mode
+     *
+     * @return null|array
+     */
+    public function addSortBy(
+        Query $query,
+        string $field,
+        string $mode = null
+    ) : ? array {
+        $urlParameters = $this->generateQueryUrlParameters($query);
+
+        if (
+            isset($urlParameters['sort_by']) &&
+            $urlParameters['sort_by'][$field] == $mode
+        ) {
+            return null;
+        }
+
+        $urlParameters['sort_by'][$field] = $mode;
+
+        return $urlParameters;
+    }
+
+    /**
      * Query to url parameters.
      *
      * @param Query $query
@@ -125,6 +218,11 @@ class UrlBuilder
 
         if (!empty($queryString)) {
             $parameters['q'] = $queryString;
+        }
+
+        $sort = $query->getSortBy();
+        if ($sort !== SortBy::SCORE) {
+            $parameters['sortBy'] = $sort;
         }
 
         $priceRangeFilter = $query->getFilter('price_range');

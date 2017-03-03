@@ -28,11 +28,11 @@ class Query
     private $filters = [];
 
     /**
-     * @var string[]
+     * @var array
      *
-     * Sorts
+     * Sort
      */
-    private $sorts = [];
+    private $sort;
 
     /**
      * @var Aggregation[]
@@ -40,6 +40,13 @@ class Query
      * Aggregations
      */
     private $aggregations = [];
+
+    /**
+     * @var int
+     *
+     * Page
+     */
+    private $page;
 
     /**
      * @var int
@@ -62,6 +69,7 @@ class Query
      */
     private function __construct($queryText)
     {
+        $this->sortBy(SortBy::SCORE);
         $this->filters['_query'] = Filter::create(
             '',
             [$queryText],
@@ -74,19 +82,21 @@ class Query
      * Create new.
      *
      * @param string $queryText
-     * @param int    $from
+     * @param int    $page
      * @param int    $size
      *
      * @return self
      */
     public static function create(
         string $queryText,
-        int $from = 0,
+        int $page = 1,
         int $size = 10
     ) : self {
+        $page = (int) (max(1, $page));
         $query = new self($queryText);
-        $query->from = $from;
+        $query->from = ($page - 1) * $size;
         $query->size = $size;
+        $query->page = $page;
 
         return $query;
     }
@@ -98,11 +108,11 @@ class Query
      */
     public static function createMatchAll()
     {
-        $query = new self('');
-        $query->from = 0;
-        $query->size = 1000;
-
-        return $query;
+        return self::create(
+            '',
+            1,
+            1000
+        );
     }
 
     /**
@@ -312,25 +322,13 @@ class Query
     /**
      * Sort by.
      *
-     * @param array|string $string
+     * @param array $sort
      *
      * @return self
      */
-    public function sortBy($string) : self
+    public function sortBy(array $sort) : self
     {
-        $this->sorts[] = $string;
-
-        return $this;
-    }
-
-    /**
-     * Remove sorts.
-     *
-     * @return self
-     */
-    public function removeSorts() : self
-    {
-        $this->sorts = null;
+        $this->sort = $sort;
 
         return $this;
     }
@@ -474,13 +472,13 @@ class Query
     }
 
     /**
-     * Get sorts.
+     * Get sort by.
      *
-     * @return array $sorts
+     * @return array
      */
-    public function getSorts() : array
+    public function getSortBy() : array
     {
-        return $this->sorts;
+        return $this->sort;
     }
 
     /**
@@ -501,5 +499,15 @@ class Query
     public function getSize(): int
     {
         return $this->size;
+    }
+
+    /**
+     * Get page.
+     *
+     * @return int
+     */
+    public function getPage(): int
+    {
+        return $this->page;
     }
 }

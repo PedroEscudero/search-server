@@ -1,4 +1,6 @@
 {% import "SearchBundle:Search:aggregations.html.twig" as _aggregations %}
+{% import "SearchBundle:Search:pagination.html.twig" as _pagination %}
+{% import "SearchBundle:Search:order.html.twig" as _order %}
 
 <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
@@ -17,6 +19,9 @@
         {{ _aggregations.printAggregation(search_query, result, 'shipping') }}
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+        {{ _order.printOrderBy(search_query, result) }}
+        {{ _pagination.printPaginator(search_query, result) }}
         <div class="row">
             {% for brand in result.brands %}
                 {% include "SearchBundle:Shop:brand.html.twig" with {

@@ -25,7 +25,7 @@ class SortBy
      *
      * Sort by score
      */
-    const SCORE = '_score';
+    const SCORE = ['_score' => 'asc'];
 
     /**
      * @var string
@@ -110,31 +110,4 @@ class SortBy
      * Sort by manufacturer DESC
      */
     const BRAND_DESC = ['brand.name' => 'desc'];
-
-    /**
-     * @var array|string
-     *
-     * Sort value
-     */
-    private $value;
-
-    /**
-     * SortBy constructor.
-     *
-     * @param array|string $value
-     */
-    public function __construct($value)
-    {
-        $this->value = $value;
-    }
-
-    /**
-     * Get value.
-     *
-     * @return array|string
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
 }

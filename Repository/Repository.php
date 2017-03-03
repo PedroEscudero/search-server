@@ -83,9 +83,7 @@ class Repository
         );
 
         $mainQuery->setQuery($boolQuery);
-        $mainQuery->setSort(
-            $this->addSortBys($query->getSorts())
-        );
+        $mainQuery->setSort($query->getSortBy());
 
         $this->addAggregations(
             $mainQuery,
@@ -550,13 +548,13 @@ class Repository
     }
 
     /**
-     * Add a set of sortBy instances to query.
+     * Add a sortBy instance to query.
      *
-     * @param SortBy[] $sortBys
+     * @param array $sortBy
      *
      * @return array
      */
-    private function addSortBys(array $sortBys) : array
+    private function addSortBys(array $sortBy) : array
     {
         $sorts = [];
         foreach ($sortBys as $sortBy) {

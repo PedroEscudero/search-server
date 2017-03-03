@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Mmoreram\SearchBundle\Query\Filter;
 use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
+use Mmoreram\SearchBundle\Query\SortBy;
 use Mmoreram\SearchBundle\Result\Result;
 
 /**
@@ -62,12 +63,15 @@ class ShopController extends Controller
         $from = (int) $requestQuery->get('from', PriceRange::FREE);
         $to = (int) $requestQuery->get('to', PriceRange::INFINITE);
         $q = $requestQuery->get('q', '');
+        $page = (int) $requestQuery->get('page', 1);
+        $sortBy = $requestQuery->get('sort_by', SortBy::SCORE);
 
-        $searchQuery = Query::create($q, 0, 100)
+        $searchQuery = Query::create($q, $page, 100)
             ->filterByPriceRange($from * 100, $to === PriceRange::INFINITE ? $to : ($to * 100))
             ->filterByCategories($categories, Filter::MUST_ALL_WITH_LEVELS)
             ->filterByBrands($brands, Filter::AT_LEAST_ONE)
             ->filterByManufacturers($manufacturers, Filter::AT_LEAST_ONE)
+            ->sortBy($sortBy)
             ->filterByTags(
                 'quality',
                 [
