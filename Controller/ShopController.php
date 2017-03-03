@@ -81,7 +81,7 @@ class ShopController extends Controller
                     'healthy',
                 ],
                 $qualityTags,
-                Filter::MUST_ALL
+                Filter::AT_LEAST_ONE
             )
             ->filterByTags(
                 'stock',
