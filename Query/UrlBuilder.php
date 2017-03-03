@@ -179,18 +179,29 @@ class UrlBuilder
     public function addSortBy(
         Query $query,
         string $field,
-        string $mode = null
+        string $mode
     ) : ? array {
         $urlParameters = $this->generateQueryUrlParameters($query);
 
         if (
-            isset($urlParameters['sort_by']) &&
+            isset($urlParameters['sort_by'][$field]) &&
             $urlParameters['sort_by'][$field] == $mode
         ) {
             return null;
         }
 
-        $urlParameters['sort_by'][$field] = $mode;
+        if (
+            !isset($urlParameters['sort_by']) &&
+            SortBy::SCORE === [$field => $mode]
+        ) {
+            return null;
+        }
+
+        unset($urlParameters['sort_by']);
+
+        if (SortBy::SCORE !== [$field => $mode]) {
+            $urlParameters['sort_by'][$field] = $mode;
+        }
 
         return $urlParameters;
     }
@@ -222,7 +233,7 @@ class UrlBuilder
 
         $sort = $query->getSortBy();
         if ($sort !== SortBy::SCORE) {
-            $parameters['sortBy'] = $sort;
+            $parameters['sort_by'] = $sort;
         }
 
         $priceRangeFilter = $query->getFilter('price_range');
