@@ -83,7 +83,9 @@ class Repository
         );
 
         $mainQuery->setQuery($boolQuery);
-        $mainQuery->setSort($query->getSortBy());
+        if ($query->getSortBy() !== SortBy::SCORE) {
+            $mainQuery->setSort($query->getSortBy());
+        }
 
         $this->addAggregations(
             $mainQuery,
