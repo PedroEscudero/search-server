@@ -43,9 +43,9 @@ class Aggregation implements IteratorAggregate
     /**
      * @var int
      *
-     * Aggregation type
+     * Application type
      */
-    private $type;
+    private $applicationType;
 
     /**
      * @var int
@@ -72,18 +72,18 @@ class Aggregation implements IteratorAggregate
      * Aggregation constructor.
      *
      * @param string $name
-     * @param int    $type
+     * @param int    $applicationType
      * @param int    $totalElements
      * @param array  $activeElements
      */
     public function __construct(
         string $name,
-        int $type,
+        int $applicationType,
         int $totalElements,
         array $activeElements
     ) {
         $this->name = $name;
-        $this->type = $type;
+        $this->applicationType = $applicationType;
         $this->totalElements = $totalElements;
         $this->activeElements = array_flip($activeElements);
     }
@@ -100,6 +100,10 @@ class Aggregation implements IteratorAggregate
         int $counter,
         array $activeElements
     ) {
+        if ($counter == 0) {
+            return;
+        }
+
         $counter = Counter::createByActiveElements(
             $name,
             $counter,
@@ -112,8 +116,8 @@ class Aggregation implements IteratorAggregate
          * levels, but only levels.
          */
         if (
-            $this->type & Filter::MUST_ALL_WITH_LEVELS &&
-            $this->type & ~Filter::MUST_ALL &&
+            $this->applicationType & Filter::MUST_ALL_WITH_LEVELS &&
+            $this->applicationType & ~Filter::MUST_ALL &&
             $counter->isUsed()
         ) {
             $this->activeElements[$counter->getId()] = $counter;
@@ -154,7 +158,7 @@ class Aggregation implements IteratorAggregate
      */
     public function isFilter(): bool
     {
-        return $this->type === Filter::MUST_ALL;
+        return (bool) (($this->applicationType & Filter::MUST_ALL) === true);
     }
 
     /**
@@ -164,7 +168,7 @@ class Aggregation implements IteratorAggregate
      */
     public function hasLevels() : bool
     {
-        return (bool) ($this->type & Filter::MUST_ALL_WITH_LEVELS);
+        return (bool) ($this->applicationType & Filter::MUST_ALL_WITH_LEVELS);
     }
 
     /**
@@ -200,7 +204,7 @@ class Aggregation implements IteratorAggregate
             return [];
         }
 
-        if ($this->type === FILTER::MUST_ALL_WITH_LEVELS) {
+        if ($this->applicationType & FILTER::MUST_ALL_WITH_LEVELS) {
             $value = [array_reduce(
                 $this->activeElements,
                 function ($carry, $counter) {

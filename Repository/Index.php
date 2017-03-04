@@ -37,11 +37,18 @@ class Index
     private $elasticaWrapper;
 
     /**
+     * @var string
+     *
+     * Key
+     */
+    private $key;
+
+    /**
      * @var array
      *
      * Documents
      */
-    private $documents;
+    private $documents = [];
 
     /**
      * ElasticaSearchRepository constructor.
@@ -52,6 +59,16 @@ class Index
     {
         $this->elasticaWrapper = $elasticaWrapper;
         $this->resetDocumentCache();
+    }
+
+    /**
+     * Set key.
+     *
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
     /**
@@ -78,25 +95,21 @@ class Index
         $this->flushProjects($bulkNumber);
         $this
             ->elasticaWrapper
-            ->refresh();
+            ->refresh($this->key);
         $this->resetDocumentCache();
     }
 
     /**
      * Generate product document.
      *
-     * @param string  $user
      * @param Product $product
      *
      * @return ElasticaDocument
      */
-    public function addProduct(
-        string $user,
-        Product $product
-    ) {
-        $productId = "$user~~{$product->getId()}";
+    public function addProduct(Product $product)
+    {
+        $productId = $product->getId();
         $productDocument = [
-            'user' => $user,
             'id' => $productId,
             'family' => $product->getFamily(),
             'ean' => $product->getEan(),
@@ -109,18 +122,18 @@ class Index
             'real_price' => $product->getRealPrice(),
             'discount' => $product->getDiscount(),
             'discount_percentage' => $product->getDiscountPercentage(),
+            'stock' => $product->getStock(),
+            'rating' => $product->getRating(),
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
             'second_level_searchable_data' => $product->getSecondLevelSearchableData(),
         ];
 
         $this->addCategories(
-            $user,
             $product->getCategories(),
             $productDocument
         );
 
         $this->addTags(
-            $user,
             $product->getTags(),
             $productDocument
         );
@@ -128,7 +141,6 @@ class Index
         $manufacturer = $product->getManufacturer();
         if ($manufacturer instanceof Manufacturer) {
             $this->addManufacturer(
-                $user,
                 $manufacturer,
                 $productDocument
             );
@@ -137,7 +149,6 @@ class Index
         $brand = $product->getBrand();
         if ($brand instanceof Brand) {
             $this->addBrand(
-                $user,
                 $brand,
                 $productDocument
             );
@@ -154,19 +165,16 @@ class Index
     /**
      * Index Categories and complete root Doc.
      *
-     * @param string     $user
      * @param Category[] $categories
      * @param array      $rootDoc
      */
     private function addCategories(
-        string $user,
         array $categories,
         array &$rootDoc
     ) {
         $rootDoc['categories'] = [];
         foreach ($categories as $category) {
             $this->addCategory(
-                $user,
                 $category,
                 $rootDoc
             );
@@ -176,22 +184,19 @@ class Index
     /**
      * Add Category.
      *
-     * @param string   $user
      * @param Category $category
      * @param array    $rootDoc
      */
     public function addCategory(
-        string $user,
         Category $category,
         array &$rootDoc = null
     ) {
-        $categoryId = "$user~~{$category->getId()}";
+        $categoryId = $category->getId();
 
         if (!isset($this->documents['categories'][$categoryId])) {
             $document = new ElasticaDocument(
                 $categoryId,
                 [
-                    'user' => $user,
                     'name' => $category->getName(),
                     'level' => $category->getLevel(),
                     'first_level_searchable_data' => $category->getFirstLevelSearchableData(),
@@ -213,22 +218,19 @@ class Index
     /**
      * Index manufacturer.
      *
-     * @param string       $user
      * @param Manufacturer $manufacturer
      * @param array        $rootDoc
      */
     private function addManufacturer(
-        string $user,
         Manufacturer $manufacturer,
         array &$rootDoc = null
     ) {
-        $manufacturerId = "$user~~{$manufacturer->getId()}";
+        $manufacturerId = $manufacturer->getId();
 
         if (!isset($this->documents['manufacturers'][$manufacturerId])) {
             $document = new ElasticaDocument(
                 $manufacturerId,
                 [
-                    'user' => $user,
                     'name' => $manufacturer->getName(),
                     'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
                 ]
@@ -248,22 +250,19 @@ class Index
     /**
      * Index brand.
      *
-     * @param string $user
-     * @param Brand  $brand
-     * @param array  $rootDoc
+     * @param Brand $brand
+     * @param array $rootDoc
      */
     private function addBrand(
-        string $user,
         Brand $brand,
         array &$rootDoc = null
     ) {
-        $brandId = "$user~~{$brand->getId()}";
+        $brandId = $brand->getId();
 
         if (!isset($this->documents['brands'][$brandId])) {
             $document = new ElasticaDocument(
                 $brandId,
                 [
-                    'user' => $user,
                     'name' => $brand->getName(),
                     'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),
                 ]
@@ -283,19 +282,16 @@ class Index
     /**
      * Index Tags and complete root Doc.
      *
-     * @param string $user
-     * @param Tag[]  $tags
-     * @param array  $rootDoc
+     * @param Tag[] $tags
+     * @param array $rootDoc
      */
     private function addTags(
-        string $user,
         array $tags,
         array &$rootDoc = null
     ) {
         $rootDoc['tags'] = [];
         foreach ($tags as $tag) {
             $this->addTag(
-                $user,
                 $tag,
                 $rootDoc
             );
@@ -305,22 +301,19 @@ class Index
     /**
      * Add tag.
      *
-     * @param string $user
-     * @param Tag    $tag
-     * @param array  $rootDoc
+     * @param Tag   $tag
+     * @param array $rootDoc
      */
     private function addTag(
-        string $user,
         Tag $tag,
         array &$rootDoc = null
     ) {
-        $tagId = "$user~~{$tag->getName()}";
+        $tagId = $tag->getName();
 
         if (!isset($this->documents['tags'][$tagId])) {
             $document = new ElasticaDocument(
                 $tagId,
                 [
-                    'user' => $user,
                     'name' => $tag->getName(),
                     'first_level_searchable_data' => $tag->getFirstLevelSearchableData(),
                 ]
@@ -341,10 +334,10 @@ class Index
      */
     private function flushMinors()
     {
-        $this->elasticaWrapper->getType(Manufacturer::TYPE)->updateDocuments($this->documents['manufacturers']);
-        $this->elasticaWrapper->getType(Category::TYPE)->updateDocuments($this->documents['categories']);
-        $this->elasticaWrapper->getType(Brand::TYPE)->updateDocuments($this->documents['brands']);
-        $this->elasticaWrapper->getType(Tag::TYPE)->updateDocuments($this->documents['tags']);
+        $this->elasticaWrapper->getType($this->key, Manufacturer::TYPE)->updateDocuments($this->documents['manufacturers']);
+        $this->elasticaWrapper->getType($this->key, Category::TYPE)->updateDocuments($this->documents['categories']);
+        $this->elasticaWrapper->getType($this->key, Brand::TYPE)->updateDocuments($this->documents['brands']);
+        $this->elasticaWrapper->getType($this->key, Tag::TYPE)->updateDocuments($this->documents['tags']);
     }
 
     /**
@@ -368,7 +361,7 @@ class Index
 
             $this
                 ->elasticaWrapper
-                ->getType(Product::TYPE)
+                ->getType($this->key, Product::TYPE)
                 ->updateDocuments($documents);
             $offset += $bulkNumber;
         }

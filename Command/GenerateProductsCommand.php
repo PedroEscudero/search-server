@@ -30,6 +30,13 @@ use Mmoreram\SearchBundle\Model\Tag;
 class GenerateProductsCommand extends ContainerAwareCommand
 {
     /**
+     * @var string
+     *
+     * Used api key
+     */
+    protected static $key = 'demo_000';
+
+    /**
      * Configures the current command.
      */
     protected function configure()
@@ -65,11 +72,16 @@ class GenerateProductsCommand extends ContainerAwareCommand
         $this
             ->getContainer()
             ->get('search_bundle.elastica_wrapper')
-            ->createIndexMapping();
+            ->createIndexMapping(self::$key);
 
         $index = $this
             ->getContainer()
             ->get('search_bundle.index');
+        $index->setKey(self::$key);
+        $stock = rand(1, 100);
+        if (rand(1, 100) > 90) {
+            $stock = null;
+        }
 
         for ($id = 1; $id <= $input->getOption('number-of-products'); ++$id) {
             $family = array_keys($this->categories())[rand(0, 1)];
@@ -85,8 +97,10 @@ class GenerateProductsCommand extends ContainerAwareCommand
                 'ean' => rand(1, 9999999999),
                 'name' => "$family #$id",
                 'description' => "This is the $family number #$id, with categories {$mainCategory['name']} and {$lastCategory['name']}",
-                'price' => $price,
-                'reduced_price' => $reducedPrice,
+                'price' => round($price / 100, 2),
+                'reduced_price' => round($reducedPrice / 100, 2),
+                'stock' => $stock,
+                'rating' => round(rand(0, 100) / 10, 1),
                 'manufacturer' => [
                     'id' => $manufacturerId,
                     'name' => $this->manufacturers()[$manufacturerId],
@@ -126,7 +140,7 @@ class GenerateProductsCommand extends ContainerAwareCommand
                 );
             }
 
-            $index->addProduct('000', $product);
+            $index->addProduct($product);
         }
 
         $index->flush(500);

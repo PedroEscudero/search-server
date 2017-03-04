@@ -21,7 +21,7 @@ namespace Mmoreram\SearchBundle\Query;
 class SortBy
 {
     /**
-     * @var string
+     * @var array
      *
      * Sort by score
      */
@@ -110,4 +110,18 @@ class SortBy
      * Sort by manufacturer DESC
      */
     const BRAND_DESC = ['brand.name' => 'desc'];
+
+    /**
+     * @var string
+     *
+     * Sort by rating ASC
+     */
+    const RATING_ASC = ['rating' => 'asc'];
+
+    /**
+     * @var string
+     *
+     * Sort by rating DESC
+     */
+    const RATING_DESC = ['rating' => 'desc'];
 }

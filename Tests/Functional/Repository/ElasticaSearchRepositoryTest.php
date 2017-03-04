@@ -39,6 +39,20 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     protected static $repository;
 
     /**
+     * @var string
+     *
+     * Used api key
+     */
+    protected static $key = 'test_000';
+
+    /**
+     * @var string
+     *
+     * Another used api key
+     */
+    protected static $anotherKey = 'test_001';
+
+    /**
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
@@ -50,12 +64,14 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
             return self::$repository;
         }
 
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping();
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key);
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey);
         $index = self::get('search_bundle.index');
+        $index->setKey(self::$key);
         self::$repository = self::get('search_bundle.repository');
         $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
         foreach ($products['products'] as $product) {
-            $index->addProduct('000', Product::createFromArray($product));
+            $index->addProduct(Product::createFromArray($product));
         }
         $index->flush(500);
     }

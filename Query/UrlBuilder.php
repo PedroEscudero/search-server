@@ -98,8 +98,7 @@ class UrlBuilder
     public function removePriceRangeFilter(Query $query) : array
     {
         $urlParameters = $this->generateQueryUrlParameters($query);
-        unset($urlParameters['from']);
-        unset($urlParameters['to']);
+        unset($urlParameters['price']);
 
         return $urlParameters;
     }
@@ -221,7 +220,6 @@ class UrlBuilder
             }, $query->getFilters())
         );
         unset($parameters['_query']);
-        unset($parameters['price_range']);
 
         $queryString = $query
             ->getFilter('_query')
@@ -234,20 +232,6 @@ class UrlBuilder
         $sort = $query->getSortBy();
         if ($sort !== SortBy::SCORE) {
             $parameters['sort_by'] = $sort;
-        }
-
-        $priceRangeFilter = $query->getFilter('price_range');
-        if ($priceRangeFilter instanceof Filter) {
-            $from = $priceRangeFilter->getValues()['from'] / 100;
-            $to = $priceRangeFilter->getValues()['to'] / 100;
-
-            if ($from > PriceRange::FREE) {
-                $parameters['from'] = $from;
-            }
-
-            if ($to >= PriceRange::FREE) {
-                $parameters['to'] = $to;
-            }
         }
 
         return $parameters;

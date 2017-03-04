@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use Mmoreram\SearchBundle\Query\Filter;
-use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
+use Mmoreram\SearchBundle\Query\Range;
 use Mmoreram\SearchBundle\Query\SortBy;
 use Mmoreram\SearchBundle\Result\Result;
 
@@ -30,6 +30,13 @@ use Mmoreram\SearchBundle\Result\Result;
  */
 class ShopController extends Controller
 {
+    /**
+     * @var string
+     *
+     * Used api key
+     */
+    protected static $key = 'demo_000';
+
     /**
      * Index action.
      *
@@ -60,63 +67,30 @@ class ShopController extends Controller
         $qualityTags = $requestQuery->get('quality', []);
         $stockTags = $requestQuery->get('stock', []);
         $shippingTags = $requestQuery->get('shipping', []);
-        $from = (int) $requestQuery->get('from', PriceRange::FREE);
-        $to = (int) $requestQuery->get('to', PriceRange::INFINITE);
+        $priceRanges = $requestQuery->get('price', []);
+        $ratingRanges = $requestQuery->get('rating', []);
         $q = $requestQuery->get('q', '');
         $page = (int) $requestQuery->get('page', 1);
         $sortBy = $requestQuery->get('sort_by', SortBy::SCORE);
 
         $searchQuery = Query::create($q, $page, 100)
-            ->filterByPriceRange($from * 100, $to === PriceRange::INFINITE ? $to : ($to * 100))
+            ->filterByRange('price', 'real_price', Range::createRanges(10, 200, 10), $priceRanges)
+            ->filterByRange('rating', 'rating', Range::createRanges(0, 10, 1), $ratingRanges)
             ->filterByCategories($categories, Filter::MUST_ALL_WITH_LEVELS)
             ->filterByBrands($brands, Filter::AT_LEAST_ONE)
             ->filterByManufacturers($manufacturers, Filter::AT_LEAST_ONE)
-            ->sortBy($sortBy)
-            ->filterByTags(
-                'quality',
-                [
-                    'amazing',
-                    'new',
-                    'next generation',
-                    'healthy',
-                ],
-                $qualityTags,
-                Filter::AT_LEAST_ONE
-            )
-            ->filterByTags(
-                'stock',
-                [
-                    'last units',
-                    'infinite stock',
-                ],
-                $stockTags,
-                Filter::AT_LEAST_ONE
-            )
-            ->filterByTags(
-                'shipping',
-                [
-                    'express',
-                    'two-day delivery',
-                    'one-week delivery',
-                ],
-                $shippingTags,
-                Filter::AT_LEAST_ONE
-            );
+            ->sortBy($sortBy);
 
         /**
          * @var Result $result
          */
         $result = $this
             ->get('search_bundle.repository')
-            ->search('000', $searchQuery);
+            ->search(self::$key, $searchQuery);
 
         return $this->render('SearchBundle:Shop:content.html.twig', [
             'search_query' => $searchQuery,
             'result' => $result,
-            'from' => $from,
-            'to' => $to === PriceRange::INFINITE
-                ? ceil($result->getMaxPrice() / 100)
-                : $to,
         ]);
     }
 }

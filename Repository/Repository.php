@@ -27,8 +27,8 @@ use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Model\Tag;
 use Mmoreram\SearchBundle\Query\Aggregation as QueryAggregation;
 use Mmoreram\SearchBundle\Query\Filter;
-use Mmoreram\SearchBundle\Query\PriceRange;
 use Mmoreram\SearchBundle\Query\Query;
+use Mmoreram\SearchBundle\Query\Range;
 use Mmoreram\SearchBundle\Query\SortBy;
 use Mmoreram\SearchBundle\Result\Aggregation as ResultAggregation;
 use Mmoreram\SearchBundle\Result\Aggregations as ResultAggregations;
@@ -59,21 +59,17 @@ class Repository
     /**
      * Search cross the index types.
      *
-     * @param string $user
+     * @param string $key
      * @param Query  $query
      *
      * @return Result
      */
     public function search(
-        string $user,
+        string $key,
         Query $query
     ) : Result {
         $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
-
-        $boolQuery->addFilter(
-            new ElasticaQuery\Term(['user' => $user])
-        );
 
         $this->addFilters(
             $boolQuery,
@@ -96,6 +92,7 @@ class Repository
         $results = $this
             ->elasticaWrapper
             ->search(
+                $key,
                 $mainQuery,
                 $query->getFrom(),
                 $query->getSize()
@@ -103,7 +100,6 @@ class Repository
 
         return $this->elasticaResultToResult(
             $query,
-            $user,
             $results
         );
     }
@@ -111,15 +107,13 @@ class Repository
     /**
      * Build a Result object given elastica result object.
      *
-     * @param Query  $query
-     * @param string $user
-     * @param array  $elasticaResults
+     * @param Query $query
+     * @param array $elasticaResults
      *
      * @return Result
      */
     private function elasticaResultToResult(
         Query $query,
-        string $user,
         array $elasticaResults
     ) : Result {
         $resultAggregations = $elasticaResults['aggregations']['all']['all_products'];
@@ -139,7 +133,7 @@ class Repository
          */
         foreach ($elasticaResults['results'] as $elasticaResult) {
             $source = $elasticaResult->getSource();
-            $source['id'] = str_replace("$user~~", '', $elasticaResult->getId());
+            $source['id'] = $elasticaResult->getId();
             switch ($elasticaResult->getType()) {
                 case Product::TYPE:
                     $result->addProduct(
@@ -181,7 +175,7 @@ class Repository
 
             $aggregation = new ResultAggregation(
                 $aggregationName,
-                $queryAggregation->getType(),
+                $queryAggregation->getApplicationType(),
                 $resultAggregation['doc_count'],
                 $relatedFilterValues
             );
@@ -216,7 +210,7 @@ class Repository
              * * Elements already filtered
              * * Elements with level (if exists) than the highest one
              */
-            if ($queryAggregation->getType() & Filter::MUST_ALL_WITH_LEVELS) {
+            if ($queryAggregation->getApplicationType() & Filter::MUST_ALL_WITH_LEVELS) {
                 $aggregation->cleanCountersByLevel();
             }
         }
@@ -283,14 +277,6 @@ class Repository
         bool $onlyAddDefinedTermFilter,
         bool $takeInAccountDefinedTermFilter
     ) {
-        if ($filter->getFilterType() === Filter::TYPE_RANGE) {
-            $boolQuery->addFilter(
-                $this->createPriceRangeFilter($filter)
-            );
-
-            return;
-        }
-
         if ($filter->getFilterType() === Filter::TYPE_QUERY) {
             $queryString = $filter->getValues()[0];
             $boolQuery->addMust(
@@ -450,15 +436,23 @@ class Repository
         Filter $filter,
         string $value
     ) : ? ElasticaQuery\AbstractQuery {
-        return $filter->getFilterType() === Filter::TYPE_NESTED
-            ? $this->createdNestedTermFilter(
-                $filter,
-                $value
-            )
-            : $this->createTermFilter(
-                $filter,
-                $value
-            );
+        switch ($filter->getFilterType()) {
+            case Filter::TYPE_NESTED :
+                return $this->createdNestedTermFilter(
+                    $filter,
+                    $value
+                );
+            case Filter::TYPE_FIELD:
+                return $this->createTermFilter(
+                    $filter,
+                    $value
+                );
+            case Filter::TYPE_RANGE:
+                return $this->createRangeFilter(
+                    $filter,
+                    $value
+                );
+        }
     }
 
     /**
@@ -529,44 +523,32 @@ class Repository
     }
 
     /**
-     * Create PriceRange filter.
+     * Create Range filter.
      *
      * @param Filter $filter
+     * @param string $value
      *
-     * @return ElasticaQuery\AbstractQuery
+     * @return null|ElasticaQuery\AbstractQuery
      */
-    public function createPriceRangeFilter(Filter $filter) : ElasticaQuery\AbstractQuery
-    {
-        $range = $filter->getValues();
-        $priceRangeData = [
-            'gte' => $range['from'],
-        ];
-
-        if ($range['to'] !== PriceRange::INFINITE) {
-            $priceRangeData['lte'] = $range['to'];
+    public function createRangeFilter(
+        Filter $filter,
+        string $value
+    ) : ? ElasticaQuery\AbstractQuery {
+        list($from, $to) = Range::stringToArray($value);
+        $rangeData = [];
+        if ($from > Range::ZERO) {
+            $rangeData = [
+                'gte' => $from,
+            ];
         }
 
-        return new ElasticaQuery\Range('real_price', $priceRangeData);
-    }
-
-    /**
-     * Add a sortBy instance to query.
-     *
-     * @param array $sortBy
-     *
-     * @return array
-     */
-    private function addSortBys(array $sortBy) : array
-    {
-        $sorts = [];
-        foreach ($sortBys as $sortBy) {
-            $sorts = array_merge(
-                $sorts,
-                [$sortBy]
-            );
+        if ($to !== Range::INFINITE) {
+            $rangeData['lt'] = $to;
         }
 
-        return $sorts;
+        return empty($rangeData)
+            ? null
+            : new ElasticaQuery\Range($filter->getField(), $rangeData);
     }
 
     /**
@@ -585,16 +567,21 @@ class Repository
         $productsAggregation = new ElasticaAggregation\Filter('all_products', new ElasticaQuery\Term(['_type' => Product::TYPE]));
         $globalAggregation->addAggregation($productsAggregation);
         foreach ($aggregations as $aggregation) {
-            $elasticaAggregation = $aggregation->isNested()
-                ? $this->createNestedAggregation($aggregation)
-                : $this->createAggregation($aggregation);
+            $filterType = $aggregation->getFilterType();
+            if ($filterType == Filter::TYPE_RANGE) {
+                $elasticaAggregation = $this->createRangeAggregation($aggregation);
+            } elseif ($filterType == Filter::TYPE_NESTED) {
+                $elasticaAggregation = $this->createNestedAggregation($aggregation);
+            } else {
+                $elasticaAggregation = $this->createAggregation($aggregation);
+            }
 
             $filteredAggregation = new ElasticaAggregation\Filter($aggregation->getName());
             $boolQuery = new ElasticaQuery\BoolQuery();
             $this->addFilters(
                 $boolQuery,
                 $filters,
-                $aggregation->getType() & Filter::AT_LEAST_ONE
+                $aggregation->getApplicationType() & Filter::AT_LEAST_ONE
                     ? $aggregation->getName()
                     : null,
                 true
@@ -674,5 +661,24 @@ class Repository
         $termsAggregation->setScript(implode(' + "~~" + ', $fields));
 
         return $termsAggregation;
+    }
+
+    /**
+     * Create range aggregation.
+     *
+     * @param QueryAggregation $aggregation
+     *
+     * @return ElasticaAggregation\AbstractAggregation
+     */
+    private function createRangeAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
+    {
+        $rangeAggregation = new ElasticaAggregation\Range($aggregation->getName());
+        $rangeAggregation->setField($aggregation->getField());
+        foreach ($aggregation->getSubgroup() as $range) {
+            list($from, $to) = Range::stringToArray($range);
+            $rangeAggregation->addRange($from, $to, $range);
+        }
+
+        return $rangeAggregation;
     }
 }

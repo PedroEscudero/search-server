@@ -32,22 +32,22 @@ class SearchTest extends ElasticaSearchRepositoryTest
     public function testMatchAll()
     {
         $repository = static::$repository;
-        $result = $repository->search('000', Query::createMatchAll());
+        $result = $repository->search(self::$key, Query::createMatchAll());
         $this->assertEquals(
             count($result->getProducts()),
-            $this->get('search_bundle.elastica_wrapper')->getType(Product::TYPE)->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count()
         );
         $this->assertEquals(
             count($result->getCategories()),
-            $this->get('search_bundle.elastica_wrapper')->getType(Category::TYPE)->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count()
         );
         $this->assertEquals(
             count($result->getManufacturers()),
-            $this->get('search_bundle.elastica_wrapper')->getType(Manufacturer::TYPE)->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count()
         );
         $this->assertEquals(
             count($result->getBrands()),
-            $this->get('search_bundle.elastica_wrapper')->getType(Brand::TYPE)->count()
+            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count()
         );
     }
 
@@ -58,7 +58,7 @@ class SearchTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
 
-        $result = $repository->search('000', Query::create('adidas'));
+        $result = $repository->search(self::$key, Query::create('adidas'));
         $this->assertNTypeElementId($result, Product::TYPE, 0, '1');
         $this->assertNTypeElementId($result, Brand::TYPE, 0, '1');
         $this->assertNTypeElementId($result, Manufacturer::TYPE, 0, '1');

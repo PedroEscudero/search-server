@@ -30,9 +30,9 @@ class PopulationTest extends ElasticaSearchRepositoryTest
      */
     public function testBasicPopulation()
     {
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(Product::TYPE)->count());
-        $this->assertEquals(8, $this->get('search_bundle.elastica_wrapper')->getType(Category::TYPE)->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(Manufacturer::TYPE)->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(Brand::TYPE)->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
+        $this->assertEquals(8, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
     }
 }

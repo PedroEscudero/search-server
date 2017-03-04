@@ -58,11 +58,11 @@ class Counter
     /**
      * Counter constructor.
      *
-     * @param string $id
-     * @param string $name
-     * @param ?int   $level
-     * @param bool   $used
-     * @param int    $n
+     * @param string   $id
+     * @param string   $name
+     * @param null|int $level
+     * @param bool     $used
+     * @param int      $n
      */
     private function __construct(
         string $id,

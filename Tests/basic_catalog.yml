@@ -11,6 +11,7 @@ products:
         # real_price: 950
         # discount: 50
         # discount_percentage: 5%
+        rating: 4,3
         manufacturer:
             id: 1
             name: Adidas
@@ -43,6 +44,7 @@ products:
         # real_price: 1500
         # discount: 0
         # discount_percentage: 0%
+        rating: 7,5
         manufacturer:
             id: 2
             name: Nike
@@ -73,6 +75,7 @@ products:
         # real_price: 2000
         # discount: 0
         # discount_percentage: 0%
+        rating: 3
         manufacturer:
             id: 3
             name: Factories El Percebe
@@ -105,6 +108,7 @@ products:
         # real_price: 700
         # discount: 800
         # discount_percentage: 53%
+        rating: 9,2
         manufacturer:
             id: 15
             name: Kenda
@@ -135,6 +139,7 @@ products:
         # real_price: 7
         # discount: 3
         # discount_percentage: 30%
+        rating: 6,9
         manufacturer:
             id: 444
             name: Superboomer

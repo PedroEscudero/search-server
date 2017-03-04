@@ -35,27 +35,27 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['product'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['product'])),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['book'])),
             Product::TYPE,
             ['?3', '!1', '!2', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book', 'products']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['book', 'products']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['_nonexistent']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['_nonexistent']))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['_nonexistent'])->filterByFamilies([])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['_nonexistent'])->filterByFamilies([])),
             Product::TYPE,
             ['?3', '?1', '?2', '?4', '?5']
         );
@@ -69,31 +69,31 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['product'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['product'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['book'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?3', '!1', '!2', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book', 'product'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['book', 'product'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?3', '?1', '?2', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['book', 'product', '_nonexistent'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['book', 'product', '_nonexistent'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?3', '?1', '?2', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByFamilies(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByFamilies(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
         );
     }
 
@@ -105,39 +105,39 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE])),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5', '!800']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE])),
             Product::TYPE,
             ['!3', '!1', '!2', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Category::TYPE])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Category::TYPE])),
             Product::TYPE,
             ['!3', '!1', '!2', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Category::TYPE])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Category::TYPE])),
             Category::TYPE,
             ['?1', '?2', '?3', '?50', '?66', '?777', '?778', '?800']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE]))->getCategories()
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE]))->getCategories()
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByTypes(['_nonexistent']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes(['_nonexistent']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByTypes([Product::TYPE]))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByTypes([Product::TYPE]))->getProducts()
         );
     }
 
@@ -149,39 +149,39 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5', '!800']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE], Filter::AT_LEAST_ONE)),
             Category::TYPE,
             ['?1', '?2', '?3', '?50', '?66', '?777', '?778', '?800']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE, Brand::TYPE], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE, Brand::TYPE], Filter::AT_LEAST_ONE)),
             Brand::TYPE,
             ['?444']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE))->getCategories()
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE))->getCategories()
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByTypes(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByTypes(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE))->getProducts()
         );
     }
 
@@ -193,41 +193,41 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['1'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['1'])),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['_4578943']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['_4578943']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '_4578943']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['1', '_4578943']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '2'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['1', '2'])),
             Product::TYPE,
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['3'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['3'])),
             Product::TYPE,
             ['?2', '!1', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '_4578943'])->filterByCategories([])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['1', '_4578943'])->filterByCategories([])),
             Product::TYPE,
             ['?2', '?1', '?3', '?4', '?5']
         );
@@ -241,23 +241,23 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['1'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['1'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['_4578943'], Filter::AT_LEAST_ONE))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['_4578943'], Filter::AT_LEAST_ONE))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['1', '_4578943'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['1', '_4578943'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByCategories(['2', '3', '800'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByCategories(['2', '3', '800'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '?5']
         );
@@ -271,25 +271,25 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['1'])),
             Product::TYPE,
             ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1', '2']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['1', '2']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByManufacturers(['1']))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByManufacturers(['1']))->getProducts()
         );
 
         $this->assertEmpty(
-             $repository->search('000', Query::createMatchAll()->filterByManufacturers(['_4543543']))->getProducts()
+             $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['_4543543']))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['_4543543'])->filterByManufacturers([])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['_4543543'])->filterByManufacturers([])),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
@@ -303,19 +303,19 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['1'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByManufacturers(['1', '2', '3', '444'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['1', '2', '3', '444'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '?3', '!4', '?5']
         );
 
         $this->assertEmpty(
-             $repository->search('000', Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
+             $repository->search(self::$key, Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
         );
     }
 
@@ -327,25 +327,25 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByBrands(['1'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['1'])),
             Product::TYPE,
             ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByBrands(['1', '2']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['1', '2']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByBrands(['1']))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByBrands(['1']))->getProducts()
         );
 
         $this->assertEmpty(
-             $repository->search('000', Query::createMatchAll()->filterByBrands(['_4543543']))->getProducts()
+             $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['_4543543']))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByBrands(['_4543543'])->filterByBrands([])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['_4543543'])->filterByBrands([])),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
@@ -359,19 +359,19 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByBrands(['1'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['1'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByBrands(['1', '2', '3', '10'], Filter::AT_LEAST_ONE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['1', '2', '3', '10'], Filter::AT_LEAST_ONE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '!5']
         );
 
         $this->assertEmpty(
-             $repository->search('000', Query::createMatchAll()->filterByBrands(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
+             $repository->search(self::$key, Query::createMatchAll()->filterByBrands(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
         );
     }
 
@@ -383,49 +383,49 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(1000, 2000)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(1000, 2000)),
             Product::TYPE,
             ['!1', '?2', '?3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(1000, 2000)->filterByFamilies(['book'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(1000, 2000)->filterByFamilies(['book'])),
             Product::TYPE,
             ['!1', '!2', '?3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(900, 1900)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(900, 1900)),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(100, 200))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(100, 200))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(1, PriceRange::INFINITE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(1, PriceRange::INFINITE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE)->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE)),
+            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(PriceRange::FREE, PriceRange::FREE)->filterByPriceRange(PriceRange::FREE, PriceRange::INFINITE)),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
@@ -438,27 +438,27 @@ class FiltersTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new'])),
             Product::TYPE,
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt'])),
+            $repository->search(self::$key, Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt'])),
             Product::TYPE,
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent']))->getProducts()
+            $repository->search(self::$key, Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent']))->getProducts()
         );
 
         $this->assertEmpty(
-            $repository->search('001', Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new']))->getProducts()
+            $repository->search(self::$anotherKey, Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new']))->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()
+            $repository->search(self::$key, Query::createMatchAll()
                 ->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent'])
                 ->filterByTags('_', $this->allFilters(), ['new'])
             ),
@@ -467,14 +467,14 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         );
 
         $this->assertEmpty(
-            $repository->search('000', Query::createMatchAll()
+            $repository->search(self::$key, Query::createMatchAll()
                 ->filterByTags('_1', $this->allFilters(), ['kids'])
                 ->filterByTags('_2', $this->allFilters(), ['sugar', 'last_hour'])
             )->getProducts()
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()
+            $repository->search(self::$key, Query::createMatchAll()
                 ->filterByTags('_1', $this->allFilters(), ['kids'])
                 ->filterByTags('_2', $this->allFilters(), ['sugar', 'last_hour'], Filter::AT_LEAST_ONE)
             ),
@@ -483,7 +483,7 @@ class FiltersTest extends ElasticaSearchRepositoryTest
         );
 
         $this->assertResults(
-            $repository->search('000', Query::createMatchAll()
+            $repository->search(self::$key, Query::createMatchAll()
                 ->filterByTags('_', $this->allFilters(), ['sugar', 'kids', 'new'], Filter::AT_LEAST_ONE)
             ),
             Product::TYPE,

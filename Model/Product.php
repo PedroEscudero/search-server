@@ -86,6 +86,13 @@ class Product
     private $reducedPrice;
 
     /**
+     * @var int
+     *
+     * Stock
+     */
+    private $stock;
+
+    /**
      * @var Manufacturer
      *
      * Manufacturer
@@ -121,6 +128,13 @@ class Product
     private $image;
 
     /**
+     * @var float
+     *
+     * Rating
+     */
+    private $rating;
+
+    /**
      * @var string
      *
      * First level searchable data
@@ -144,18 +158,20 @@ class Product
     /**
      * Product constructor.
      *
-     * @param string       $id
-     * @param string       $family
-     * @param string       $ean
-     * @param string       $name
-     * @param string       $description
-     * @param string       $longDescription
-     * @param int          $price
-     * @param int          $reducedPrice
-     * @param Manufacturer $manufacturer
-     * @param Brand        $brand
-     * @param string       $image
-     * @param DateTime     $updatedAt
+     * @param string            $id
+     * @param string            $family
+     * @param string            $ean
+     * @param string            $name
+     * @param string            $description
+     * @param null|string       $longDescription
+     * @param float             $price
+     * @param null|float        $reducedPrice
+     * @param null|int          $stock
+     * @param null|Manufacturer $manufacturer
+     * @param null|Brand        $brand
+     * @param null|string       $image
+     * @param null|float        $rating
+     * @param DateTime          $updatedAt
      */
     public function __construct(
         string $id,
@@ -164,11 +180,13 @@ class Product
         string $name,
         string $description,
         ? string $longDescription,
-        int $price,
-        ? int $reducedPrice,
+        float $price,
+        ? float $reducedPrice,
+        ? int $stock,
         ? Manufacturer $manufacturer,
         ? Brand $brand,
         ? string $image,
+        ? float $rating,
         DateTime $updatedAt = null
     ) {
         $this->id = $id;
@@ -179,11 +197,13 @@ class Product
         $this->longDescription = ($longDescription ?? '');
         $this->price = $price;
         $this->reducedPrice = ($reducedPrice ?? $price);
+        $this->stock = $stock;
         $this->manufacturer = $manufacturer;
         $this->brand = $brand;
         $this->categories = [];
         $this->tags = [];
         $this->image = ($image ?? '');
+        $this->rating = $rating;
         $this->updatedAt = ($updatedAt ?? new DateTime());
 
         $this->firstLevelSearchableData = "$name {$manufacturer->getName()} {$brand->getName()}";
@@ -245,7 +265,7 @@ class Product
      *
      * @return string
      */
-    public function getLongDescription(): string
+    public function getLongDescription() : string
     {
         return $this->longDescription;
     }
@@ -253,9 +273,9 @@ class Product
     /**
      * Get price.
      *
-     * @return int
+     * @return float
      */
-    public function getPrice(): int
+    public function getPrice() : float
     {
         return $this->price;
     }
@@ -263,9 +283,9 @@ class Product
     /**
      * Get reduced price.
      *
-     * @return int
+     * @return float
      */
-    public function getReducedPrice(): int
+    public function getReducedPrice(): float
     {
         return $this->reducedPrice;
     }
@@ -273,9 +293,9 @@ class Product
     /**
      * Get real price.
      *
-     * @return mixed
+     * @return float
      */
-    public function getRealPrice() : int
+    public function getRealPrice() : float
     {
         return min(
             $this->price,
@@ -286,9 +306,9 @@ class Product
     /**
      * Get discount.
      *
-     * @return int
+     * @return float
      */
-    public function getDiscount() : int
+    public function getDiscount() : float
     {
         return $this->price - $this->getRealPrice();
     }
@@ -301,6 +321,16 @@ class Product
     public function getDiscountPercentage() : int
     {
         return (int) round(100 * $this->getDiscount() / $this->getPrice());
+    }
+
+    /**
+     * Get stock.
+     *
+     * @return null|int
+     */
+    public function getStock(): ? int
+    {
+        return $this->stock;
     }
 
     /**
@@ -351,7 +381,11 @@ class Product
      */
     public function addTag(Tag $tag)
     {
-        $this->tags[] = $tag;
+        if (isset($this->tags[$tag->getName()])) {
+            return;
+        }
+
+        $this->tags[$tag->getName()] = $tag;
         $this->firstLevelSearchableData .= " {$tag->getName()}";
     }
 
@@ -373,6 +407,16 @@ class Product
     public function getImage(): string
     {
         return $this->image;
+    }
+
+    /**
+     * Get rating.
+     *
+     * @return mixed
+     */
+    public function getRating()
+    {
+        return $this->rating;
     }
 
     /**
@@ -421,11 +465,13 @@ class Product
             (string) $array['name'],
             (string) $array['description'],
             $array['long_description'] ?? null,
-            (int) $array['price'],
+            (float) $array['price'],
             $array['reduced_price'] ?? null,
+            $array['stock'] ?? null,
             Manufacturer::createFromArray($array['manufacturer']),
             Brand::createFromArray($array['brand']),
             $array['image'] ?? null,
+            $array['rating'] ?? null,
             $array['updated_at'] ?? null
         );
 

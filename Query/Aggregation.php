@@ -28,13 +28,6 @@ class Aggregation
     private $name;
 
     /**
-     * @var int
-     *
-     * Type
-     */
-    private $type;
-
-    /**
      * @var string
      *
      * Field
@@ -42,11 +35,18 @@ class Aggregation
     private $field;
 
     /**
-     * @var bool
+     * @var int
      *
-     * Is nested
+     * Type
      */
-    private $nested;
+    private $applicationType;
+
+    /**
+     * @var int
+     *
+     * Filter type
+     */
+    private $filterType;
 
     /**
      * @var string[]
@@ -60,21 +60,21 @@ class Aggregation
      *
      * @param string $name
      * @param string $field
-     * @param int    $type
-     * @param bool   $nested
+     * @param int    $applicationType
+     * @param string $filterType
      * @param array  $subgroup
      */
     private function __construct(
         string $name,
         string $field,
-        int $type,
-        bool $nested,
+        int $applicationType,
+        string $filterType,
         array $subgroup
     ) {
         $this->name = $name;
         $this->field = $field;
-        $this->type = $type;
-        $this->nested = $nested;
+        $this->applicationType = $applicationType;
+        $this->filterType = $filterType;
         $this->subgroup = $subgroup;
     }
 
@@ -99,13 +99,23 @@ class Aggregation
     }
 
     /**
-     * Get type.
+     * Get application type.
      *
      * @return int
      */
-    public function getType(): int
+    public function getApplicationType(): int
     {
-        return $this->type;
+        return $this->applicationType;
+    }
+
+    /**
+     * Get filter type.
+     *
+     * @return string
+     */
+    public function getFilterType(): string
+    {
+        return $this->filterType;
     }
 
     /**
@@ -119,22 +129,12 @@ class Aggregation
     }
 
     /**
-     * Is nested.
-     *
-     * @return bool
-     */
-    public function isNested() : bool
-    {
-        return $this->nested;
-    }
-
-    /**
      * Create.
      *
      * @param string $name
      * @param string $field
-     * @param int    $type
-     * @param bool   $nested
+     * @param int    $applicationType
+     * @param string $filterType
      * @param array  $subgroup
      *
      * @return self
@@ -142,15 +142,15 @@ class Aggregation
     public static function create(
         string $name,
         string $field,
-        int $type,
-        bool $nested,
+        int $applicationType,
+        string $filterType,
         array $subgroup = []
     ) : self {
         return new self(
             $name,
             $field,
-            $type,
-            $nested,
+            $applicationType,
+            $filterType,
             $subgroup
         );
     }

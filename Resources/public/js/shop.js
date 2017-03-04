@@ -42,13 +42,7 @@ function loadSlider()
                 }
             }
 
-            if (from > 0) {
-                indexedParameters['from'] = 'from=' + from;
-            }
-
-            if (to > 0) {
-                indexedParameters['to'] = 'to=' + to;
-            }
+            indexedParameters['price'] = 'price[]=' + from + '..' + to;
 
             var finalQuery = [];
             for (var j in indexedParameters) {

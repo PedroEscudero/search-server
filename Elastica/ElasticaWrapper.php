@@ -57,23 +57,27 @@ class ElasticaWrapper
     /**
      * Get search index.
      *
+     * @param string $key
+     *
      * @return Index
      */
-    public function getSearchIndex() : Index
+    public function getSearchIndex(string $key) : Index
     {
         return $this
             ->client
-            ->getIndex('search');
+            ->getIndex("search_$key");
     }
 
     /**
      * Create index.
+     *
+     * @param string $key
      */
-    public function createIndex()
+    public function createIndex(string $key)
     {
-        $tagIndex = $this->getSearchIndex();
+        $tagIndex = $this->getSearchIndex($key);
         $tagIndex->create([
-            'number_of_shards' => 1,
+            'number_of_shards' => 4,
             'number_of_replicas' => 1,
             'analysis' => [
                 'analyzer' => [
@@ -105,33 +109,38 @@ class ElasticaWrapper
     /**
      * Create index.
      *
+     * @param string $key
      * @param string $typeName
      *
      * @return Type
      */
-    public function getType(string $typeName)
-    {
+    public function getType(
+        string $key,
+        string $typeName
+    ) {
         return $this
-            ->getSearchIndex()
+            ->getSearchIndex($key)
             ->getType($typeName);
     }
 
     /**
      * Search.
      *
-     * @param Query $query
-     * @param int   $from
-     * @param int   $size
+     * @param string $key
+     * @param Query  $query
+     * @param int    $from
+     * @param int    $size
      *
      * @return mixed
      */
     public function search(
+        string $key,
         Query $query,
         int $from,
         int $size
     ) {
         $queryResult = $this
-            ->getSearchIndex()
+            ->getSearchIndex($key)
             ->search($query, [
                 'from' => $from,
                 'size' => $size,
@@ -146,50 +155,57 @@ class ElasticaWrapper
 
     /**
      * Refresh.
+     *
+     * @param string $key
      */
-    public function refresh()
+    public function refresh(string $key)
     {
         $this
-            ->getSearchIndex()
+            ->getSearchIndex($key)
             ->refresh();
     }
 
     /**
      * Create mapping.
+     *
+     * @param string $key
      */
-    public function createIndexMapping()
+    public function createIndexMapping(string $key)
     {
-        $this->createIndex();
-        $this->createProductIndexMapping();
-        $this->createCategoryIndexMapping();
-        $this->createManufacturerIndexMapping();
-        $this->createBrandIndexMapping();
-        $this->createTagIndexMapping();
-        $this->refresh();
+        $this->createIndex($key);
+        $this->createProductIndexMapping($key);
+        $this->createCategoryIndexMapping($key);
+        $this->createManufacturerIndexMapping($key);
+        $this->createBrandIndexMapping($key);
+        $this->createTagIndexMapping($key);
+        $this->refresh($key);
     }
 
     /**
      * Create product index mapping.
+     *
+     * @param string $key
      */
-    private function createProductIndexMapping()
+    private function createProductIndexMapping(string $key)
     {
         $productMapping = new Mapping();
-        $productMapping->setType($this->getType(Product::TYPE));
+        $productMapping->setType($this->getType($key, Product::TYPE));
         $productMapping->setProperties([
-            'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'family' => ['type' => 'keyword', 'include_in_all' => false],
             'ean' => ['type' => 'keyword', 'boost' => 10],
             'name' => ['type' => 'text', 'index' => false],
             'sortable_name' => ['type' => 'keyword'],
+            'stock' => ['type' => 'integer', 'index' => false],
             'description' => ['type' => 'text', 'index' => false],
             'long_description' => ['type' => 'text', 'index' => false],
-            'price' => ['type' => 'integer', 'include_in_all' => false],
-            'reduced_price' => ['type' => 'integer', 'include_in_all' => false],
-            'real_price' => ['type' => 'integer', 'include_in_all' => false],
-            'discount' => ['type' => 'integer', 'include_in_all' => false],
+            'price' => ['type' => 'float', 'include_in_all' => false],
+            'reduced_price' => ['type' => 'float', 'include_in_all' => false],
+            'real_price' => ['type' => 'float', 'include_in_all' => false],
+            'discount' => ['type' => 'float', 'include_in_all' => false],
             'discount_percentage' => ['type' => 'integer', 'include_in_all' => false],
             'image' => ['type' => 'keyword', 'include_in_all' => false],
+            'rating' => ['type' => 'float', 'include_in_all' => false],
             'updated_at' => ['type' => 'date'],
             'manufacturer' => [
                 'type' => 'object',
@@ -252,13 +268,14 @@ class ElasticaWrapper
 
     /**
      * Create category index mapping.
+     *
+     * @param string $key
      */
-    private function createCategoryIndexMapping()
+    private function createCategoryIndexMapping(string $key)
     {
         $categoryMapping = new Mapping();
-        $categoryMapping->setType($this->getType(Category::TYPE));
+        $categoryMapping->setType($this->getType($key, Category::TYPE));
         $categoryMapping->setProperties([
-            'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
             'level' => ['type' => 'integer', 'index' => false],
@@ -270,13 +287,14 @@ class ElasticaWrapper
 
     /**
      * Create manufacturer index mapping.
+     *
+     * @param string $key
      */
-    private function createManufacturerIndexMapping()
+    private function createManufacturerIndexMapping(string $key)
     {
         $manufacturerMapping = new Mapping();
-        $manufacturerMapping->setType($this->getType(Manufacturer::TYPE));
+        $manufacturerMapping->setType($this->getType($key, Manufacturer::TYPE));
         $manufacturerMapping->setProperties([
-            'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
@@ -287,13 +305,14 @@ class ElasticaWrapper
 
     /**
      * Create brand index mapping.
+     *
+     * @param string $key
      */
-    private function createBrandIndexMapping()
+    private function createBrandIndexMapping(string $key)
     {
         $brandMapping = new Mapping();
-        $brandMapping->setType($this->getType(Brand::TYPE));
+        $brandMapping->setType($this->getType($key, Brand::TYPE));
         $brandMapping->setProperties([
-            'user' => ['type' => 'keyword', 'include_in_all' => false],
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
@@ -304,13 +323,14 @@ class ElasticaWrapper
 
     /**
      * Create tag index mapping.
+     *
+     * @param string $key
      */
-    private function createTagIndexMapping()
+    private function createTagIndexMapping(string $key)
     {
         $tagMapping = new Mapping();
-        $tagMapping->setType($this->getType(Tag::TYPE));
+        $tagMapping->setType($this->getType($key, Tag::TYPE));
         $tagMapping->setProperties([
-            'user' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
         ]);

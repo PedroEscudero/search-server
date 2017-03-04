@@ -119,19 +119,19 @@ class Query
      * Filter by families.
      *
      * @param array $families
-     * @param int   $filterType
+     * @param int   $applicationType
      *
      * @return self
      */
     public function filterByFamilies(
         array $families,
-        int $filterType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL
     ) : self {
         if (!empty($families)) {
             $this->filters['family'] = Filter::create(
                 'family',
                 $families,
-                $filterType,
+                $applicationType,
                 Filter::TYPE_FIELD
             );
         } else {
@@ -145,19 +145,19 @@ class Query
      * Filter by types.
      *
      * @param array $types
-     * @param int   $filterType
+     * @param int   $applicationType
      *
      * @return self
      */
     public function filterByTypes(
         array $types,
-        int $filterType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL
     ) : self {
         if (!empty($types)) {
             $this->filters['type'] = Filter::create(
                 '_type',
                 $types,
-                $filterType,
+                $applicationType,
                 Filter::TYPE_FIELD
             );
         } else {
@@ -171,26 +171,26 @@ class Query
      * Filter by categories.
      *
      * @param array $categories
-     * @param int   $filterType
+     * @param int   $applicationType
      *
      * @return self
      */
     public function filterByCategories(
         array $categories,
-        int $filterType = Filter::MUST_ALL_WITH_LEVELS
+        int $applicationType = Filter::MUST_ALL_WITH_LEVELS
     ) : self {
         if (!empty($categories)) {
             $this->filters['categories'] = Filter::create(
                 'categories.id',
                 $categories,
-                $filterType,
+                $applicationType,
                 Filter::TYPE_NESTED
             );
         } else {
             unset($this->filters['categories']);
         }
 
-        $this->addCategoriesAggregation($filterType);
+        $this->addCategoriesAggregation($applicationType);
 
         return $this;
     }
@@ -199,26 +199,26 @@ class Query
      * Filter by manufacturer.
      *
      * @param array $manufacturers
-     * @param int   $filterType
+     * @param int   $applicationType
      *
      * @return self
      */
     public function filterByManufacturers(
         array $manufacturers,
-        int $filterType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL
     ) : self {
         if (!empty($manufacturers)) {
             $this->filters['manufacturer'] = Filter::create(
                 'manufacturer.id',
                 $manufacturers,
-                $filterType,
+                $applicationType,
                 Filter::TYPE_FIELD
             );
         } else {
             unset($this->filters['manufacturer']);
         }
 
-        $this->addManufacturerAggregation($filterType);
+        $this->addManufacturerAggregation($applicationType);
 
         return $this;
     }
@@ -227,26 +227,26 @@ class Query
      * Filter by brand.
      *
      * @param array $brands
-     * @param int   $filterType
+     * @param int   $applicationType
      *
      * @return self
      */
     public function filterByBrands(
         array $brands,
-        int $filterType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL
     ) : self {
         if (!empty($brands)) {
             $this->filters['brand'] = Filter::create(
                 'brand.id',
                 $brands,
-                $filterType,
+                $applicationType,
                 Filter::TYPE_FIELD
             );
         } else {
             unset($this->filters['brand']);
         }
 
-        $this->addBrandAggregation($filterType);
+        $this->addBrandAggregation($applicationType);
 
         return $this;
     }
@@ -257,7 +257,7 @@ class Query
      * @param string $groupName
      * @param array  $options
      * @param array  $tags
-     * @param int    $filterType
+     * @param int    $applicationType
      *
      * @return self
      */
@@ -265,13 +265,13 @@ class Query
         string $groupName,
         array $options,
         array $tags,
-        int $filterType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL
     ) : self {
         if (!empty($tags)) {
             $this->filters[$groupName] = Filter::create(
                 'tags.name',
                 $tags,
-                $filterType,
+                $applicationType,
                 Filter::TYPE_NESTED,
                 [
                     'tags.name',
@@ -282,39 +282,42 @@ class Query
             unset($this->filters[$groupName]);
         }
 
-        $this->addTagsAggregation($groupName, $options, $filterType);
+        $this->addTagsAggregation($groupName, $options, $applicationType);
 
         return $this;
     }
 
     /**
-     * Filter by price range.
+     * Filter by range.
      *
-     * @param int $from
-     * @param int $to
+     * @param string $rangeName
+     * @param string $field
+     * @param array  $options
+     * @param array  $values
+     * @param int    $applicationType
      *
      * @return self
      */
-    public function filterByPriceRange(
-        int $from,
-        int $to
+    public function filterByRange(
+        string $rangeName,
+        string $field,
+        array $options,
+        array $values,
+        int $applicationType = Filter::AT_LEAST_ONE
     ) : self {
-        if (
-            $from !== PriceRange::FREE ||
-            $to !== PriceRange::INFINITE
-        ) {
-            $this->filters['price_range'] = Filter::create(
-                'real_price',
-                [
-                    'from' => $from,
-                    'to' => $to,
-                ],
-                0,
-                Filter::TYPE_RANGE
-            );
-        } else {
-            unset($this->filters['price_range']);
-        }
+        $this->filters[$rangeName] = Filter::create(
+            $field,
+            $values,
+            $applicationType,
+            Filter::TYPE_RANGE
+        );
+
+        $this->addRangeAggregation(
+            $rangeName,
+            $field,
+            $options,
+            $applicationType
+        );
 
         return $this;
     }
@@ -336,17 +339,17 @@ class Query
     /**
      * Add Manufacturer aggregation.
      *
-     * @param int $type
+     * @param int $applicationType
      *
      * @return self
      */
-    private function addManufacturerAggregation(int $type = Filter::MUST_ALL) : self
+    private function addManufacturerAggregation(int $applicationType) : self
     {
         $this->aggregations['manufacturer'] = Aggregation::create(
             'manufacturer',
             'manufacturer.id|manufacturer.name',
-            $type,
-            false
+            $applicationType,
+            Filter::TYPE_FIELD
         );
 
         return $this;
@@ -355,17 +358,17 @@ class Query
     /**
      * Add Brand aggregation.
      *
-     * @param int $type
+     * @param int $applicationType
      *
      * @return self
      */
-    private function addBrandAggregation(int $type = Filter::MUST_ALL) : self
+    private function addBrandAggregation(int $applicationType) : self
     {
         $this->aggregations['brand'] = Aggregation::create(
             'brand',
             'brand.id|brand.name',
-            $type,
-            false
+            $applicationType,
+            Filter::TYPE_FIELD
         );
 
         return $this;
@@ -374,17 +377,17 @@ class Query
     /**
      * Add categories aggregation.
      *
-     * @param int $type
+     * @param int $applicationType
      *
      * @return self
      */
-    private function addCategoriesAggregation(int $type = Filter::MUST_ALL) : self
+    private function addCategoriesAggregation(int $applicationType) : self
     {
         $this->aggregations['categories'] = Aggregation::create(
             'categories',
             'categories.id|categories.name|categories.level',
-            $type,
-            true
+            $applicationType,
+            Filter::TYPE_NESTED
         );
 
         return $this;
@@ -395,20 +398,47 @@ class Query
      *
      * @param string $groupName
      * @param array  $options
-     * @param int    $type
+     * @param int    $applicationType
      *
      * @return self
      */
     private function addTagsAggregation(
         string $groupName,
         array $options,
-        int $type = Filter::MUST_ALL
+        int $applicationType
     ) : self {
         $this->aggregations[$groupName] = Aggregation::create(
             $groupName,
             'tags.name',
-            $type,
-            true,
+            $applicationType,
+            Filter::TYPE_NESTED,
+            $options
+        );
+
+        return $this;
+    }
+
+    /**
+     * Add tags aggregation.
+     *
+     * @param string $rangeName
+     * @param string $field
+     * @param array  $options
+     * @param int    $applicationType
+     *
+     * @return self
+     */
+    private function addRangeAggregation(
+        string $rangeName,
+        string $field,
+        array $options,
+        int $applicationType
+    ) : self {
+        $this->aggregations[$rangeName] = Aggregation::create(
+            $rangeName,
+            $field,
+            $applicationType,
+            Filter::TYPE_RANGE,
             $options
         );
 
