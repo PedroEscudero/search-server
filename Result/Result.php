@@ -17,6 +17,7 @@ namespace Mmoreram\SearchBundle\Result;
 
 use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
+use Mmoreram\SearchBundle\Model\HttpTransportable;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Model\Tag;
@@ -24,7 +25,7 @@ use Mmoreram\SearchBundle\Model\Tag;
 /**
  * Class Result.
  */
-class Result
+class Result implements HttpTransportable
 {
     /**
      * @var Product[]
@@ -308,5 +309,79 @@ class Result
     public function getMaxPrice(): int
     {
         return $this->maxPrice;
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        return [
+            'total_elements' => $this->totalElements,
+            'total_products' => $this->totalProducts,
+            'total_hits' => $this->totalHits,
+            'min_price' => $this->minPrice,
+            'max_price' => $this->maxPrice,
+            'products' => array_map(function (Product $product) {
+                return $product->toArray();
+            }, $this->products),
+            'categories' => array_map(function (Category $category) {
+                return $category->toArray();
+            }, $this->categories),
+            'brands' => array_map(function (Brand $brand) {
+                return $brand->toArray();
+            }, $this->brands),
+            'manufacturers' => array_map(function (Manufacturer $manufacturer) {
+                return $manufacturer->toArray();
+            }, $this->manufacturers),
+            'tags' => array_map(function (Tag $tag) {
+                return $tag->toArray();
+            }, $this->tags),
+            'aggregations' => $this->aggregations->toArray(),
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array) : self
+    {
+        $result = new self(
+            $array['total_elements'],
+            $array['total_products'],
+            $array['total_hits'],
+            $array['min_price'],
+            $array['max_price']
+        );
+
+        $result->products = array_map(function (array $product) {
+            return Product::createFromArray($product);
+        }, $array['products']);
+
+        $result->categories = array_map(function (array $category) {
+            return Category::createFromArray($category);
+        }, $array['categories']);
+
+        $result->manufacturers = array_map(function (array $manufacturer) {
+            return Manufacturer::createFromArray($manufacturer);
+        }, $array['manufacturers']);
+
+        $result->brands = array_map(function (array $brand) {
+            return Brand::createFromArray($brand);
+        }, $array['brands']);
+
+        $result->tags = array_map(function (array $tag) {
+            return Tag::createFromArray($tag);
+        }, $array['tags']);
+
+        $result->aggregations = Aggregations::createFromArray($array['aggregations']);
+
+        return $result;
     }
 }

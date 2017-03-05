@@ -76,13 +76,14 @@ class GenerateProductsCommand extends ContainerAwareCommand
 
         $index = $this
             ->getContainer()
-            ->get('search_bundle.index');
+            ->get('search_bundle.index_repository');
         $index->setKey(self::$key);
         $stock = rand(1, 100);
         if (rand(1, 100) > 90) {
             $stock = null;
         }
 
+        $products = [];
         for ($id = 1; $id <= $input->getOption('number-of-products'); ++$id) {
             $family = array_keys($this->categories())[rand(0, 1)];
             $mainCategory = $this->categories()[$family][rand(0, 2)];
@@ -140,10 +141,10 @@ class GenerateProductsCommand extends ContainerAwareCommand
                 );
             }
 
-            $index->addProduct($product);
+            $products[] = $product;
         }
 
-        $index->flush(500);
+        $index->addProducts($products);
     }
 
     /**

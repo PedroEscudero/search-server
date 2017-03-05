@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Query;
 
+use Mmoreram\SearchBundle\Model\HttpTransportable;
+
 /**
  * Class Aggregation.
  */
-class Aggregation
+class Aggregation implements HttpTransportable
 {
     /**
      * @var string
@@ -152,6 +154,40 @@ class Aggregation
             $applicationType,
             $filterType,
             $subgroup
+        );
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        return [
+            'name' => $this->name,
+            'field' => $this->field,
+            'application_type' => $this->applicationType,
+            'filter_type' => $this->filterType,
+            'subgroup' => $this->subgroup,
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array) : self
+    {
+        return self::create(
+            $array['name'],
+            $array['field'],
+            $array['application_type'],
+            $array['filter_type'],
+            $array['subgroup']
         );
     }
 }

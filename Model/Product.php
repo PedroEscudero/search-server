@@ -20,7 +20,7 @@ use DateTime;
 /**
  * Class Product.
  */
-class Product
+class Product implements HttpTransportable
 {
     /**
      * @var string
@@ -171,7 +171,7 @@ class Product
      * @param null|Brand        $brand
      * @param null|string       $image
      * @param null|float        $rating
-     * @param DateTime          $updatedAt
+     * @param null|DateTime     $updatedAt
      */
     public function __construct(
         string $id,
@@ -187,7 +187,7 @@ class Product
         ? Brand $brand,
         ? string $image,
         ? float $rating,
-        DateTime $updatedAt = null
+        ? DateTime $updatedAt = null
     ) {
         $this->id = $id;
         $this->family = $family;
@@ -285,7 +285,7 @@ class Product
      *
      * @return float
      */
-    public function getReducedPrice(): float
+    public function getReducedPrice() : float
     {
         return $this->reducedPrice;
     }
@@ -402,9 +402,9 @@ class Product
     /**
      * Get image.
      *
-     * @return string
+     * @return null|string
      */
-    public function getImage(): string
+    public function getImage(): ? string
     {
         return $this->image;
     }
@@ -412,9 +412,9 @@ class Product
     /**
      * Get rating.
      *
-     * @return mixed
+     * @return null|float
      */
-    public function getRating()
+    public function getRating() : ? float
     {
         return $this->rating;
     }
@@ -422,9 +422,9 @@ class Product
     /**
      * Get Updated at.
      *
-     * @return DateTime
+     * @return null|DateTime
      */
-    public function getUpdatedAt() : DateTime
+    public function getUpdatedAt() : ? DateTime
     {
         return $this->updatedAt;
     }
@@ -434,7 +434,7 @@ class Product
      *
      * @return string
      */
-    public function getFirstLevelSearchableData(): string
+    public function getFirstLevelSearchableData() : string
     {
         return $this->firstLevelSearchableData;
     }
@@ -450,13 +450,58 @@ class Product
     }
 
     /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        $array = [
+            'id' => $this->id,
+            'family' => $this->family,
+            'ean' => $this->ean,
+            'name' => $this->name,
+            'description' => $this->description,
+            'long_description' => $this->longDescription,
+            'price' => $this->price,
+            'reduced_price' => $this->reducedPrice,
+            'stock' => $this->stock,
+            'image' => $this->image,
+            'rating' => $this->rating,
+            'updated_at' => is_null($this->updatedAt)
+                ? null
+                : $this->updatedAt->format(DATE_ATOM),
+            'categories' => array_map(function (Category $category) {
+                return $category->toArray();
+            }, $this->categories),
+            'tags' => array_map(function (Tag $tag) {
+                return $tag->toArray();
+            }, $this->tags),
+        ];
+
+        if ($this->manufacturer instanceof Manufacturer) {
+            $array['manufacturer'] = $this
+                ->manufacturer
+                ->toArray();
+        }
+
+        if ($this->brand instanceof Brand) {
+            $array['brand'] = $this
+                ->brand
+                ->toArray();
+        }
+
+        return $array;
+    }
+
+    /**
      * Create from array.
      *
      * @param array $array
      *
-     * @return Product
+     * @return self
      */
-    public static function createFromArray(array $array) : Product
+    public static function createFromArray(array $array) : self
     {
         $product = new self(
             (string) $array['id'],
@@ -472,7 +517,9 @@ class Product
             Brand::createFromArray($array['brand']),
             $array['image'] ?? null,
             $array['rating'] ?? null,
-            $array['updated_at'] ?? null
+            isset($array['updated_at'])
+                ? DateTime::createFromFormat(DATE_ATOM, $array['updated_at'])
+                : null
         );
 
         if (

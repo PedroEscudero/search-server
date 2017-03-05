@@ -51,10 +51,11 @@ abstract class SearchBundleFunctionalTest extends BaseFunctionalTest
                     ['resource' => '@BaseBundle/Resources/config/providers.yml'],
                     ['resource' => '@BaseBundle/Resources/test/framework.test.yml'],
                     ['resource' => '@BaseBundle/Resources/test/doctrine.test.yml'],
+                    ['resource' => '@SearchBundle/Resources/test/http.yml'],
                 ],
             ],
             [
-                '@TagBundle/Resources/config/routing.yml',
+                '@SearchBundle/Resources/config/routing.yml',
             ],
             'test', true
         );

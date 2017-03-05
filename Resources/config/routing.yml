@@ -1,3 +1,58 @@
+#
+# API
+#
+api_query:
+    path: /query
+    defaults:
+        _controller: search_bundle.api_controller:query
+
+api_index_products:
+    path: /index/products
+    methods: ["POST"]
+    defaults:
+        _controller: search_bundle.api_controller:index
+        parameterName: products
+        objectNamespace: Mmoreram\SearchBundle\Model\Product
+        method: addProducts
+
+api_index_categories:
+    path: /index/categories
+    methods: ["POST"]
+    defaults:
+        _controller: search_bundle.api_controller:index
+        parameterName: categories
+        objectNamespace: Mmoreram\SearchBundle\Model\Category
+        method: addCategories
+
+api_index_manufacturers:
+    path: /index/manufacturers
+    methods: ["POST"]
+    defaults:
+        _controller: search_bundle.api_controller:index
+        parameterName: manufacturers
+        objectNamespace: Mmoreram\SearchBundle\Model\Manufacturer
+        method: addManufacturers
+
+api_index_brands:
+    path: /index/brands
+    methods: ["POST"]
+    defaults:
+        _controller: search_bundle.api_controller:index
+        parameterName: brands
+        objectNamespace: Mmoreram\SearchBundle\Model\Brand
+        method: addBrands
+
+api_index_tags:
+    path: /index/tags
+    methods: ["POST"]
+    defaults:
+        _controller: search_bundle.api_controller:index
+        parameterName: tags
+        objectNamespace: Mmoreram\SearchBundle\Model\Tag
+        method: addTags
+#
+# Demo shop
+#
 shop:
     path: /
     defaults:

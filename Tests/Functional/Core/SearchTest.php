@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Tests\Functional\Repository;
+namespace Mmoreram\SearchBundle\Tests\Functional\Core;
 
 use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
@@ -32,7 +32,7 @@ class SearchTest extends ElasticaSearchRepositoryTest
     public function testMatchAll()
     {
         $repository = static::$repository;
-        $result = $repository->search(self::$key, Query::createMatchAll());
+        $result = $repository->query(Query::createMatchAll());
         $this->assertEquals(
             count($result->getProducts()),
             $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count()
@@ -58,7 +58,7 @@ class SearchTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
 
-        $result = $repository->search(self::$key, Query::create('adidas'));
+        $result = $repository->query(Query::create('adidas'));
         $this->assertNTypeElementId($result, Product::TYPE, 0, '1');
         $this->assertNTypeElementId($result, Brand::TYPE, 0, '1');
         $this->assertNTypeElementId($result, Manufacturer::TYPE, 0, '1');

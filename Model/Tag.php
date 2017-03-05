@@ -18,7 +18,7 @@ namespace Mmoreram\SearchBundle\Model;
 /**
  * Class Tag.
  */
-class Tag
+class Tag implements HttpTransportable
 {
     /**
      * @var string
@@ -77,9 +77,9 @@ class Tag
      *
      * @param array $array
      *
-     * @return static
+     * @return self
      */
-    public static function createFromArray(array $array)
+    public static function createFromArray(array $array) : self
     {
         if (!isset($array['name'])) {
             return null;
@@ -88,5 +88,17 @@ class Tag
         return new static(
             (string) $array['name']
         );
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'name' => $this->name,
+        ];
     }
 }

@@ -39,9 +39,11 @@ class SearchBundle extends SimpleBaseBundle
     {
         return [
             'repositories',
+            'controllers',
             'elastica',
             'query',
             'twig',
+            'http',
         ];
     }
 

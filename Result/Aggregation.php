@@ -19,12 +19,13 @@ use ArrayIterator;
 use IteratorAggregate;
 use Traversable;
 
+use Mmoreram\SearchBundle\Model\HttpTransportable;
 use Mmoreram\SearchBundle\Query\Filter;
 
 /**
  * Class Aggregation.
  */
-class Aggregation implements IteratorAggregate
+class Aggregation implements IteratorAggregate, HttpTransportable
 {
     /**
      * @var string
@@ -85,7 +86,10 @@ class Aggregation implements IteratorAggregate
         $this->name = $name;
         $this->applicationType = $applicationType;
         $this->totalElements = $totalElements;
-        $this->activeElements = array_flip($activeElements);
+        $this->activeElements = array_combine(
+            array_values($activeElements),
+            array_values($activeElements)
+        );
     }
 
     /**
@@ -93,12 +97,10 @@ class Aggregation implements IteratorAggregate
      *
      * @param string $name
      * @param int    $counter
-     * @param array  $activeElements
      */
     public function addCounter(
         string $name,
-        int $counter,
-        array $activeElements
+        int $counter
     ) {
         if ($counter == 0) {
             return;
@@ -107,7 +109,7 @@ class Aggregation implements IteratorAggregate
         $counter = Counter::createByActiveElements(
             $name,
             $counter,
-            $activeElements
+            $this->activeElements
         );
 
         /**
@@ -247,7 +249,7 @@ class Aggregation implements IteratorAggregate
         foreach ($this->counters as $pos => $counter) {
             if ($counter->getLevel() !== $this->lowestLevel) {
                 if ($counter->isUsed()) {
-                    $this->activeElements[] = $counter;
+                    $this->activeElements[$counter->getId()] = $counter;
                 }
                 unset($this->counters[$pos]);
             }
@@ -267,5 +269,61 @@ class Aggregation implements IteratorAggregate
     public function getIterator()
     {
         return new ArrayIterator($this->counters);
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'name' => $this->name,
+            'counters' => array_map(function (Counter $counter) {
+                return $counter->toArray();
+            }, $this->counters),
+            'application_type' => $this->applicationType,
+            'total_elements' => $this->totalElements,
+            'active_elements' => array_map(function ($counter) {
+                return ($counter instanceof Counter)
+                    ? $counter->toArray()
+                    : $counter;
+            }, $this->activeElements),
+            'lowest_level' => $this->lowestLevel,
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array): self
+    {
+        $activeElements = [];
+        foreach ($array['active_elements'] as $activeElementName => $activeElement) {
+            $activeElements[$activeElementName] = is_array($activeElement)
+                ? Counter::createFromArray($activeElement)
+                : $activeElement;
+        }
+
+        $aggregation = new self(
+            $array['name'],
+            $array['application_type'],
+            $array['total_elements'],
+            []
+        );
+
+        $aggregation->activeElements = $activeElements;
+        $aggregation->counters = array_map(function (array $counter) {
+            return Counter::createFromArray($counter);
+        }, $array['counters']);
+
+        $aggregation->lowestLevel = $array['lowest_level'];
+
+        return $aggregation;
     }
 }

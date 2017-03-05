@@ -41,6 +41,7 @@ products:
         description: Cool blue t-shirt
         long_description: It's awesome how you will rock with this super new blue t-shirt
         price: 1500
+        # reduced_price: 1500
         # real_price: 1500
         # discount: 0
         # discount_percentage: 0%

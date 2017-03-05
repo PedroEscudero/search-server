@@ -1,4 +1,13 @@
 {
+    "name": "mmoreram/search-bundle",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marc Morera",
+            "email": "yuhu@mmoreram.com"
+        }
+    ],
     "require": {
         "symfony/framework-bundle": "*",
         "symfony/http-kernel": "*",

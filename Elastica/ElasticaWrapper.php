@@ -72,13 +72,18 @@ class ElasticaWrapper
      * Create index.
      *
      * @param string $key
+     * @param int    $shards
+     * @param int    $replicas
      */
-    public function createIndex(string $key)
-    {
+    public function createIndex(
+        string $key,
+        int $shards = 4,
+        int $replicas = 1
+    ) {
         $tagIndex = $this->getSearchIndex($key);
         $tagIndex->create([
-            'number_of_shards' => 4,
-            'number_of_replicas' => 1,
+            'number_of_shards' => $shards,
+            'number_of_replicas' => $replicas,
             'analysis' => [
                 'analyzer' => [
                     'default' => [
@@ -169,10 +174,15 @@ class ElasticaWrapper
      * Create mapping.
      *
      * @param string $key
+     * @param int    $shards
+     * @param int    $replicas
      */
-    public function createIndexMapping(string $key)
-    {
-        $this->createIndex($key);
+    public function createIndexMapping(
+        string $key,
+        int $shards = 4,
+        int $replicas = 1
+    ) {
+        $this->createIndex($key, $shards, $replicas);
         $this->createProductIndexMapping($key);
         $this->createCategoryIndexMapping($key);
         $this->createManufacturerIndexMapping($key);

@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Query;
 
+use Mmoreram\SearchBundle\Model\HttpTransportable;
+
 /**
  * Class Query.
  */
-class Query
+class Query implements HttpTransportable
 {
     /**
      * @var Filter[]
@@ -172,12 +174,14 @@ class Query
      *
      * @param array $categories
      * @param int   $applicationType
+     * @param bool  $aggregate
      *
      * @return self
      */
     public function filterByCategories(
         array $categories,
-        int $applicationType = Filter::MUST_ALL_WITH_LEVELS
+        int $applicationType = Filter::MUST_ALL_WITH_LEVELS,
+        bool $aggregate = true
     ) : self {
         if (!empty($categories)) {
             $this->filters['categories'] = Filter::create(
@@ -190,7 +194,9 @@ class Query
             unset($this->filters['categories']);
         }
 
-        $this->addCategoriesAggregation($applicationType);
+        if ($aggregate) {
+            $this->addCategoriesAggregation($applicationType);
+        }
 
         return $this;
     }
@@ -200,12 +206,14 @@ class Query
      *
      * @param array $manufacturers
      * @param int   $applicationType
+     * @param bool  $aggregate
      *
      * @return self
      */
     public function filterByManufacturers(
         array $manufacturers,
-        int $applicationType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL,
+        bool $aggregate = true
     ) : self {
         if (!empty($manufacturers)) {
             $this->filters['manufacturer'] = Filter::create(
@@ -218,7 +226,9 @@ class Query
             unset($this->filters['manufacturer']);
         }
 
-        $this->addManufacturerAggregation($applicationType);
+        if ($aggregate) {
+            $this->addManufacturerAggregation($applicationType);
+        }
 
         return $this;
     }
@@ -228,12 +238,14 @@ class Query
      *
      * @param array $brands
      * @param int   $applicationType
+     * @param bool  $aggregate
      *
      * @return self
      */
     public function filterByBrands(
         array $brands,
-        int $applicationType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL,
+        bool $aggregate = true
     ) : self {
         if (!empty($brands)) {
             $this->filters['brand'] = Filter::create(
@@ -246,7 +258,9 @@ class Query
             unset($this->filters['brand']);
         }
 
-        $this->addBrandAggregation($applicationType);
+        if ($aggregate) {
+            $this->addBrandAggregation($applicationType);
+        }
 
         return $this;
     }
@@ -258,6 +272,7 @@ class Query
      * @param array  $options
      * @param array  $tags
      * @param int    $applicationType
+     * @param bool   $aggregate
      *
      * @return self
      */
@@ -265,7 +280,8 @@ class Query
         string $groupName,
         array $options,
         array $tags,
-        int $applicationType = Filter::MUST_ALL
+        int $applicationType = Filter::MUST_ALL,
+        bool $aggregate = true
     ) : self {
         if (!empty($tags)) {
             $this->filters[$groupName] = Filter::create(
@@ -282,9 +298,37 @@ class Query
             unset($this->filters[$groupName]);
         }
 
-        $this->addTagsAggregation($groupName, $options, $applicationType);
+        if ($aggregate) {
+            $this->addTagsAggregation($groupName, $options, $applicationType);
+        }
 
         return $this;
+    }
+
+    /**
+     * Filter by range.
+     *
+     * @param array $options
+     * @param array $values
+     * @param int   $applicationType
+     * @param bool  $aggregate
+     *
+     * @return self
+     */
+    public function filterByPriceRange(
+        array $options,
+        array $values,
+        int $applicationType = Filter::AT_LEAST_ONE,
+        bool $aggregate = true
+    ) : self {
+        return $this->filterByRange(
+            'price',
+            'real_price',
+            $options,
+            $values,
+            $applicationType,
+            $aggregate
+        );
     }
 
     /**
@@ -295,6 +339,7 @@ class Query
      * @param array  $options
      * @param array  $values
      * @param int    $applicationType
+     * @param bool   $aggregate
      *
      * @return self
      */
@@ -303,7 +348,8 @@ class Query
         string $field,
         array $options,
         array $values,
-        int $applicationType = Filter::AT_LEAST_ONE
+        int $applicationType = Filter::AT_LEAST_ONE,
+        bool $aggregate = true
     ) : self {
         $this->filters[$rangeName] = Filter::create(
             $field,
@@ -312,12 +358,14 @@ class Query
             Filter::TYPE_RANGE
         );
 
-        $this->addRangeAggregation(
-            $rangeName,
-            $field,
-            $options,
-            $applicationType
-        );
+        if ($aggregate) {
+            $this->addRangeAggregation(
+                $rangeName,
+                $field,
+                $options,
+                $applicationType
+            );
+        }
 
         return $this;
     }
@@ -434,6 +482,10 @@ class Query
         array $options,
         int $applicationType
     ) : self {
+        if (empty($options)) {
+            return $this;
+        }
+
         $this->aggregations[$rangeName] = Aggregation::create(
             $rangeName,
             $field,
@@ -539,5 +591,58 @@ class Query
     public function getPage(): int
     {
         return $this->page;
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        $query = $this->filters['_query'];
+        unset($this->filters['_query']);
+
+        return [
+            'q' => $query->getValues()[0],
+            'filters' => array_map(function (Filter $filter) {
+                return $filter->toArray();
+            }, $this->filters),
+            'aggregations' => array_map(function (Aggregation $aggregation) {
+                return $aggregation->toArray();
+            }, $this->aggregations),
+            'sort' => $this->sort,
+            'page' => $this->page,
+            'size' => $this->size,
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array) : self
+    {
+        $query = self::create(
+            $array['q'],
+            $array['page'],
+            $array['size']
+        );
+        $query->aggregations = array_map(function (array $aggregation) {
+            return Aggregation::createFromArray($aggregation);
+        }, $array['aggregations']);
+
+        $query->sort = $array['sort'];
+        $query->filters = array_merge(
+            $query->filters,
+            array_map(function (array $filter) {
+                return Filter::createFromArray($filter);
+            }, $array['filters'])
+        );
+
+        return $query;
     }
 }

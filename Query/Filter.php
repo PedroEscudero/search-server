@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Query;
 
+use Mmoreram\SearchBundle\Model\HttpTransportable;
+
 /**
  * Class Filter.
  */
-class Filter
+class Filter implements HttpTransportable
 {
     /**
      * @var int
@@ -213,6 +215,40 @@ class Filter
             $applicationType,
             $filterType,
             $filterTerms
+        );
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        return [
+            'field' => $this->field,
+            'values' => $this->values,
+            'application_type' => $this->applicationType,
+            'filter_type' => $this->filterType,
+            'filter_terms' => $this->filterTerms,
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array) : self
+    {
+        return self::create(
+            $array['field'],
+            $array['values'],
+            $array['application_type'],
+            $array['filter_type'],
+            $array['filter_terms']
         );
     }
 }

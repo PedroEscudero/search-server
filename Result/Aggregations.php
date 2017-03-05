@@ -19,10 +19,12 @@ use ArrayIterator;
 use IteratorAggregate;
 use Traversable;
 
+use Mmoreram\SearchBundle\Model\HttpTransportable;
+
 /**
  * Class Aggregations.
  */
-class Aggregations implements IteratorAggregate
+class Aggregations implements IteratorAggregate, HttpTransportable
 {
     /**
      * @var Aggregation[]
@@ -106,5 +108,43 @@ class Aggregations implements IteratorAggregate
     public function getIterator()
     {
         return new ArrayIterator($this->aggregations);
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'aggregations' => array_map(function (Aggregation $aggregation) {
+                return $aggregation->toArray();
+            }, $this->getAggregations()),
+            'total_elements' => $this->getTotalElements(),
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array): self
+    {
+        $aggregations = new self(
+            $array['total_elements']
+        );
+
+        foreach ($array['aggregations'] as $aggregationName => $aggregation) {
+            $aggregations->addAggregation(
+                $aggregationName,
+                Aggregation::createFromArray($aggregation)
+            );
+        }
+
+        return $aggregations;
     }
 }

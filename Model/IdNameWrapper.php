@@ -18,7 +18,7 @@ namespace Mmoreram\SearchBundle\Model;
 /**
  * Class IdNameWrapper.
  */
-abstract class IdNameWrapper
+abstract class IdNameWrapper implements HttpTransportable
 {
     /**
      * @var string
@@ -82,6 +82,19 @@ abstract class IdNameWrapper
     public function getFirstLevelSearchableData(): string
     {
         return $this->firstLevelSearchableData;
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+        ];
     }
 
     /**

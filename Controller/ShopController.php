@@ -35,7 +35,7 @@ class ShopController extends Controller
      *
      * Used api key
      */
-    protected static $key = 'demo_000';
+    protected static $key = 'test_000';
 
     /**
      * Index action.
@@ -85,8 +85,8 @@ class ShopController extends Controller
          * @var Result $result
          */
         $result = $this
-            ->get('search_bundle.repository')
-            ->search(self::$key, $searchQuery);
+            ->get('search_bundle.query_repository')
+            ->query(self::$key, $searchQuery);
 
         return $this->render('SearchBundle:Shop:content.html.twig', [
             'search_query' => $searchQuery,

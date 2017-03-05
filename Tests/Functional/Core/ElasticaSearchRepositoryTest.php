@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Tests\Functional\Repository;
+namespace Mmoreram\SearchBundle\Tests\Functional\Core;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -21,7 +21,6 @@ use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;
 use Mmoreram\SearchBundle\Model\Manufacturer;
 use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Repository\Index;
 use Mmoreram\SearchBundle\Repository\Repository;
 use Mmoreram\SearchBundle\Result\Result;
 use Mmoreram\SearchBundle\Tests\Functional\SearchBundleFunctionalTest;
@@ -61,19 +60,33 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
         parent::setUpBeforeClass();
 
         if (self::$repository instanceof Repository) {
+            self::$repository->setKey(self::$key);
+
             return self::$repository;
         }
 
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey);
-        $index = self::get('search_bundle.index');
-        $index->setKey(self::$key);
-        self::$repository = self::get('search_bundle.repository');
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1);
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1);
+
+        self::$repository = self::get('search_bundle.http_repository');
+        self::$repository->setKey(self::$key);
         $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
         foreach ($products['products'] as $product) {
-            $index->addProduct(Product::createFromArray($product));
+            self::$repository->addProduct(
+                Product::createFromArray($product)
+            );
         }
-        $index->flush(500);
+
+        self::$repository->flush(500);
+    }
+
+    /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp()
+    {
+        self::$repository->setKey(self::$key);
     }
 
     /**

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Tests\Functional\Repository;
+namespace Mmoreram\SearchBundle\Tests\Functional\Core;
 
 use Mmoreram\SearchBundle\Model\Brand;
 use Mmoreram\SearchBundle\Model\Category;

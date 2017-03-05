@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace Mmoreram\SearchBundle\Result;
 
+use Mmoreram\SearchBundle\Model\HttpTransportable;
+
 /**
  * Class Counter.
  */
-class Counter
+class Counter implements HttpTransportable
 {
     /**
      * @var string
@@ -160,6 +162,40 @@ class Counter
             $level,
             in_array($id, $activeElements),
             $n
+        );
+    }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'level' => $this->level,
+            'used' => $this->used,
+            'n' => $this->n,
+        ];
+    }
+
+    /**
+     * Create from array.
+     *
+     * @param array $array
+     *
+     * @return self
+     */
+    public static function createFromArray(array $array)
+    {
+        return new self(
+            $array['id'],
+            $array['name'],
+            $array['level'],
+            $array['used'],
+            $array['n']
         );
     }
 }

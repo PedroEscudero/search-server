@@ -1,0 +1,10 @@
+services:
+
+    #
+    # Controllers
+    #
+    search_bundle.api_controller:
+        class: Mmoreram\SearchBundle\Controller\ApiController
+        arguments:
+            - "@search_bundle.query_repository"
+            - "@search_bundle.index_repository"

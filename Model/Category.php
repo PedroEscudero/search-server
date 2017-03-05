@@ -83,4 +83,18 @@ class Category extends IdNameWrapper implements WithLevel
     {
         return $this->level;
     }
+
+    /**
+     * To array.
+     *
+     * @return array
+     */
+    public function toArray() : array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'level' => $this->level,
+        ];
+    }
 }

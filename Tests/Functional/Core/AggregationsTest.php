@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Tests\Functional\Repository;
+namespace Mmoreram\SearchBundle\Tests\Functional\Core;
 
 use Mmoreram\SearchBundle\Query\Filter;
 use Mmoreram\SearchBundle\Query\Query;
@@ -37,8 +37,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
     public function testBasicAggregations()
     {
         $repository = static::$repository;
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByManufacturers(['1'], FILTER::AT_LEAST_ONE)
                 ->filterByBrands([], FILTER::AT_LEAST_ONE)
@@ -57,8 +56,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
                 ->getN()
         );
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByManufacturers(['1', '3'], FILTER::AT_LEAST_ONE)
                 ->filterByBrands([], FILTER::AT_LEAST_ONE)
@@ -77,8 +75,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
     public function testNestedAggregations()
     {
         $repository = static::$repository;
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories([])
                 ->filterByCategories([])
@@ -95,8 +92,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $this->assertNull($categoryAggregation->getCounter('778'));
         $this->assertEquals(1, $categoryAggregation->getCounter('800')->getN());
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories(['1'])
         )
@@ -112,8 +108,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $this->assertNull($categoryAggregation->getCounter('778'));
         $this->assertNull($categoryAggregation->getCounter('800'));
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories(['1'], Filter::AT_LEAST_ONE)
         )
@@ -125,8 +120,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $this->assertEquals(1, $categoryAggregation->getCounter('3')->getN());
         $this->assertEquals(1, $categoryAggregation->getCounter('50')->getN());
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories([], Filter::MUST_ALL_WITH_LEVELS)
                 ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
@@ -138,8 +132,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $this->assertEquals(1, $categoryAggregation->getCounter('50')->getN());
         $this->assertCount(2, $categoryAggregation->getCounters());
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories(['1'], Filter::MUST_ALL_WITH_LEVELS)
                 ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
@@ -151,8 +144,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $this->assertEquals(1, $categoryAggregation->getCounter('3')->getN());
         $this->assertCount(2, $categoryAggregation->getCounters());
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories(['50'], Filter::MUST_ALL_WITH_LEVELS)
                 ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
@@ -170,8 +162,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
     public function testTagsFilterAggregations()
     {
         $repository = static::$repository;
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByTags('specials', ['new', 'last_hour'], [], Filter::AT_LEAST_ONE)
         )
@@ -188,8 +179,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
 
         $this->assertCount(
             3,
-            $repository->search(
-                self::$key,
+            $repository->query(
                 Query::createMatchAll()
                     ->filterByTags('specials', ['new', 'last_hour'], ['new', 'last_hour'], Filter::AT_LEAST_ONE)
             )->getProducts()
@@ -197,15 +187,13 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
 
         $this->assertCount(
             1,
-            $repository->search(
-                self::$key,
+            $repository->query(
                 Query::createMatchAll()
                     ->filterByTags('specials', ['new', 'last_hour'], ['last_hour'], Filter::AT_LEAST_ONE)
             )->getProducts()
         );
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByTags('specials', ['new', 'shirt'], [], Filter::MUST_ALL)
         )
@@ -221,8 +209,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
 
         $this->assertCount(
             1,
-            $repository->search(
-                self::$key,
+            $repository->query(
                 Query::createMatchAll()
                     ->filterByTags('specials', ['new', 'shirt'], ['new', 'shirt'], Filter::MUST_ALL)
             )->getProducts()
@@ -235,8 +222,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
     public function testLeveledFilterAndAggregation()
     {
         $repository = static::$repository;
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories(['1', '2'])
         )
@@ -251,8 +237,7 @@ class AggregationsTest extends ElasticaSearchRepositoryTest
         $this->assertEquals('2', $firstUsedCategoryElements->getId());
         $this->assertTrue($firstUsedCategoryElements->isUsed());
 
-        $aggregations = $repository->search(
-            self::$key,
+        $aggregations = $repository->query(
             Query::createMatchAll()
                 ->filterByCategories(['1'])
         )

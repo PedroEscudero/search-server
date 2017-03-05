@@ -28,98 +28,98 @@ class SortBy
     const SCORE = ['_score' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by price ASC
      */
     const PRICE_ASC = ['real_price' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by price DESC
      */
     const PRICE_DESC = ['real_price' => 'desc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by discount ASC
      */
     const DISCOUNT_ASC = ['discount' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by discount DESC
      */
     const DISCOUNT_DESC = ['discount' => 'desc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by discount percentage ASC
      */
     const DISCOUNT_PERCENTAGE_ASC = ['discount_percentage' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by discount percentage DESC
      */
     const DISCOUNT_PERCENTAGE_DESC = ['discount_percentage' => 'desc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by update at ASC
      */
     const UPDATED_AT_ASC = ['updated_at' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by update at ASC
      */
     const UPDATED_AT_DESC = ['updated_at' => 'desc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by manufacturer ASC
      */
     const MANUFACTURER_ASC = ['manufacturer.name' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by manufacturer DESC
      */
     const MANUFACTURER_DESC = ['manufacturer.name' => 'desc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by manufacturer ASC
      */
     const BRAND_ASC = ['brand.name' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by manufacturer DESC
      */
     const BRAND_DESC = ['brand.name' => 'desc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by rating ASC
      */
     const RATING_ASC = ['rating' => 'asc'];
 
     /**
-     * @var string
+     * @var array
      *
      * Sort by rating DESC
      */

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Tests\Functional\Repository;
+namespace Mmoreram\SearchBundle\Tests\Functional\Core;
 
 use Mmoreram\SearchBundle\Model\Product;
 use Mmoreram\SearchBundle\Query\Query;
@@ -31,13 +31,13 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::PRICE_ASC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::PRICE_ASC)),
             Product::TYPE,
             ['1', '2', '3']
         );
 
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(900, 1900)->sortBy(SortBy::PRICE_ASC)),
+            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['900..1900'])->sortBy(SortBy::PRICE_ASC)),
             Product::TYPE,
             ['1', '2', '!3']
         );
@@ -50,13 +50,13 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::PRICE_DESC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::PRICE_DESC)),
             Product::TYPE,
             ['3', '2', '1']
         );
 
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->filterByPriceRange(900, 1900)->sortBy(SortBy::PRICE_DESC)),
+            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['900..1900'])->sortBy(SortBy::PRICE_DESC)),
             Product::TYPE,
             ['2', '1', '!3']
         );
@@ -69,7 +69,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::DISCOUNT_ASC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::DISCOUNT_ASC)),
             Product::TYPE,
             ['{2', '3}', '5', '1', '4']
         );
@@ -82,7 +82,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::DISCOUNT_DESC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::DISCOUNT_DESC)),
             Product::TYPE,
             ['4', '1', '5', '{2', '3}']
         );
@@ -95,7 +95,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::DISCOUNT_PERCENTAGE_ASC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::DISCOUNT_PERCENTAGE_ASC)),
             Product::TYPE,
             ['{2', '3}', '1', '5', '4']
         );
@@ -108,7 +108,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::DISCOUNT_PERCENTAGE_DESC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::DISCOUNT_PERCENTAGE_DESC)),
             Product::TYPE,
             ['4', '5', '1', '{2', '3}']
         );
@@ -121,7 +121,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_ASC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_ASC)),
             Product::TYPE,
             ['1', '3', '4', '2', '5']
         );
@@ -134,7 +134,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_DESC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::MANUFACTURER_DESC)),
             Product::TYPE,
             ['5', '2', '4', '3', '1']
         );
@@ -147,7 +147,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::BRAND_ASC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::BRAND_ASC)),
             Product::TYPE,
             ['1', '3', '4', '2', '5']
         );
@@ -160,7 +160,7 @@ class SortTest extends ElasticaSearchRepositoryTest
     {
         $repository = static::$repository;
         $this->assertResults(
-            $repository->search(self::$key, Query::createMatchAll()->sortBy(SortBy::BRAND_DESC)),
+            $repository->query(Query::createMatchAll()->sortBy(SortBy::BRAND_DESC)),
             Product::TYPE,
             ['5', '2', '4', '3', '1']
         );
