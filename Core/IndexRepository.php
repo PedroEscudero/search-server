@@ -72,7 +72,7 @@ class IndexRepository
     {
         $this
             ->elasticaWrapper
-            ->createIndex(
+            ->createIndexMapping(
                 $this->key,
                 4
             );
