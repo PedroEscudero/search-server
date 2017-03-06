@@ -60,6 +60,7 @@ class TestClient implements HttpClient
         $this
             ->client
             ->request($method, $url, $options);
+
         $response = $this
             ->client
             ->getResponse();

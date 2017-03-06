@@ -215,6 +215,6 @@ class ApiController
             ], 400);
         }
 
-        return $parameter;
+        return json_decode($parameter, true);
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "9c99c4219734949b112a8282dfed48ed",
+    "content-hash": "e363483683f0cce9e2804be2410c8981",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -618,16 +618,11 @@
         {
             "name": "puntmig/php-search",
             "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/puntmig/php-search.git",
-                "reference": "c7043f3ff77ecc972debb248258c662c2de423f6"
-            },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/c7043f3ff77ecc972debb248258c662c2de423f6",
-                "reference": "c7043f3ff77ecc972debb248258c662c2de423f6",
-                "shasum": ""
+                "type": "path",
+                "url": "/var/www/projects/search/php-search",
+                "reference": "8cdcad9a674d7478930298bf7c9e97c2c30e7c01",
+                "shasum": null
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.0",
@@ -644,7 +639,17 @@
                     "Puntmig\\Search\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "fix-code": [
+                    "vendor/bin/php-cs-fixer fix --config-file=.php_cs",
+                    "vendor/bin/php-formatter f:h:f . --exclude=vendor",
+                    "vendor/bin/php-formatter f:s:f . --exclude=vendor",
+                    "vendor/bin/php-formatter f:u:s . --exclude=vendor"
+                ],
+                "test": [
+                    "vendor/bin/phpunit"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -654,7 +659,9 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-06 03:08:52"
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "ruflin/elastica",
@@ -2951,7 +2958,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-06 02:32:38"
+            "time": "2017-03-06T02:32:38+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
