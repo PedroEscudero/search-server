@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the SearchBundle for Symfony2.
+ * This file is part of the Search Server Bundle.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -9,20 +9,22 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Controller;
+namespace Puntmig\Search\Server\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-use Mmoreram\SearchBundle\Core\IndexRepository;
-use Mmoreram\SearchBundle\Core\QueryRepository;
-use Mmoreram\SearchBundle\Query\Query;
+use Puntmig\Search\Model\HttpTransportable;
+use Puntmig\Search\Query\Query;
+use Puntmig\Search\Server\Core\IndexRepository;
+use Puntmig\Search\Server\Core\QueryRepository;
 
 /**
  * Class ApiController.
@@ -79,6 +81,12 @@ class ApiController
             return $query;
         }
 
+        try {
+            Query::createFromArray($query);
+        } catch (\Exception $e) {
+            return new JsonResponse($e->getMessage());
+        }
+
         return new JsonResponse(
             $this
                 ->queryRepository
@@ -109,6 +117,9 @@ class ApiController
             return $objects;
         }
 
+        /**
+         * @var HttpTransportable $objectNamespace
+         */
         $this
             ->indexRepository
             ->$method(

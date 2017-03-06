@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the SearchBundle for Symfony2.
+ * This file is part of the Search Server Bundle.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -9,26 +9,21 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle;
+namespace Puntmig\Search\Server;
 
-use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Mmoreram\BaseBundle\SimpleBaseBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
-use Symfony\Bundle\TwigBundle\TwigBundle;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-use Mmoreram\BaseBundle\BaseBundle;
-use Mmoreram\BaseBundle\SimpleBaseBundle;
-use Mmoreram\SearchBundle\Command\GenerateProductsCommand;
-
 /**
- * Class SearchBundle.
+ * Class PuntmigSearchServerBundle.
  */
-class SearchBundle extends SimpleBaseBundle
+class PuntmigSearchServerBundle extends SimpleBaseBundle
 {
     /**
      * get config files.
@@ -41,9 +36,6 @@ class SearchBundle extends SimpleBaseBundle
             'repositories',
             'controllers',
             'elastica',
-            'query',
-            'twig',
-            'http',
         ];
     }
 
@@ -56,25 +48,8 @@ class SearchBundle extends SimpleBaseBundle
      */
     public static function getBundleDependencies(KernelInterface $kernel) : array
     {
-        $dependencies = [
-            DoctrineBundle::class,
-            FrameworkBundle::class,
-            BaseBundle::class,
-            TwigBundle::class,
-        ];
-
-        return $dependencies;
-    }
-
-    /**
-     * Get command instance array.
-     *
-     * @return Command[]
-     */
-    public function getCommands() : array
-    {
         return [
-            new GenerateProductsCommand(),
+            FrameworkBundle::class,
         ];
     }
 }

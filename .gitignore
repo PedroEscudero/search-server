@@ -1,7 +1,4 @@
 vendor
-phpunit.xml.dist
-Tests/cache
-Tests/logs
 /var
 /web
 /bin

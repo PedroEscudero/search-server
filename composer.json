@@ -1,5 +1,5 @@
 {
-    "name": "mmoreram/search-bundle",
+    "name": "puntmig/search-server",
     "type": "project",
     "license": "MIT",
     "authors": [
@@ -9,32 +9,26 @@
         }
     ],
     "require": {
+        "php": ">=7.1",
         "symfony/framework-bundle": "*",
         "symfony/http-kernel": "*",
-        "doctrine/common": "*",
-        "doctrine/orm": "*",
-        "twig/twig": "*",
-        "doctrine/doctrine-bundle": "*",
+        "symfony/web-server-bundle": "dev-master",
         "ruflin/elastica": "^5.0",
         "mmoreram/base-bundle": "*",
         "mmoreram/symfony-bundle-dependencies": "*",
-        "mmoreram/simple-doctrine-mapping": "*",
-        "one-bundle-app/one-bundle-app": "dev-master",
-        "guzzlehttp/guzzle": "^6.0",
-        "symfony/web-server-bundle": "dev-master"
+        "puntmig/php-search": "dev-master",
+        "one-bundle-app/one-bundle-app": "dev-master"
     },
     "require-dev": {
-
         "phpunit/phpunit": "^5.6.5",
         "mmoreram/php-formatter": "1.3.1",
         "friendsofphp/php-cs-fixer": "^1.12.4",
-        "symfony/browser-kit": "^3.2",
-        "symfony/templating": "^3.2",
-        "symfony/twig-bundle": "^3.2"
+        "puntmig/search-bundle": "dev-master",
+        "symfony/browser-kit": "^3.2"
     },
     "autoload": {
         "psr-4": {
-            "Mmoreram\\SearchBundle\\": ""
+            "Puntmig\\Search\\Server\\": ""
         }
     },
     "scripts": {

@@ -1,4 +1,4 @@
 services:
 
     search_bundle.elastica_wrapper:
-        class: Mmoreram\SearchBundle\Elastica\ElasticaWrapper
+        class: Puntmig\Search\Server\Elastica\ElasticaWrapper

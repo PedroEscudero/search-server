@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the SearchBundle for Symfony2.
+ * This file is part of the Search Server Bundle.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -9,21 +9,22 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Core;
+namespace Puntmig\Search\Server\Core;
 
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
 
-use Mmoreram\SearchBundle\Elastica\ElasticaWrapper;
-use Mmoreram\SearchBundle\Model\Brand;
-use Mmoreram\SearchBundle\Model\Category;
-use Mmoreram\SearchBundle\Model\Manufacturer;
-use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Model\Tag;
+use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class IndexRepository.

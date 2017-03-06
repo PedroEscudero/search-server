@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the SearchBundle for Symfony2.
+ * This file is part of the Search Server Bundle.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -9,30 +9,31 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Core;
+namespace Puntmig\Search\Server\Core;
 
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
 
-use Mmoreram\SearchBundle\Elastica\ElasticaWrapper;
-use Mmoreram\SearchBundle\Model\Brand;
-use Mmoreram\SearchBundle\Model\Category;
-use Mmoreram\SearchBundle\Model\Manufacturer;
-use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Model\Tag;
-use Mmoreram\SearchBundle\Query\Aggregation as QueryAggregation;
-use Mmoreram\SearchBundle\Query\Filter;
-use Mmoreram\SearchBundle\Query\Query;
-use Mmoreram\SearchBundle\Query\Range;
-use Mmoreram\SearchBundle\Query\SortBy;
-use Mmoreram\SearchBundle\Result\Aggregation as ResultAggregation;
-use Mmoreram\SearchBundle\Result\Aggregations as ResultAggregations;
-use Mmoreram\SearchBundle\Result\Result;
+use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Query\Aggregation as QueryAggregation;
+use Puntmig\Search\Query\Filter;
+use Puntmig\Search\Query\Query;
+use Puntmig\Search\Query\Range;
+use Puntmig\Search\Query\SortBy;
+use Puntmig\Search\Result\Aggregation as ResultAggregation;
+use Puntmig\Search\Result\Aggregations as ResultAggregations;
+use Puntmig\Search\Result\Result;
+use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class QueryRepository.

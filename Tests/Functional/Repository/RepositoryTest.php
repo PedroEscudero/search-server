@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the SearchBundle for Symfony2.
+ * This file is part of the Search Server Bundle.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -9,27 +9,34 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
 
 declare(strict_types=1);
 
-namespace Mmoreram\SearchBundle\Tests\Functional\Core;
+namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 use Symfony\Component\Yaml\Yaml;
 
-use Mmoreram\SearchBundle\Model\Brand;
-use Mmoreram\SearchBundle\Model\Category;
-use Mmoreram\SearchBundle\Model\Manufacturer;
-use Mmoreram\SearchBundle\Model\Product;
-use Mmoreram\SearchBundle\Repository\Repository;
-use Mmoreram\SearchBundle\Result\Result;
-use Mmoreram\SearchBundle\Tests\Functional\SearchBundleFunctionalTest;
+use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\Product;
+use Puntmig\Search\Repository\Repository;
+use Puntmig\Search\Result\Result;
+use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
 
 /**
- * Class ElasticaSearchRepositoryTest.
+ * Class RepositoryTest.
  */
-abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
+abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
 {
+    use PopulationTest;
+    use SearchTest;
+    use FiltersTest;
+    use AggregationsTest;
+    use SortTest;
+
     /**
      * @var Repository
      *
@@ -59,16 +66,10 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
     {
         parent::setUpBeforeClass();
 
-        if (self::$repository instanceof Repository) {
-            self::$repository->setKey(self::$key);
-
-            return self::$repository;
-        }
-
         self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1);
         self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1);
 
-        self::$repository = self::get('search_bundle.http_repository');
+        self::$repository = self::get(static::getRepositoryServiceName());
         self::$repository->setKey(self::$key);
         $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
         foreach ($products['products'] as $product) {
@@ -79,6 +80,13 @@ abstract class ElasticaSearchRepositoryTest extends SearchBundleFunctionalTest
 
         self::$repository->flush(500);
     }
+
+    /**
+     * get repository service name.
+     *
+     * @return string
+     */
+    abstract protected static function getRepositoryServiceName() : string;
 
     /**
      * Sets up the fixture, for example, open a network connection.

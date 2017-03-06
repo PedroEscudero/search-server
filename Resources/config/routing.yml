@@ -12,7 +12,7 @@ api_index_products:
     defaults:
         _controller: search_bundle.api_controller:index
         parameterName: products
-        objectNamespace: Mmoreram\SearchBundle\Model\Product
+        objectNamespace: Puntmig\Search\Model\Product
         method: addProducts
 
 api_index_categories:
@@ -21,7 +21,7 @@ api_index_categories:
     defaults:
         _controller: search_bundle.api_controller:index
         parameterName: categories
-        objectNamespace: Mmoreram\SearchBundle\Model\Category
+        objectNamespace: Puntmig\Search\Model\Category
         method: addCategories
 
 api_index_manufacturers:
@@ -30,7 +30,7 @@ api_index_manufacturers:
     defaults:
         _controller: search_bundle.api_controller:index
         parameterName: manufacturers
-        objectNamespace: Mmoreram\SearchBundle\Model\Manufacturer
+        objectNamespace: Puntmig\Search\Model\Manufacturer
         method: addManufacturers
 
 api_index_brands:
@@ -39,7 +39,7 @@ api_index_brands:
     defaults:
         _controller: search_bundle.api_controller:index
         parameterName: brands
-        objectNamespace: Mmoreram\SearchBundle\Model\Brand
+        objectNamespace: Puntmig\Search\Model\Brand
         method: addBrands
 
 api_index_tags:
@@ -48,17 +48,5 @@ api_index_tags:
     defaults:
         _controller: search_bundle.api_controller:index
         parameterName: tags
-        objectNamespace: Mmoreram\SearchBundle\Model\Tag
+        objectNamespace: Puntmig\Search\Model\Tag
         method: addTags
-#
-# Demo shop
-#
-shop:
-    path: /
-    defaults:
-        _controller: SearchBundle:Shop:index
-
-shop_content:
-    path: /content/
-    defaults:
-        _controller: SearchBundle:Shop:content

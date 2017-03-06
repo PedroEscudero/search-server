@@ -4,27 +4,20 @@ services:
     # Core repositories
     #
     search_bundle.query_repository:
-        class: Mmoreram\SearchBundle\Core\QueryRepository
+        class: Puntmig\Search\Server\Core\QueryRepository
         arguments:
             - "@search_bundle.elastica_wrapper"
 
     search_bundle.index_repository:
-        class: Mmoreram\SearchBundle\Core\IndexRepository
+        class: Puntmig\Search\Server\Core\IndexRepository
         arguments:
             - "@search_bundle.elastica_wrapper"
 
     #
     # Adapters
     #
-    search_bundle.http_repository:
-        class: Mmoreram\SearchBundle\Repository\HttpRepository
-        arguments:
-            - "@search_bundle.http_client"
-        calls:
-
-
     search_bundle.service_repository:
-        class: Mmoreram\SearchBundle\Repository\ServiceRepository
+        class: Puntmig\Search\Server\Repository\ServiceRepository
         arguments:
             - "@search_bundle.query_repository"
             - "@search_bundle.index_repository"
