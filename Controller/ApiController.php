@@ -68,6 +68,10 @@ class ApiController
 
     /**
      * Make a query.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
     public function query(Request $request)
     {
@@ -79,12 +83,6 @@ class ApiController
 
         if ($query instanceof Response) {
             return $query;
-        }
-
-        try {
-            Query::createFromArray($query);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage());
         }
 
         return new JsonResponse(
@@ -100,6 +98,13 @@ class ApiController
 
     /**
      * Add objects.
+     *
+     * @param Request $request
+     * @param string  $parameterName
+     * @param string  $objectNamespace
+     * @param string  $method
+     *
+     * @return JsonResponse
      */
     public function index(
         Request $request,
@@ -128,7 +133,32 @@ class ApiController
                 }, $objects)
             );
 
-        return new JsonResponse([], 200);
+        return new JsonResponse('Objects indexed', 200);
+    }
+
+    /**
+     * Reset the index.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function reset(Request $request)
+    {
+        $query = $this->checkRequestQuality(
+            $request,
+            'request'
+        );
+
+        if ($query instanceof Response) {
+            return $query;
+        }
+
+        $this
+            ->indexRepository
+            ->createIndex();
+
+        return new JsonResponse('Index created', 200);
     }
 
     /**
@@ -143,7 +173,7 @@ class ApiController
     private function checkRequestQuality(
         Request $request,
         string $bagName,
-        string $parameterName
+        string $parameterName = null
     ) {
         /**
          * @var ParameterBag $bag
@@ -158,9 +188,11 @@ class ApiController
         }
 
         if (!in_array($key, [
-            'qAQ0pbgZXX', // Demo
-            '0d9N6I8uP2', // Laie
-            'LFM4RWT40c', // Jose Luis
+            'mfdfd9fsjd', // Demo
+            '5jk4j4kll4', // Laie
+            'jkl4j4kl4k', // Jose Luis
+            'hjk45hj4k4', // Test
+            '5h43jk5h43', // Alternative Test
 
         ])) {
             return new JsonResponse([
@@ -170,6 +202,11 @@ class ApiController
 
         $this->indexRepository->setKey($key);
         $this->key = $key;
+
+        if (is_null($parameterName)) {
+            return [];
+        }
+
         $parameter = $bag->get($parameterName, null);
 
         if (is_null($parameter)) {

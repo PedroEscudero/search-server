@@ -49,14 +49,14 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      *
      * Used api key
      */
-    protected static $key = 'test_000';
+    protected static $key = 'hjk45hj4k4';
 
     /**
      * @var string
      *
      * Another used api key
      */
-    protected static $anotherKey = 'test_001';
+    protected static $anotherKey = '5h43jk5h43';
 
     /**
      * Sets up the fixture, for example, open a network connection.

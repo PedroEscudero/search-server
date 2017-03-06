@@ -66,6 +66,19 @@ class IndexRepository
     }
 
     /**
+     * Create the index.
+     */
+    public function createIndex()
+    {
+        $this
+            ->elasticaWrapper
+            ->createIndex(
+                $this->key,
+                4
+            );
+    }
+
+    /**
      * Generate product documents.
      *
      * @param Product[] $products

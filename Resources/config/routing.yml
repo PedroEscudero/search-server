@@ -6,6 +6,12 @@ api_query:
     defaults:
         _controller: search_bundle.api_controller:query
 
+api_reset:
+    path: /reset
+    methods: ["DELETE"]
+    defaults:
+        _controller: search_bundle.api_controller:reset
+
 api_index_products:
     path: /index/products
     methods: ["POST"]

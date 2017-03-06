@@ -621,12 +621,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "febc62c609c327c0865e5d1b50cd194afbf88a38"
+                "reference": "c7043f3ff77ecc972debb248258c662c2de423f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/febc62c609c327c0865e5d1b50cd194afbf88a38",
-                "reference": "febc62c609c327c0865e5d1b50cd194afbf88a38",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/c7043f3ff77ecc972debb248258c662c2de423f6",
+                "reference": "c7043f3ff77ecc972debb248258c662c2de423f6",
                 "shasum": ""
             },
             "require": {
@@ -654,7 +654,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-06 01:41:51"
+            "time": "2017-03-06 03:08:52"
         },
         {
             "name": "ruflin/elastica",
@@ -2914,12 +2914,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/search-bundle.git",
-                "reference": "affe6c5f1388ba0194c568363f04c851927d0e74"
+                "reference": "c014511090fb8d15d405ff1f43d34b1eb0f37c62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/affe6c5f1388ba0194c568363f04c851927d0e74",
-                "reference": "affe6c5f1388ba0194c568363f04c851927d0e74",
+                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/c014511090fb8d15d405ff1f43d34b1eb0f37c62",
+                "reference": "c014511090fb8d15d405ff1f43d34b1eb0f37c62",
                 "shasum": ""
             },
             "require": {
@@ -2951,7 +2951,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-06T01:59:47+00:00"
+            "time": "2017-03-06 02:32:38"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

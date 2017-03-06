@@ -137,7 +137,7 @@ class ServiceRepository extends Repository
     }
 
     /**
-     * Search cross the index types.
+     * Search across the index types.
      *
      * @param Query $query
      *
@@ -151,5 +151,15 @@ class ServiceRepository extends Repository
                 $this->getKey(),
                 $query
             );
+    }
+
+    /**
+     * Reset the index.
+     */
+    public function reset()
+    {
+        $this
+            ->indexRepository
+            ->createIndex();
     }
 }
