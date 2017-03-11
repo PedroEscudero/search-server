@@ -117,6 +117,7 @@ class IndexRepository
             'family' => $product->getFamily(),
             'ean' => $product->getEan(),
             'name' => $product->getName(),
+            'slug' => $product->getSlug(),
             'sortable_name' => $product->getName(),
             'description' => $product->getDescription(),
             'long_description' => $product->getLongDescription(),
@@ -137,6 +138,7 @@ class IndexRepository
             $productDocument['categories'][] = [
                 'id' => $category->getId(),
                 'name' => $category->getName(),
+                'slug' => $category->getSlug(),
                 'level' => $category->getLevel(),
             ];
         }
@@ -152,6 +154,7 @@ class IndexRepository
             $productDocument['manufacturer'] = [
                 'id' => $manufacturer->getId(),
                 'name' => $manufacturer->getName(),
+                'slug' => $manufacturer->getSlug(),
             ];
         }
 
@@ -160,6 +163,7 @@ class IndexRepository
             $productDocument['brand'] = [
                 'id' => $brand->getId(),
                 'name' => $brand->getName(),
+                'slug' => $brand->getSlug(),
             ];
         }
 
@@ -206,6 +210,7 @@ class IndexRepository
             $category->getId(),
             [
                 'name' => $category->getName(),
+                'slug' => $category->getSlug(),
                 'level' => $category->getLevel(),
                 'first_level_searchable_data' => $category->getFirstLevelSearchableData(),
             ]
@@ -252,6 +257,7 @@ class IndexRepository
             $manufacturer->getId(),
             [
                 'name' => $manufacturer->getName(),
+                'slug' => $manufacturer->getSlug(),
                 'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
             ]
         );
@@ -297,6 +303,7 @@ class IndexRepository
             $brand->getId(),
             [
                 'name' => $brand->getName(),
+                'slug' => $brand->getSlug(),
                 'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),
             ]
         );

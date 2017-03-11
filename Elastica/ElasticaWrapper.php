@@ -206,6 +206,7 @@ class ElasticaWrapper
             'family' => ['type' => 'keyword', 'include_in_all' => false],
             'ean' => ['type' => 'keyword', 'boost' => 10],
             'name' => ['type' => 'text', 'index' => false],
+            'slug' => ['type' => 'text', 'index' => false],
             'sortable_name' => ['type' => 'keyword'],
             'stock' => ['type' => 'integer', 'index' => false],
             'description' => ['type' => 'text', 'index' => false],
@@ -229,6 +230,9 @@ class ElasticaWrapper
                     'id' => [
                         'type' => 'keyword',
                     ],
+                    'slug' => [
+                        'type' => 'keyword',
+                    ],
                 ],
             ],
             'brand' => [
@@ -240,6 +244,9 @@ class ElasticaWrapper
                         'type' => 'keyword',
                     ],
                     'id' => [
+                        'type' => 'keyword',
+                    ],
+                    'slug' => [
                         'type' => 'keyword',
                     ],
                 ],
@@ -257,6 +264,9 @@ class ElasticaWrapper
                     ],
                     'level' => [
                         'type' => 'integer',
+                    ],
+                    'slug' => [
+                        'type' => 'keyword',
                     ],
                 ],
             ],
@@ -289,6 +299,7 @@ class ElasticaWrapper
         $categoryMapping->setProperties([
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
+            'slug' => ['type' => 'text', 'index' => false],
             'level' => ['type' => 'integer', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
         ]);
@@ -308,6 +319,7 @@ class ElasticaWrapper
         $manufacturerMapping->setProperties([
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
+            'slug' => ['type' => 'text', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
         ]);
 
@@ -326,6 +338,7 @@ class ElasticaWrapper
         $brandMapping->setProperties([
             'id' => ['type' => 'keyword', 'include_in_all' => false],
             'name' => ['type' => 'text', 'index' => false],
+            'slug' => ['type' => 'text', 'index' => false],
             'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
         ]);
 
