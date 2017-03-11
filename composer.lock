@@ -621,12 +621,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "fae40051484efa720f5ad71b9eeeab677ed94cd7"
+                "reference": "add30143182206f25058c9ff61fa320caf338f07"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/fae40051484efa720f5ad71b9eeeab677ed94cd7",
-                "reference": "fae40051484efa720f5ad71b9eeeab677ed94cd7",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/add30143182206f25058c9ff61fa320caf338f07",
+                "reference": "add30143182206f25058c9ff61fa320caf338f07",
                 "shasum": ""
             },
             "require": {
@@ -654,7 +654,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-11 12:25:50"
+            "time": "2017-03-11 14:33:38"
         },
         {
             "name": "ruflin/elastica",

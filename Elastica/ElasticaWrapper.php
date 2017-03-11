@@ -216,6 +216,7 @@ class ElasticaWrapper
             'real_price' => ['type' => 'float', 'include_in_all' => false],
             'discount' => ['type' => 'float', 'include_in_all' => false],
             'discount_percentage' => ['type' => 'integer', 'include_in_all' => false],
+            'currency' => ['type' => 'keyword', 'include_in_all' => false],
             'image' => ['type' => 'keyword', 'include_in_all' => false],
             'rating' => ['type' => 'float', 'include_in_all' => false],
             'updated_at' => ['type' => 'date'],

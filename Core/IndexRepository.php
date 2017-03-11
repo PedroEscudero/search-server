@@ -126,6 +126,7 @@ class IndexRepository
             'real_price' => $product->getRealPrice(),
             'discount' => $product->getDiscount(),
             'discount_percentage' => $product->getDiscountPercentage(),
+            'currency' => $product->getCurrency(),
             'stock' => $product->getStock(),
             'rating' => $product->getRating(),
             'categories' => [],
