@@ -21,6 +21,7 @@ use Elastica\Document as ElasticaDocument;
 
 use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\Coordinate;
 use Puntmig\Search\Model\Manufacturer;
 use Puntmig\Search\Model\Product;
 use Puntmig\Search\Model\Tag;
@@ -130,7 +131,11 @@ class IndexRepository
             'stock' => $product->getStock(),
             'rating' => $product->getRating(),
             'updated_at' => $product->getUpdatedAt()->format(DATE_ATOM),
-            'coordinate' => $product->getCoordinate()->toArray(),
+            'coordinate' => $product->getCoordinate() instanceof Coordinate
+                ? $product
+                    ->getCoordinate()
+                    ->toArray()
+                : null,
             'categories' => [],
             'tags' => [],
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
