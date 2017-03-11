@@ -621,12 +621,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "add30143182206f25058c9ff61fa320caf338f07"
+                "reference": "f8b9933706cd3d27714ca9b35be78664ae0090d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/add30143182206f25058c9ff61fa320caf338f07",
-                "reference": "add30143182206f25058c9ff61fa320caf338f07",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/f8b9933706cd3d27714ca9b35be78664ae0090d9",
+                "reference": "f8b9933706cd3d27714ca9b35be78664ae0090d9",
                 "shasum": ""
             },
             "require": {
@@ -636,7 +636,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^1.12.4",
-                "mmoreram/php-formatter": "1.3.1"
+                "mmoreram/php-formatter": "1.3.1",
+                "phpunit/phpunit": "^5.6.5"
             },
             "type": "project",
             "autoload": {
@@ -654,7 +655,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-11 14:33:38"
+            "time": "2017-03-11 20:10:13"
         },
         {
             "name": "ruflin/elastica",
@@ -2953,7 +2954,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-08 15:09:33"
+            "time": "2017-03-08T15:09:33+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

@@ -34,6 +34,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     use PopulationTest;
     use SearchTest;
     use FiltersTest;
+    use LocationFiltersTest;
     use AggregationsTest;
     use SortTest;
 

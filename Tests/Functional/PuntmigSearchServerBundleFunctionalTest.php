@@ -56,6 +56,10 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                 'framework' => [
                     'test' => true,
                 ],
+                'puntmig_search' => [
+                    'endpoint' => 'xxx',
+                    'api_key' => 'xxx',
+                ],
             ],
             [
                 '@PuntmigSearchServerBundle/Resources/config/routing.yml',

@@ -129,6 +129,8 @@ class IndexRepository
             'currency' => $product->getCurrency(),
             'stock' => $product->getStock(),
             'rating' => $product->getRating(),
+            'updated_at' => $product->getUpdatedAt()->format(DATE_ATOM),
+            'coordinate' => $product->getCoordinate()->toArray(),
             'categories' => [],
             'tags' => [],
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),

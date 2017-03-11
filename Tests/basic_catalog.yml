@@ -4,6 +4,7 @@ products:
         ean: 4768932798
         family: product
         name: green tshirt
+        slug: green-tshirt
         description: Cool green t-shirt
         long_description: Get dressed like the most spectacular guys in the world with this new green t-shirt Adidas
         price: 1000
@@ -11,21 +12,29 @@ products:
         # real_price: 950
         # discount: 50
         # discount_percentage: 5%
+        currency: EUR
         rating: 4,3
+        coordinate:
+            lat: 30
+            lon: 30
         manufacturer:
             id: 1
             name: Adidas
+            slug: adidas
         brand:
             id: 1
             name: Adidas
+            slug: adidas
         categories:
             t_shirt:
                 id: 1
                 name: T-shirt
+                slug: t-shirt
                 level: 1
             man_wear:
                 id: 2
                 name: Man wear
+                slug: man-wear
                 level: 2
         tags:
             new:
@@ -38,6 +47,7 @@ products:
         ean: 748329748
         family: product
         name: blue tshirt
+        slug: blue-tshirt
         description: Cool blue t-shirt
         long_description: It's awesome how you will rock with this super new blue t-shirt
         price: 1500
@@ -45,21 +55,29 @@ products:
         # real_price: 1500
         # discount: 0
         # discount_percentage: 0%
+        currency: EUR
         rating: 7,5
+        coordinate:
+            lat: 55
+            lon: 35
         manufacturer:
             id: 2
             name: Nike
+            slug: nike
         brand:
             id: 2
             name: Nike
+            slug: nike
         categories:
             t_shirt:
                 id: 1
                 name: T-shirt
+                slug: t-shirt
                 level: 1
             woman_wear:
                 id: 3
                 name: Woman wear
+                slug: woman-wear
                 level: 2
         tags:
             new:
@@ -70,27 +88,36 @@ products:
         ean: 4789224532
         family: book
         name: Da Vinci Code
+        slug: da-vinci-code
         description: This is the awesome Da Vinci Code by Dan Brown
         price: 2000
         reduced_price: 2010
         # real_price: 2000
         # discount: 0
         # discount_percentage: 0%
+        currency: EUR
         rating: 3
+        coordinate:
+            lat: 40
+            lon: 45
         manufacturer:
             id: 3
             name: Factories El Percebe
+            slug: factories-el-percebe
         brand:
             id: 3
             name: Books Santillana
+            slug: books-santillana
         categories:
             adventures_book:
                 id: 50
                 name: Adventures
+                slug: adventures
                 level: 1
             italian_book:
                 id: 66
                 name: Italian Book
+                slug: italian-book
                 level: 2
         tags:
             last_hour:
@@ -103,27 +130,36 @@ products:
         ean: 7483274892
         family: bike
         name: Mountain Bike extreme
+        slug: mountain-bike-extreme
         description: Cross the mountain while flying on top of two wheels
         price: 1500
         reduced_price: 700
         # real_price: 700
         # discount: 800
         # discount_percentage: 53%
+        currency: EUR
         rating: 9,2
+        coordinate:
+            lat: 45
+            lon: 60
         manufacturer:
             id: 15
             name: Kenda
+            slug: kenda
         brand:
             id: 10
             name: Decathlon
+            slug: decathlon
         categories:
             bike:
                 id: 777
                 name: Bikes
+                slug: bikes
                 level: 1
             mountain_bike:
                 id: 778
                 name: Mountain Bike
+                slug: mountain-bike
                 level: 2
         tags:
             kids:
@@ -134,23 +170,31 @@ products:
         ean: 784927839
         family: gum
         name: SuperBoomer
+        slug: superboomer
         description: Super Boomer super lolazo
         price: 10
         reduced_price: 7
         # real_price: 7
         # discount: 3
         # discount_percentage: 30%
+        currency: EUR
         rating: 6,9
+        coordinate:
+            lat: 60
+            lon: 70
         manufacturer:
             id: 444
             name: Superboomer
+            slug: superboomer
         brand:
             id: 444
             name: Superboomer
+            slug: superboomer
         categories:
             gum:
                 id: 800
                 name: Gum
+                slug: gum
                 level: 1
         tags:
             sugar:

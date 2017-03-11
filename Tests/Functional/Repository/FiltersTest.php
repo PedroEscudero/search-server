@@ -273,28 +273,28 @@ trait FiltersTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1'])),
+            $repository->query(Query::createMatchAll()->filterByManufacturers(['1'], Filter::MUST_ALL)),
             Product::TYPE,
             ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1', '2']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByManufacturers(['1', '2'], Filter::MUST_ALL))->getProducts()
         );
 
         $this->assertEmpty(
-             $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543']))->getProducts()
+             $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::MUST_ALL))->getProducts()
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543'])->filterByManufacturers([])),
+            $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::MUST_ALL)->filterByManufacturers([])),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $repository->setKey(self::$anotherKey);
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByManufacturers(['1'], Filter::MUST_ALL))->getProducts()
         );
     }
 
@@ -330,28 +330,28 @@ trait FiltersTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1'])),
+            $repository->query(Query::createMatchAll()->filterByBrands(['1'], Filter::MUST_ALL)),
             Product::TYPE,
             ['1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1', '2']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByBrands(['1', '2'], Filter::MUST_ALL))->getProducts()
         );
 
         $this->assertEmpty(
-             $repository->query(Query::createMatchAll()->filterByBrands(['_4543543']))->getProducts()
+             $repository->query(Query::createMatchAll()->filterByBrands(['_4543543'], Filter::MUST_ALL))->getProducts()
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByBrands(['_4543543'])->filterByBrands([])),
+            $repository->query(Query::createMatchAll()->filterByBrands(['_4543543'], Filter::MUST_ALL)->filterByBrands([])),
             Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $repository->setKey(self::$anotherKey);
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByBrands(['1'], Filter::MUST_ALL))->getProducts()
         );
     }
 

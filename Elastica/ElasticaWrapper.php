@@ -220,6 +220,7 @@ class ElasticaWrapper
             'image' => ['type' => 'keyword', 'include_in_all' => false],
             'rating' => ['type' => 'float', 'include_in_all' => false],
             'updated_at' => ['type' => 'date'],
+            'coordinate' => ['type' => 'geo_point'],
             'manufacturer' => [
                 'type' => 'object',
                 'dynamic' => 'strict',

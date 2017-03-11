@@ -20,6 +20,10 @@ use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
 
+use Puntmig\Search\Geo\CoordinateAndDistance;
+use Puntmig\Search\Geo\LocationRange;
+use Puntmig\Search\Geo\Polygon;
+use Puntmig\Search\Geo\Square;
 use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Model\Category;
 use Puntmig\Search\Model\Manufacturer;
@@ -137,6 +141,17 @@ class QueryRepository
             $source['id'] = $elasticaResult->getId();
             switch ($elasticaResult->getType()) {
                 case Product::TYPE:
+
+                    /**
+                     * We should find a possible distance.
+                     */
+                    if (
+                        isset($elasticaResult->getParam('sort')[0]) &&
+                        is_float($elasticaResult->getParam('sort')[0])
+                    ) {
+                        $source['distance'] = $elasticaResult->getParam('sort')[0];
+                    }
+
                     $result->addProduct(
                         Product::createFromArray($source)
                     );
@@ -283,6 +298,14 @@ class QueryRepository
                 empty($queryString)
                     ? new ElasticaQuery\MatchAll()
                     : new ElasticaQuery\Match('_all', $queryString)
+            );
+
+            return;
+        }
+
+        if ($filter->getFilterType() === Filter::TYPE_GEO) {
+            $boolQuery->addMust(
+                $this->createLocationFilter($filter)
             );
 
             return;
@@ -549,6 +572,42 @@ class QueryRepository
         return empty($rangeData)
             ? null
             : new ElasticaQuery\Range($filter->getField(), $rangeData);
+    }
+
+    /**
+     * Create Location filter.
+     *
+     * @param Filter $filter
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createLocationFilter(Filter $filter) : ElasticaQuery\AbstractQuery
+    {
+        $locationRange = LocationRange::createFromArray($filter->getValues());
+        $locationRangeData = $locationRange->toFilterArray();
+        switch (get_class($locationRange)) {
+            case CoordinateAndDistance::class:
+
+                return new ElasticaQuery\GeoDistance(
+                    $filter->getField(),
+                    $locationRangeData['coordinate'],
+                    $locationRangeData['distance']
+                );
+
+            case Polygon::class:
+
+                return new ElasticaQuery\GeoPolygon(
+                    $filter->getField(),
+                    $locationRangeData
+                );
+
+            case Square::class:
+
+                return new ElasticaQuery\GeoBoundingBox(
+                    $filter->getField(),
+                    $locationRangeData
+                );
+        }
     }
 
     /**

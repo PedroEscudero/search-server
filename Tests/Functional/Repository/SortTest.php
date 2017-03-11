@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
+use Puntmig\Search\Model\Coordinate;
 use Puntmig\Search\Model\Product;
 use Puntmig\Search\Query\Query;
 use Puntmig\Search\Query\SortBy;
@@ -165,5 +166,41 @@ trait SortTest
             Product::TYPE,
             ['5', '2', '4', '3', '1']
         );
+    }
+
+    /**
+     * Test sort by location.
+     */
+    public function testSortByLocationKmAsc()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createLocated(new Coordinate(45.0, 45.0), '')->sortBy(SortBy::LOCATION_KM_ASC));
+        $this->assertResults(
+            $result,
+            Product::TYPE,
+            ['3', '4', '2', '1', '5']
+        );
+
+        $products = $result->getProducts();
+        $this->assertTrue($products[0]->getDistance() < 558);
+        $this->assertTrue($products[0]->getDistance() > 554);
+    }
+
+    /**
+     * Test sort by location.
+     */
+    public function testSortByLocationKmDesc()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createLocated(new Coordinate(45.0, 45.0), '')->sortBy(SortBy::LOCATION_MI_ASC));
+        $this->assertResults(
+            $result,
+            Product::TYPE,
+            ['3', '4', '2', '1', '5']
+        );
+
+        $products = $result->getProducts();
+        $this->assertTrue($products[0]->getDistance() < 346);
+        $this->assertTrue($products[0]->getDistance() > 344);
     }
 }
