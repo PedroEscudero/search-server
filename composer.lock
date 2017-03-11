@@ -621,12 +621,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "f8b9933706cd3d27714ca9b35be78664ae0090d9"
+                "reference": "3e542676942e2fce1016de45f8fc25e0acf221bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/f8b9933706cd3d27714ca9b35be78664ae0090d9",
-                "reference": "f8b9933706cd3d27714ca9b35be78664ae0090d9",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/3e542676942e2fce1016de45f8fc25e0acf221bf",
+                "reference": "3e542676942e2fce1016de45f8fc25e0acf221bf",
                 "shasum": ""
             },
             "require": {
@@ -655,7 +655,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-11 20:10:13"
+            "time": "2017-03-11 20:27:42"
         },
         {
             "name": "ruflin/elastica",
@@ -2954,7 +2954,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-08T15:09:33+00:00"
+            "time": "2017-03-08 15:09:33"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
