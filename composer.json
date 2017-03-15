@@ -10,9 +10,9 @@
     ],
     "require": {
         "php": ">=7.1",
-        "symfony/framework-bundle": "*",
-        "symfony/http-kernel": "*",
-        "symfony/web-server-bundle": "dev-master",
+        "symfony/framework-bundle": "^3.2",
+        "symfony/http-kernel": "^3.2",
+        "symfony/web-server-bundle": "^3.2",
         "symfony/monolog-bundle" : "^2.8",
         "ruflin/elastica": "^5.0",
         "mmoreram/base-bundle": "*",
