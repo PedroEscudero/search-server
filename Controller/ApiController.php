@@ -187,19 +187,6 @@ class ApiController
             ], 401);
         }
 
-        if (!in_array($key, [
-            'mfdfd9fsjd', // Demo
-            '5jk4j4kll4', // Laie
-            'jkl4j4kl4k', // Jose Luis
-            'hjk45hj4k4', // Test
-            '5h43jk5h43', // Alternative Test
-
-        ])) {
-            return new JsonResponse([
-                'message' => 'Key not found',
-            ], 401);
-        }
-
         $this->indexRepository->setKey($key);
         $this->key = $key;
 
