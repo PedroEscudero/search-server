@@ -18,6 +18,7 @@ namespace Puntmig\Search\Server;
 
 use Mmoreram\BaseBundle\SimpleBaseBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -50,6 +51,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
     {
         return [
             FrameworkBundle::class,
+            MonologBundle::class,
         ];
     }
 }

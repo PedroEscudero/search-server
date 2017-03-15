@@ -1,12 +1,4 @@
-bundles: Puntmig\Search\Server\PuntmigSearchServerBundle
-routes:
-    - "@PuntmigSearchServerBundle/Resources/config/routing.yml"
 config:
-    parameters:
-        kernel.secret: jhaksjal
-    framework:
-        form: false
-        assets: false
     monolog:
         handlers:
             main:

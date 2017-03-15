@@ -13,6 +13,7 @@
         "symfony/framework-bundle": "*",
         "symfony/http-kernel": "*",
         "symfony/web-server-bundle": "dev-master",
+        "symfony/monolog-bundle" : "^2.8",
         "ruflin/elastica": "^5.0",
         "mmoreram/base-bundle": "*",
         "mmoreram/symfony-bundle-dependencies": "*",
