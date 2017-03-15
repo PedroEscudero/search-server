@@ -66,7 +66,7 @@ class ElasticaWrapper
     {
         return $this
             ->client
-            ->getIndex("search_$key");
+            ->getIndex("indesky_$key");
     }
 
     /**
