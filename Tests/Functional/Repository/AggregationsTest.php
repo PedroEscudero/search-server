@@ -45,7 +45,7 @@ trait AggregationsTest
         )
         ->getAggregations();
         $brandAggregation = $aggregations->getAggregation('brand');
-        $manufacturerAggregation = $aggregations->getAggregation('manufacturer');
+        $manufacturerAggregation = $aggregations->getAggregation('manufacturers');
 
         $this->assertCount(1, $brandAggregation->getCounters());
         $this->assertCount(5, $manufacturerAggregation->getCounters());
@@ -64,7 +64,7 @@ trait AggregationsTest
         )
         ->getAggregations();
         $brandAggregation = $aggregations->getAggregation('brand');
-        $manufacturerAggregation = $aggregations->getAggregation('manufacturer');
+        $manufacturerAggregation = $aggregations->getAggregation('manufacturers');
 
         $this->assertCount(2, $brandAggregation->getCounters());
         $this->assertCount(5, $manufacturerAggregation->getCounters());

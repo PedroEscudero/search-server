@@ -201,30 +201,31 @@ class ElasticaWrapper
     {
         $productMapping = new Mapping();
         $productMapping->setType($this->getType($key, Product::TYPE));
+        $productMapping->enableAllField(false);
         $productMapping->setProperties([
-            'id' => ['type' => 'keyword', 'include_in_all' => false],
-            'family' => ['type' => 'keyword', 'include_in_all' => false],
-            'ean' => ['type' => 'keyword', 'boost' => 10],
+            'id' => ['type' => 'keyword'],
+            'family' => ['type' => 'keyword'],
+            'ean' => ['type' => 'keyword'],
             'name' => ['type' => 'text', 'index' => false],
             'slug' => ['type' => 'text', 'index' => false],
             'sortable_name' => ['type' => 'keyword'],
             'stock' => ['type' => 'integer', 'index' => false],
             'description' => ['type' => 'text', 'index' => false],
             'long_description' => ['type' => 'text', 'index' => false],
-            'price' => ['type' => 'float', 'include_in_all' => false],
-            'reduced_price' => ['type' => 'float', 'include_in_all' => false],
-            'real_price' => ['type' => 'float', 'include_in_all' => false],
-            'discount' => ['type' => 'float', 'include_in_all' => false],
-            'discount_percentage' => ['type' => 'integer', 'include_in_all' => false],
-            'currency' => ['type' => 'keyword', 'include_in_all' => false],
-            'image' => ['type' => 'keyword', 'include_in_all' => false],
-            'rating' => ['type' => 'float', 'include_in_all' => false],
+            'price' => ['type' => 'float'],
+            'reduced_price' => ['type' => 'float'],
+            'real_price' => ['type' => 'float'],
+            'discount' => ['type' => 'float'],
+            'discount_percentage' => ['type' => 'integer'],
+            'currency' => ['type' => 'keyword'],
+            'image' => ['type' => 'keyword', 'index' => false],
+            'rating' => ['type' => 'float'],
             'updated_at' => ['type' => 'date'],
             'coordinate' => ['type' => 'geo_point'],
-            'manufacturer' => [
-                'type' => 'object',
+            'stores' => ['type' => 'string'],
+            'manufacturers' => [
+                'type' => 'nested',
                 'dynamic' => 'strict',
-                'include_in_all' => false,
                 'properties' => [
                     'name' => [
                         'type' => 'keyword',
@@ -240,7 +241,6 @@ class ElasticaWrapper
             'brand' => [
                 'type' => 'object',
                 'dynamic' => 'strict',
-                'include_in_all' => false,
                 'properties' => [
                     'name' => [
                         'type' => 'keyword',
@@ -256,7 +256,6 @@ class ElasticaWrapper
             'categories' => [
                 'type' => 'nested',
                 'dynamic' => 'strict',
-                'include_in_all' => false,
                 'properties' => [
                     'name' => [
                         'type' => 'keyword',
@@ -275,15 +274,22 @@ class ElasticaWrapper
             'tags' => [
                 'type' => 'nested',
                 'dynamic' => 'strict',
-                'include_in_all' => false,
                 'properties' => [
                     'name' => [
                         'type' => 'keyword',
                     ],
                 ],
             ],
-            'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
-            'second_level_searchable_data' => ['type' => 'text', 'boost' => 7, 'include_in_all' => true],
+            'first_level_searchable_data' => [
+                'type' => 'text',
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
+            'second_level_searchable_data' => [
+                'type' => 'text',
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
         ]);
 
         $productMapping->send();
@@ -298,12 +304,17 @@ class ElasticaWrapper
     {
         $categoryMapping = new Mapping();
         $categoryMapping->setType($this->getType($key, Category::TYPE));
+        $categoryMapping->enableAllField(false);
         $categoryMapping->setProperties([
-            'id' => ['type' => 'keyword', 'include_in_all' => false],
+            'id' => ['type' => 'keyword'],
             'name' => ['type' => 'text', 'index' => false],
             'slug' => ['type' => 'text', 'index' => false],
             'level' => ['type' => 'integer', 'index' => false],
-            'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
+            'first_level_searchable_data' => [
+                'type' => 'text',
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
         ]);
 
         $categoryMapping->send();
@@ -318,11 +329,16 @@ class ElasticaWrapper
     {
         $manufacturerMapping = new Mapping();
         $manufacturerMapping->setType($this->getType($key, Manufacturer::TYPE));
+        $manufacturerMapping->enableAllField(false);
         $manufacturerMapping->setProperties([
-            'id' => ['type' => 'keyword', 'include_in_all' => false],
+            'id' => ['type' => 'keyword'],
             'name' => ['type' => 'text', 'index' => false],
             'slug' => ['type' => 'text', 'index' => false],
-            'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
+            'first_level_searchable_data' => [
+                'type' => 'text',
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
         ]);
 
         $manufacturerMapping->send();
@@ -337,11 +353,16 @@ class ElasticaWrapper
     {
         $brandMapping = new Mapping();
         $brandMapping->setType($this->getType($key, Brand::TYPE));
+        $brandMapping->enableAllField(false);
         $brandMapping->setProperties([
-            'id' => ['type' => 'keyword', 'include_in_all' => false],
+            'id' => ['type' => 'keyword'],
             'name' => ['type' => 'text', 'index' => false],
             'slug' => ['type' => 'text', 'index' => false],
-            'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
+            'first_level_searchable_data' => [
+                'type' => 'text',
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
         ]);
 
         $brandMapping->send();
@@ -356,9 +377,14 @@ class ElasticaWrapper
     {
         $tagMapping = new Mapping();
         $tagMapping->setType($this->getType($key, Tag::TYPE));
+        $tagMapping->enableAllField(false);
         $tagMapping->setProperties([
             'name' => ['type' => 'text', 'index' => false],
-            'first_level_searchable_data' => ['type' => 'text', 'boost' => 10, 'include_in_all' => true],
+            'first_level_searchable_data' => [
+                'type' => 'text',
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
         ]);
 
         $tagMapping->send();

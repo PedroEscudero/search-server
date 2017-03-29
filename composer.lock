@@ -191,16 +191,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "0d6c7ca039329247e4f0f8f8f6506810e8248855"
+                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/0d6c7ca039329247e4f0f8f8f6506810e8248855",
-                "reference": "0d6c7ca039329247e4f0f8f8f6506810e8248855",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
                 "shasum": ""
             },
             "require": {
@@ -252,7 +252,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-02-27T10:51:17+00:00"
+            "time": "2017-03-20T17:10:46+00:00"
         },
         {
             "name": "mmoreram/base-bundle",
@@ -699,12 +699,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "416bfd1e589feab283978f00a78845dac13ef2b8"
+                "reference": "3ebc2a2a5b1db34a1d13e53558d004d2a15a1462"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/416bfd1e589feab283978f00a78845dac13ef2b8",
-                "reference": "416bfd1e589feab283978f00a78845dac13ef2b8",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/3ebc2a2a5b1db34a1d13e53558d004d2a15a1462",
+                "reference": "3ebc2a2a5b1db34a1d13e53558d004d2a15a1462",
                 "shasum": ""
             },
             "require": {
@@ -733,7 +733,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-03-12 16:05:23"
+            "time": "2017-03-28 23:59:24"
         },
         {
             "name": "ruflin/elastica",
@@ -2199,12 +2199,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/web-server-bundle.git",
-                "reference": "d79adcaba011db3c32456d65325b96567a6365c2"
+                "reference": "728d9a2eb2ba59314535d372c33c0ff25c122cfe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/web-server-bundle/zipball/d79adcaba011db3c32456d65325b96567a6365c2",
-                "reference": "d79adcaba011db3c32456d65325b96567a6365c2",
+                "url": "https://api.github.com/repos/symfony/web-server-bundle/zipball/728d9a2eb2ba59314535d372c33c0ff25c122cfe",
+                "reference": "728d9a2eb2ba59314535d372c33c0ff25c122cfe",
                 "shasum": ""
             },
             "require": {
@@ -2242,7 +2242,7 @@
             ],
             "description": "Symfony WebServerBundle",
             "homepage": "https://symfony.com",
-            "time": "2017-03-15 03:05:57"
+            "time": "2017-03-26 17:02:20"
         },
         {
             "name": "symfony/yaml",
@@ -2969,16 +2969,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.16",
+            "version": "5.7.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "dafc78e2a7d12139b0e97078d1082326bd09363d"
+                "reference": "68752b665d3875f9a38a357e3ecb35c79f8673bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/dafc78e2a7d12139b0e97078d1082326bd09363d",
-                "reference": "dafc78e2a7d12139b0e97078d1082326bd09363d",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/68752b665d3875f9a38a357e3ecb35c79f8673bf",
+                "reference": "68752b665d3875f9a38a357e3ecb35c79f8673bf",
                 "shasum": ""
             },
             "require": {
@@ -3047,7 +3047,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-03-15T13:02:34+00:00"
+            "time": "2017-03-19T16:52:12+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -3907,16 +3907,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.2.0",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "29bb02dde09ff56291d30f7687eb8696918023af"
+                "reference": "9718186a5df85a4f7917e78d3ffcabc204c75d25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/29bb02dde09ff56291d30f7687eb8696918023af",
-                "reference": "29bb02dde09ff56291d30f7687eb8696918023af",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/9718186a5df85a4f7917e78d3ffcabc204c75d25",
+                "reference": "9718186a5df85a4f7917e78d3ffcabc204c75d25",
                 "shasum": ""
             },
             "require": {
@@ -3926,12 +3926,12 @@
             "require-dev": {
                 "psr/container": "^1.0",
                 "symfony/debug": "~2.7",
-                "symfony/phpunit-bridge": "~3.2"
+                "symfony/phpunit-bridge": "~3.3@dev"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2-dev"
+                    "dev-master": "2.3-dev"
                 }
             },
             "autoload": {
@@ -3966,7 +3966,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-02-27T00:16:20+00:00"
+            "time": "2017-03-22T15:41:51+00:00"
         },
         {
             "name": "webmozart/assert",

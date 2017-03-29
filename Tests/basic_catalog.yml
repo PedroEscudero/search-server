@@ -17,10 +17,11 @@ products:
         coordinate:
             lat: 30
             lon: 30
-        manufacturer:
-            id: 1
-            name: Adidas
-            slug: adidas
+        manufacturers:
+            1:
+                id: 1
+                name: Adidas
+                slug: adidas
         brand:
             id: 1
             name: Adidas
@@ -41,6 +42,9 @@ products:
                 name: new
             shirt:
                 name: shirt
+        stores:
+            - 1
+            - 2
 
     prod_2:
         id: 2
@@ -60,10 +64,11 @@ products:
         coordinate:
             lat: 55
             lon: 35
-        manufacturer:
-            id: 2
-            name: Nike
-            slug: nike
+        manufacturers:
+            2:
+                id: 2
+                name: Nike
+                slug: nike
         brand:
             id: 2
             name: Nike
@@ -82,6 +87,9 @@ products:
         tags:
             new:
                 name: new
+        stores:
+            - 1
+            - 2
 
     book_1:
         id: 3
@@ -100,10 +108,11 @@ products:
         coordinate:
             lat: 40
             lon: 45
-        manufacturer:
-            id: 3
-            name: Factories El Percebe
-            slug: factories-el-percebe
+        manufacturers:
+            3:
+                id: 3
+                name: Factories El Percebe
+                slug: factories-el-percebe
         brand:
             id: 3
             name: Books Santillana
@@ -124,6 +133,8 @@ products:
                 name: last_hour
             kids:
                 name: kids
+        stores:
+            - 1
 
     bike_1:
         id: 4
@@ -142,10 +153,11 @@ products:
         coordinate:
             lat: 45
             lon: 60
-        manufacturer:
-            id: 15
-            name: Kenda
-            slug: kenda
+        manufacturers:
+            15:
+                id: 15
+                name: Kenda
+                slug: kenda
         brand:
             id: 10
             name: Decathlon
@@ -164,6 +176,8 @@ products:
         tags:
             kids:
                 name: kids
+        stores:
+            - 2
 
     gum_1:
         id: 5
@@ -182,10 +196,11 @@ products:
         coordinate:
             lat: 60
             lon: 70
-        manufacturer:
-            id: 444
-            name: Superboomer
-            slug: superboomer
+        manufacturers:
+            444:
+                id: 444
+                name: Superboomer
+                slug: superboomer
         brand:
             id: 444
             name: Superboomer
@@ -201,3 +216,6 @@ products:
                 name: sugar
             kids:
                 name: kids
+        stores:
+            - 3
+            - 4

@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 use Puntmig\Search\Model\HttpTransportable;
 use Puntmig\Search\Query\Query;
+use Puntmig\Search\Server\Core\DeleteRepository;
 use Puntmig\Search\Server\Core\IndexRepository;
 use Puntmig\Search\Server\Core\QueryRepository;
 
@@ -46,6 +47,13 @@ class ApiController
     private $indexRepository;
 
     /**
+     * @var DeleteRepository
+     *
+     * Delete repository
+     */
+    private $deleteRepository;
+
+    /**
      * @var string
      *
      * Key
@@ -55,15 +63,31 @@ class ApiController
     /**
      * ServiceRepository constructor.
      *
-     * @param QueryRepository $queryRepository
-     * @param IndexRepository $indexRepository
+     * @param QueryRepository  $queryRepository
+     * @param IndexRepository  $indexRepository
+     * @param DeleteRepository $deleteRepository
      */
     public function __construct(
         QueryRepository $queryRepository,
-        IndexRepository $indexRepository
+        IndexRepository $indexRepository,
+        DeleteRepository $deleteRepository
     ) {
         $this->queryRepository = $queryRepository;
         $this->indexRepository = $indexRepository;
+        $this->deleteRepository = $deleteRepository;
+    }
+
+    /**
+     * Set key.
+     *
+     * @param string $key
+     */
+    public function setKey(string $key)
+    {
+        $this->key = $key;
+        $this->queryRepository->setKey($key);
+        $this->indexRepository->setKey($key);
+        $this->deleteRepository->setKey($key);
     }
 
     /**
@@ -88,10 +112,7 @@ class ApiController
         return new JsonResponse(
             $this
                 ->queryRepository
-                ->query(
-                    $this->key,
-                    Query::createFromArray($query)
-                )
+                ->query(Query::createFromArray($query))
                 ->toArray()
         );
     }
@@ -134,6 +155,40 @@ class ApiController
             );
 
         return new JsonResponse('Objects indexed', 200);
+    }
+
+    /**
+     * Remove objects.
+     *
+     * @param Request $request
+     * @param string  $parameterName
+     * @param string  $method
+     *
+     * @return JsonResponse
+     */
+    public function delete(
+        Request $request,
+        string $parameterName,
+        string $method
+    ) {
+        $objects = $this->checkRequestQuality(
+            $request,
+            'request',
+            $parameterName
+        );
+
+        if ($objects instanceof Response) {
+            return $objects;
+        }
+
+        /**
+         * @var HttpTransportable $objectNamespace
+         */
+        $this
+            ->deleteRepository
+            ->$method($objects);
+
+        return new JsonResponse('Objects removed', 200);
     }
 
     /**
@@ -187,8 +242,7 @@ class ApiController
             ], 401);
         }
 
-        $this->indexRepository->setKey($key);
-        $this->key = $key;
+        $this->setKey($key);
 
         if (is_null($parameterName)) {
             return [];

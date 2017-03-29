@@ -13,7 +13,7 @@ api_reset:
         _controller: search_bundle.api_controller:reset
 
 api_index_products:
-    path: /index/products
+    path: /products
     methods: ["POST"]
     defaults:
         _controller: search_bundle.api_controller:index
@@ -22,7 +22,7 @@ api_index_products:
         method: addProducts
 
 api_index_categories:
-    path: /index/categories
+    path: /categories
     methods: ["POST"]
     defaults:
         _controller: search_bundle.api_controller:index
@@ -31,7 +31,7 @@ api_index_categories:
         method: addCategories
 
 api_index_manufacturers:
-    path: /index/manufacturers
+    path: /manufacturers
     methods: ["POST"]
     defaults:
         _controller: search_bundle.api_controller:index
@@ -40,7 +40,7 @@ api_index_manufacturers:
         method: addManufacturers
 
 api_index_brands:
-    path: /index/brands
+    path: /brands
     methods: ["POST"]
     defaults:
         _controller: search_bundle.api_controller:index
@@ -49,10 +49,50 @@ api_index_brands:
         method: addBrands
 
 api_index_tags:
-    path: /index/tags
+    path: /tags
     methods: ["POST"]
     defaults:
         _controller: search_bundle.api_controller:index
         parameterName: tags
         objectNamespace: Puntmig\Search\Model\Tag
         method: addTags
+
+api_delete_products:
+    path: /products
+    methods: ["DELETE"]
+    defaults:
+        _controller: search_bundle.api_controller:delete
+        parameterName: products
+        method: deleteProducts
+
+api_delete_categories:
+    path: /categories
+    methods: ["DELETE"]
+    defaults:
+        _controller: search_bundle.api_controller:delete
+        parameterName: categories
+        method: deleteCategories
+
+api_delete_manufacturers:
+    path: /manufacturers
+    methods: ["DELETE"]
+    defaults:
+        _controller: search_bundle.api_controller:delete
+        parameterName: manufacturers
+        method: deleteManufacturers
+
+api_delete_brands:
+    path: /brands
+    methods: ["DELETE"]
+    defaults:
+        _controller: search_bundle.api_controller:delete
+        parameterName: brands
+        method: deleteBrands
+
+api_delete_tags:
+    path: /tags
+    methods: ["DELETE"]
+    defaults:
+        _controller: search_bundle.api_controller:delete
+        parameterName: tags
+        method: deleteTags

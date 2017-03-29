@@ -24,6 +24,7 @@ use Puntmig\Search\Model\Tag;
 use Puntmig\Search\Query\Query;
 use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Result\Result;
+use Puntmig\Search\Server\Core\DeleteRepository;
 use Puntmig\Search\Server\Core\IndexRepository;
 use Puntmig\Search\Server\Core\QueryRepository;
 
@@ -47,19 +48,29 @@ class ServiceRepository extends Repository
     private $indexRepository;
 
     /**
+     * @var DeleteRepository
+     *
+     * Delete repository
+     */
+    private $deleteRepository;
+
+    /**
      * ServiceRepository constructor.
      *
-     * @param QueryRepository $queryRepository
-     * @param IndexRepository $indexRepository
+     * @param QueryRepository  $queryRepository
+     * @param IndexRepository  $indexRepository
+     * @param DeleteRepository $deleteRepository
      */
     public function __construct(
         QueryRepository $queryRepository,
-        IndexRepository $indexRepository
+        IndexRepository $indexRepository,
+        DeleteRepository $deleteRepository
     ) {
         parent::__construct();
 
         $this->queryRepository = $queryRepository;
         $this->indexRepository = $indexRepository;
+        $this->deleteRepository = $deleteRepository;
     }
 
     /**
@@ -71,69 +82,124 @@ class ServiceRepository extends Repository
     {
         parent::setKey($key);
 
-        $this
-            ->indexRepository
-            ->setKey($key);
+        $this->queryRepository->setKey($key);
+        $this->indexRepository->setKey($key);
+        $this->deleteRepository->setKey($key);
     }
 
     /**
      * Flush products.
      *
-     * @param Product[] $products
+     * @param Product[] $productsToUpdate
+     * @param string[]  $productsToDelete
      */
-    protected function flushProducts(array $products)
-    {
-        $this
-            ->indexRepository
-            ->addProducts($products);
+    protected function flushProducts(
+        array $productsToUpdate,
+        array $productsToDelete
+    ) {
+        if (!empty($productsToUpdate)) {
+            $this
+                ->indexRepository
+                ->addProducts($productsToUpdate);
+        }
+
+        if (!empty($productsToDelete)) {
+            $this
+                ->deleteRepository
+                ->deleteProducts($productsToDelete);
+        }
     }
 
     /**
      * Flush categories.
      *
-     * @param Category[] $categories
+     * @param Category[] $categoriesToUpdate
+     * @param string[]   $categoriesToDelete
      */
-    protected function flushCategories(array $categories)
-    {
-        $this
-            ->indexRepository
-            ->addCategories($categories);
+    protected function flushCategories(
+        array $categoriesToUpdate,
+        array $categoriesToDelete
+    ) {
+        if (!empty($categoriesToUpdate)) {
+            $this
+                ->indexRepository
+                ->addCategories($categoriesToUpdate);
+        }
+
+        if (!empty($categoriesToDelete)) {
+            $this
+                ->deleteRepository
+                ->deleteCategories($categoriesToDelete);
+        }
     }
 
     /**
      * Flush manufacturers.
      *
-     * @param Manufacturer[] $manufacturers
+     * @param Manufacturer[] $manufacturersToUpdate
+     * @param string[]       $manufacturersToDelete
      */
-    protected function flushManufacturers(array $manufacturers)
-    {
-        $this
-            ->indexRepository
-            ->addManufacturers($manufacturers);
+    protected function flushManufacturers(
+        array $manufacturersToUpdate,
+        array $manufacturersToDelete
+    ) {
+        if (!empty($manufacturersToUpdate)) {
+            $this
+                ->indexRepository
+                ->addManufacturers($manufacturersToUpdate);
+        }
+
+        if (!empty($manufacturersToDelete)) {
+            $this
+                ->deleteRepository
+                ->deleteManufacturers($manufacturersToDelete);
+        }
     }
 
     /**
      * Flush brands.
      *
-     * @param Brand[] $brands
+     * @param Brand[]  $brandsToUpdate
+     * @param string[] $brandsToDelete
      */
-    protected function flushBrands(array $brands)
-    {
-        $this
-            ->indexRepository
-            ->addBrands($brands);
+    protected function flushBrands(
+        array $brandsToUpdate,
+        array $brandsToDelete
+    ) {
+        if (!empty($brandsToUpdate)) {
+            $this
+                ->indexRepository
+                ->addBrands($brandsToUpdate);
+        }
+
+        if (!empty($brandsToDelete)) {
+            $this
+                ->deleteRepository
+                ->deleteBrands($brandsToDelete);
+        }
     }
 
     /**
      * Flush tags.
      *
-     * @param Tag[] $tags
+     * @param Tag[]    $tagsToUpdate
+     * @param string[] $tagsToDelete
      */
-    protected function flushTags(array $tags)
-    {
-        $this
-            ->indexRepository
-            ->addTags($tags);
+    protected function flushTags(
+        array $tagsToUpdate,
+        array $tagsToDelete
+    ) {
+        if (!empty($tagsToUpdate)) {
+            $this
+                ->indexRepository
+                ->addTags($tagsToUpdate);
+        }
+
+        if (!empty($tagsToDelete)) {
+            $this
+                ->deleteRepository
+                ->deleteTags($tagsToDelete);
+        }
     }
 
     /**
@@ -147,10 +213,7 @@ class ServiceRepository extends Repository
     {
         return $this
             ->queryRepository
-            ->query(
-                $this->getKey(),
-                $query
-            );
+            ->query($query);
     }
 
     /**

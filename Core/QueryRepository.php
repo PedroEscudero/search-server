@@ -42,37 +42,17 @@ use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 /**
  * Class QueryRepository.
  */
-class QueryRepository
+class QueryRepository extends ElasticaWithKeyWrapper
 {
-    /**
-     * @var ElasticaWrapper
-     *
-     * Elastica wrapper
-     */
-    private $elasticaWrapper;
-
-    /**
-     * ElasticaSearchRepository constructor.
-     *
-     * @param ElasticaWrapper $elasticaWrapper
-     */
-    public function __construct(ElasticaWrapper $elasticaWrapper)
-    {
-        $this->elasticaWrapper = $elasticaWrapper;
-    }
-
     /**
      * Search cross the index types.
      *
-     * @param string $key
-     * @param Query  $query
+     * @param Query $query
      *
      * @return Result
      */
-    public function query(
-        string $key,
-        Query $query
-    ) : Result {
+    public function query(Query $query) : Result
+    {
         $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
 
@@ -97,7 +77,7 @@ class QueryRepository
         $results = $this
             ->elasticaWrapper
             ->search(
-                $key,
+                $this->key,
                 $mainQuery,
                 $query->getFrom(),
                 $query->getSize()
@@ -294,11 +274,18 @@ class QueryRepository
     ) {
         if ($filter->getFilterType() === Filter::TYPE_QUERY) {
             $queryString = $filter->getValues()[0];
-            $boolQuery->addMust(
-                empty($queryString)
-                    ? new ElasticaQuery\MatchAll()
-                    : new ElasticaQuery\Match('_all', $queryString)
-            );
+
+            if (empty($queryString)) {
+                $match = new ElasticaQuery\MatchAll();
+            } else {
+                $match = new ElasticaQuery\MultiMatch();
+                $match->setFields([
+                    'ean^3',
+                    'first_level_searchable_data^2',
+                    'second_level_searchable_data^1',
+                ])->setQuery($queryString);
+            }
+            $boolQuery->addMust($match);
 
             return;
         }

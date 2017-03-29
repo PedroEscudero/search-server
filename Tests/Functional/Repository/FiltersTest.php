@@ -498,6 +498,68 @@ trait FiltersTest
     }
 
     /**
+     * Test store filter.
+     */
+    public function testStoresFilter()
+    {
+        $repository = static::$repository;
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['1', '2'])),
+            Product::TYPE,
+            ['?1', '?2', '?3', '?4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['1'])),
+            Product::TYPE,
+            ['?1', '?2', '?3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['2'])),
+            Product::TYPE,
+            ['?1', '?2', '!3', '?4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['3'])),
+            Product::TYPE,
+            ['!1', '!2', '!3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['3', '4'])),
+            Product::TYPE,
+            ['!1', '!2', '!3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['1', '3', '4'])),
+            Product::TYPE,
+            ['?1', '?2', '?3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['1', '2', '3', '4'])),
+            Product::TYPE,
+            ['?1', '?2', '?3', '?4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['1', '2', '3', '4', '5'])),
+            Product::TYPE,
+            ['?1', '?2', '?3', '?4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByStores(['5'])),
+            Product::TYPE,
+            ['!1', '!2', '!3', '!4', '!5']
+        );
+    }
+
+    /**
      * Get all filters.
      *
      * @return string[]

@@ -20,6 +20,7 @@ use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Model\Category;
 use Puntmig\Search\Model\Manufacturer;
 use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\Tag;
 
 /**
  * Class PopulationTest.
@@ -35,5 +36,6 @@ trait PopulationTest
         $this->assertEquals(8, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
         $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
         $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
+        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
     }
 }

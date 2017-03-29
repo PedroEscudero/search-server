@@ -8,3 +8,4 @@ services:
         arguments:
             - "@search_bundle.query_repository"
             - "@search_bundle.index_repository"
+            - "@search_bundle.delete_repository"

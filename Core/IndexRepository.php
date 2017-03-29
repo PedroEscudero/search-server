@@ -30,42 +30,8 @@ use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 /**
  * Class IndexRepository.
  */
-class IndexRepository
+class IndexRepository extends ElasticaWithKeyWrapper
 {
-    /**
-     * @var ElasticaWrapper
-     *
-     * Elastica wrapper
-     */
-    private $elasticaWrapper;
-
-    /**
-     * @var string
-     *
-     * Key
-     */
-    private $key;
-
-    /**
-     * ElasticaSearchRepository constructor.
-     *
-     * @param ElasticaWrapper $elasticaWrapper
-     */
-    public function __construct(ElasticaWrapper $elasticaWrapper)
-    {
-        $this->elasticaWrapper = $elasticaWrapper;
-    }
-
-    /**
-     * Set key.
-     *
-     * @param string $key
-     */
-    public function setKey($key)
-    {
-        $this->key = $key;
-    }
-
     /**
      * Create the index.
      */
@@ -129,6 +95,7 @@ class IndexRepository
             'discount_percentage' => $product->getDiscountPercentage(),
             'currency' => $product->getCurrency(),
             'stock' => $product->getStock(),
+            'image' => $product->getImage(),
             'rating' => $product->getRating(),
             'updated_at' => $product->getUpdatedAt()->format(DATE_ATOM),
             'coordinate' => $product->getCoordinate() instanceof Coordinate
@@ -136,6 +103,7 @@ class IndexRepository
                     ->getCoordinate()
                     ->toArray()
                 : null,
+            'stores' => $product->getStores(),
             'categories' => [],
             'tags' => [],
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
@@ -157,9 +125,8 @@ class IndexRepository
             ];
         }
 
-        $manufacturer = $product->getManufacturer();
-        if ($manufacturer instanceof Manufacturer) {
-            $productDocument['manufacturer'] = [
+        foreach ($product->getManufacturers() as $manufacturer) {
+            $productDocument['manufacturers'][] = [
                 'id' => $manufacturer->getId(),
                 'name' => $manufacturer->getName(),
                 'slug' => $manufacturer->getSlug(),
@@ -363,15 +330,5 @@ class IndexRepository
         $document->setDocAsUpsert(true);
 
         return $document;
-    }
-
-    /**
-     * Refresh.
-     */
-    private function refresh()
-    {
-        $this
-            ->elasticaWrapper
-            ->refresh($this->key);
     }
 }

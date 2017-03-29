@@ -22,6 +22,7 @@ use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Model\Category;
 use Puntmig\Search\Model\Manufacturer;
 use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\Tag;
 use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Result\Result;
 use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
@@ -37,6 +38,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     use LocationFiltersTest;
     use AggregationsTest;
     use SortTest;
+    use DeletionTest;
 
     /**
      * @var Repository
@@ -66,7 +68,14 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
+        self::resetScenario();
+    }
 
+    /**
+     * Reset scenario.
+     */
+    public static function resetScenario()
+    {
         self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1);
         self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1);
 
@@ -77,6 +86,28 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
             self::$repository->addProduct(
                 Product::createFromArray($product)
             );
+
+            foreach ($product['categories'] as $category) {
+                self::$repository->addCategory(
+                    Category::createFromArray($category)
+                );
+            }
+
+            foreach ($product['manufacturers'] as $manufacturer) {
+                self::$repository->addManufacturer(
+                    Manufacturer::createFromArray($manufacturer)
+                );
+            }
+
+            self::$repository->addBrand(
+                Brand::createFromArray($product['brand'])
+            );
+
+            foreach ($product['tags'] as $tag) {
+                self::$repository->addTag(
+                    Tag::createFromArray($tag)
+                );
+            }
         }
 
         self::$repository->flush(500);
