@@ -78,9 +78,12 @@ class IndexRepository extends ElasticaWithKeyWrapper
      */
     private function createProductDocument(Product $product) : Document
     {
-        $productId = $product->getId();
+        $composedProductId = $product
+            ->getProductReference()
+            ->composeUUID();
+
         $productDocument = [
-            'id' => $productId,
+            'id' => $product->getId(),
             'family' => $product->getFamily(),
             'ean' => $product->getEan(),
             'name' => $product->getName(),
@@ -104,6 +107,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
                     ->toArray()
                 : null,
             'stores' => $product->getStores(),
+            'metadata' => $product->getMetadata(),
             'categories' => [],
             'tags' => [],
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
@@ -142,7 +146,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
             ];
         }
 
-        $document = new ElasticaDocument($productId, $productDocument);
+        $document = new ElasticaDocument($composedProductId, $productDocument);
         $document->setDocAsUpsert(true);
 
         return $document;
@@ -182,8 +186,11 @@ class IndexRepository extends ElasticaWithKeyWrapper
     private function createCategoryDocument(Category $category) : Document
     {
         $document = new ElasticaDocument(
-            $category->getId(),
+            $category
+                ->getCategoryReference()
+                ->composeUUID(),
             [
+                'id' => $category->getId(),
                 'name' => $category->getName(),
                 'slug' => $category->getSlug(),
                 'level' => $category->getLevel(),
@@ -229,8 +236,11 @@ class IndexRepository extends ElasticaWithKeyWrapper
     private function createManufacturerDocument(Manufacturer $manufacturer) : Document
     {
         $document = new ElasticaDocument(
-            $manufacturer->getId(),
+            $manufacturer
+                ->getManufacturerReference()
+                ->composeUUID(),
             [
+                'id' => $manufacturer->getId(),
                 'name' => $manufacturer->getName(),
                 'slug' => $manufacturer->getSlug(),
                 'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
@@ -275,8 +285,11 @@ class IndexRepository extends ElasticaWithKeyWrapper
     private function createBrandDocument(Brand $brand) : Document
     {
         $document = new ElasticaDocument(
-            $brand->getId(),
+            $brand
+                ->getBrandReference()
+                ->composeUUID(),
             [
+                'id' => $brand->getId(),
                 'name' => $brand->getName(),
                 'slug' => $brand->getSlug(),
                 'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),

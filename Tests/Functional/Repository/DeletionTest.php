@@ -17,10 +17,15 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\BrandReference;
 use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\CategoryReference;
 use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\ManufacturerReference;
 use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\ProductReference;
 use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Model\TagReference;
 
 /**
  * Class DeletionTest.
@@ -32,16 +37,19 @@ trait DeletionTest
      */
     public function testProductDeletions()
     {
-        static::$repository->removeProduct('1');
+        static::$repository->deleteProduct(new ProductReference('1', 'product'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
-        static::$repository->removeProduct('1');
+        static::$repository->deleteProduct(new ProductReference('1', 'product'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
-        static::$repository->removeProduct('75894379573');
+        static::$repository->deleteProduct(new ProductReference('75894379573', 'product'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
-        static::$repository->removeProduct('5');
+        static::$repository->deleteProduct(new ProductReference('5', 'product'));
+        self::$repository->flush();
+        $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
+        static::$repository->deleteProduct(new ProductReference('5', 'gum'));
         self::$repository->flush();
         $this->assertEquals(3, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
     }
@@ -51,17 +59,17 @@ trait DeletionTest
      */
     public function testCategoryDeletions()
     {
-        static::$repository->removeCategory('1');
-        static::$repository->removeCategory('777');
+        static::$repository->deleteCategory(new CategoryReference('1'));
+        static::$repository->deleteCategory(new CategoryReference('777'));
         self::$repository->flush();
         $this->assertEquals(6, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
-        static::$repository->removeCategory('777');
+        static::$repository->deleteCategory(new CategoryReference('777'));
         self::$repository->flush();
         $this->assertEquals(6, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
-        static::$repository->removeCategory('5498757698375');
+        static::$repository->deleteCategory(new CategoryReference('5498757698375'));
         self::$repository->flush();
         $this->assertEquals(6, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
-        static::$repository->removeCategory('778');
+        static::$repository->deleteCategory(new CategoryReference('778'));
         self::$repository->flush();
         $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
     }
@@ -71,16 +79,16 @@ trait DeletionTest
      */
     public function testManufacturerDeletions()
     {
-        static::$repository->removeManufacturer('3');
+        static::$repository->deleteManufacturer(new ManufacturerReference('3'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
-        static::$repository->removeManufacturer('3');
+        static::$repository->deleteManufacturer(new ManufacturerReference('3'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
-        static::$repository->removeManufacturer('758493759834759');
+        static::$repository->deleteManufacturer(new ManufacturerReference('396789789'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
-        static::$repository->removeManufacturer('15');
+        static::$repository->deleteManufacturer(new ManufacturerReference('15'));
         self::$repository->flush();
         $this->assertEquals(3, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
     }
@@ -90,16 +98,16 @@ trait DeletionTest
      */
     public function testBrandDeletions()
     {
-        static::$repository->removeBrand('3');
+        static::$repository->deleteBrand(new BrandReference('3'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
-        static::$repository->removeBrand('3');
+        static::$repository->deleteBrand(new BrandReference('3'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
-        static::$repository->removeBrand('758493759834759');
+        static::$repository->deleteBrand(new BrandReference('3698679879'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
-        static::$repository->removeBrand('10');
+        static::$repository->deleteBrand(new BrandReference('10'));
         self::$repository->flush();
         $this->assertEquals(3, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
     }
@@ -109,16 +117,16 @@ trait DeletionTest
      */
     public function testTagDeletions()
     {
-        static::$repository->removeTag('kids');
+        static::$repository->deleteTag(new TagReference('kids'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
-        static::$repository->removeTag('kids');
+        static::$repository->deleteTag(new TagReference('kids'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
-        static::$repository->removeTag('non-existent-tag');
+        static::$repository->deleteTag(new TagReference('non-existing-tag'));
         self::$repository->flush();
         $this->assertEquals(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
-        static::$repository->removeTag('new');
+        static::$repository->deleteTag(new TagReference('new'));
         self::$repository->flush();
         $this->assertEquals(3, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
 

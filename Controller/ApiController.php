@@ -162,6 +162,7 @@ class ApiController
      *
      * @param Request $request
      * @param string  $parameterName
+     * @param string  $objectNamespace
      * @param string  $method
      *
      * @return JsonResponse
@@ -169,6 +170,7 @@ class ApiController
     public function delete(
         Request $request,
         string $parameterName,
+        string $objectNamespace,
         string $method
     ) {
         $objects = $this->checkRequestQuality(
@@ -186,7 +188,11 @@ class ApiController
          */
         $this
             ->deleteRepository
-            ->$method($objects);
+            ->$method(
+                array_map(function (array $object) use ($objectNamespace) {
+                    return $objectNamespace::createFromArray($object);
+                }, $objects)
+            );
 
         return new JsonResponse('Objects removed', 200);
     }

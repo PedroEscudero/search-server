@@ -118,7 +118,6 @@ class QueryRepository extends ElasticaWithKeyWrapper
          */
         foreach ($elasticaResults['results'] as $elasticaResult) {
             $source = $elasticaResult->getSource();
-            $source['id'] = $elasticaResult->getId();
             switch ($elasticaResult->getType()) {
                 case Product::TYPE:
 

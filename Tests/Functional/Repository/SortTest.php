@@ -37,7 +37,6 @@ trait SortTest
             Product::TYPE,
             ['1', '2', '3']
         );
-
         $this->assertResults(
             $repository->query(Query::createMatchAll()->filterByPriceRange([], ['900..1900'])->sortBy(SortBy::PRICE_ASC)),
             Product::TYPE,

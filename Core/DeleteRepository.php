@@ -17,10 +17,15 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Core;
 
 use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\BrandReference;
 use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\CategoryReference;
 use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\ManufacturerReference;
 use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\ProductReference;
 use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Model\TagReference;
 
 /**
  * Class DeleteRepository.
@@ -30,9 +35,9 @@ class DeleteRepository extends ElasticaWithKeyWrapper
     /**
      * Delete products.
      *
-     * @param string[] $productIds
+     * @param ProductReference[] $productReferences
      */
-    public function deleteProducts(array $productIds)
+    public function deleteProducts(array $productReferences)
     {
         $this
             ->elasticaWrapper
@@ -40,7 +45,11 @@ class DeleteRepository extends ElasticaWithKeyWrapper
                 $this->key,
                 Product::TYPE
             )
-            ->deleteIds($productIds);
+            ->deleteIds(
+                array_map(function (ProductReference $productReference) {
+                    return $productReference->composeUUID();
+                }, $productReferences)
+            );
 
         $this->refresh();
     }
@@ -48,9 +57,9 @@ class DeleteRepository extends ElasticaWithKeyWrapper
     /**
      * Delete categories.
      *
-     * @param string[] $categoryIds
+     * @param CategoryReference[] $categoryReferences
      */
-    public function deleteCategories(array $categoryIds)
+    public function deleteCategories(array $categoryReferences)
     {
         $this
             ->elasticaWrapper
@@ -58,7 +67,11 @@ class DeleteRepository extends ElasticaWithKeyWrapper
                 $this->key,
                 Category::TYPE
             )
-            ->deleteIds($categoryIds);
+            ->deleteIds(
+                array_map(function (CategoryReference $categoryReference) {
+                    return $categoryReference->composeUUID();
+                }, $categoryReferences)
+            );
 
         $this->refresh();
     }
@@ -66,9 +79,9 @@ class DeleteRepository extends ElasticaWithKeyWrapper
     /**
      * Delete manufacturers.
      *
-     * @param string[] $manufacturerIds
+     * @param ManufacturerReference[] $manufacturerReferences
      */
-    public function deleteManufacturers(array $manufacturerIds)
+    public function deleteManufacturers(array $manufacturerReferences)
     {
         $this
             ->elasticaWrapper
@@ -76,7 +89,11 @@ class DeleteRepository extends ElasticaWithKeyWrapper
                 $this->key,
                 Manufacturer::TYPE
             )
-            ->deleteIds($manufacturerIds);
+            ->deleteIds(
+                array_map(function (ManufacturerReference $manufacturerReference) {
+                    return $manufacturerReference->composeUUID();
+                }, $manufacturerReferences)
+            );
 
         $this->refresh();
     }
@@ -84,9 +101,9 @@ class DeleteRepository extends ElasticaWithKeyWrapper
     /**
      * Delete brands.
      *
-     * @param string[] $brandIds
+     * @param BrandReference[] $brandReferences
      */
-    public function deleteBrands(array $brandIds)
+    public function deleteBrands(array $brandReferences)
     {
         $this
             ->elasticaWrapper
@@ -94,7 +111,11 @@ class DeleteRepository extends ElasticaWithKeyWrapper
                 $this->key,
                 Brand::TYPE
             )
-            ->deleteIds($brandIds);
+            ->deleteIds(
+                array_map(function (BrandReference $brandReference) {
+                    return $brandReference->composeUUID();
+                }, $brandReferences)
+            );
 
         $this->refresh();
     }
@@ -102,9 +123,9 @@ class DeleteRepository extends ElasticaWithKeyWrapper
     /**
      * Delete tags.
      *
-     * @param string[] $tagIds
+     * @param TagReference[] $tagReferences
      */
-    public function deleteTags(array $tagIds)
+    public function deleteTags(array $tagReferences)
     {
         $this
             ->elasticaWrapper
@@ -112,7 +133,11 @@ class DeleteRepository extends ElasticaWithKeyWrapper
                 $this->key,
                 Tag::TYPE
             )
-            ->deleteIds($tagIds);
+            ->deleteIds(
+                array_map(function (TagReference $tagReference) {
+                    return $tagReference->composeUUID();
+                }, $tagReferences)
+            );
 
         $this->refresh();
     }

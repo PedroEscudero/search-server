@@ -45,6 +45,11 @@ products:
         stores:
             - 1
             - 2
+        metadata:
+            field_text: "This is my field one"
+            field_keyword: "my_keyword"
+            field_boolean: true
+            field_integer: 10
 
     prod_2:
         id: 2

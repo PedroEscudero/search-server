@@ -560,6 +560,52 @@ trait FiltersTest
     }
 
     /**
+     * Filter by simple fields.
+     */
+    public function testFilterBySimpleFields()
+    {
+        $repository = static::$repository;
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('id', ['1'], Filter::MUST_ALL)),
+            Product::TYPE,
+            ['?1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('id', ['1', '2'], Filter::AT_LEAST_ONE)),
+            Product::TYPE,
+            ['?1', '?2', '!3', '!4', '!5']
+        );
+    }
+
+    /**
+     * Filter by metadata fields.
+     */
+    public function testFilterByMetadataFields()
+    {
+        $repository = static::$repository;
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('field_integer', ['10'], Filter::MUST_ALL)),
+            Product::TYPE,
+            ['?1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('field_boolean', [true], Filter::MUST_ALL)),
+            Product::TYPE,
+            ['?1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('field_keyword', ['my_keyword'], Filter::MUST_ALL)),
+            Product::TYPE,
+            ['?1', '!2', '!3', '!4', '!5']
+        );
+    }
+
+    /**
      * Get all filters.
      *
      * @return string[]

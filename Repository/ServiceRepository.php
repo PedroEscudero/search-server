@@ -17,10 +17,15 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Repository;
 
 use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\BrandReference;
 use Puntmig\Search\Model\Category;
+use Puntmig\Search\Model\CategoryReference;
 use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\ManufacturerReference;
 use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\ProductReference;
 use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Model\TagReference;
 use Puntmig\Search\Query\Query;
 use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Result\Result;
@@ -90,8 +95,8 @@ class ServiceRepository extends Repository
     /**
      * Flush products.
      *
-     * @param Product[] $productsToUpdate
-     * @param string[]  $productsToDelete
+     * @param Product[]          $productsToUpdate
+     * @param ProductReference[] $productsToDelete
      */
     protected function flushProducts(
         array $productsToUpdate,
@@ -113,8 +118,8 @@ class ServiceRepository extends Repository
     /**
      * Flush categories.
      *
-     * @param Category[] $categoriesToUpdate
-     * @param string[]   $categoriesToDelete
+     * @param Category[]          $categoriesToUpdate
+     * @param CategoryReference[] $categoriesToDelete
      */
     protected function flushCategories(
         array $categoriesToUpdate,
@@ -136,8 +141,8 @@ class ServiceRepository extends Repository
     /**
      * Flush manufacturers.
      *
-     * @param Manufacturer[] $manufacturersToUpdate
-     * @param string[]       $manufacturersToDelete
+     * @param Manufacturer[]          $manufacturersToUpdate
+     * @param ManufacturerReference[] $manufacturersToDelete
      */
     protected function flushManufacturers(
         array $manufacturersToUpdate,
@@ -159,8 +164,8 @@ class ServiceRepository extends Repository
     /**
      * Flush brands.
      *
-     * @param Brand[]  $brandsToUpdate
-     * @param string[] $brandsToDelete
+     * @param Brand[]          $brandsToUpdate
+     * @param BrandReference[] $brandsToDelete
      */
     protected function flushBrands(
         array $brandsToUpdate,
@@ -182,8 +187,8 @@ class ServiceRepository extends Repository
     /**
      * Flush tags.
      *
-     * @param Tag[]    $tagsToUpdate
-     * @param string[] $tagsToDelete
+     * @param Tag[]          $tagsToUpdate
+     * @param TagReference[] $tagsToDelete
      */
     protected function flushTags(
         array $tagsToUpdate,

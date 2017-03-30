@@ -223,6 +223,11 @@ class ElasticaWrapper
             'updated_at' => ['type' => 'date'],
             'coordinate' => ['type' => 'geo_point'],
             'stores' => ['type' => 'string'],
+            'metadata' => [
+                'type' => 'object',
+                'dynamic' => true,
+                'include_in_all' => false,
+            ],
             'manufacturers' => [
                 'type' => 'nested',
                 'dynamic' => 'strict',

@@ -63,6 +63,7 @@ api_delete_products:
     defaults:
         _controller: search_bundle.api_controller:delete
         parameterName: products
+        objectNamespace: Puntmig\Search\Model\ProductReference
         method: deleteProducts
 
 api_delete_categories:
@@ -71,6 +72,7 @@ api_delete_categories:
     defaults:
         _controller: search_bundle.api_controller:delete
         parameterName: categories
+        objectNamespace: Puntmig\Search\Model\CategoryReference
         method: deleteCategories
 
 api_delete_manufacturers:
@@ -79,6 +81,7 @@ api_delete_manufacturers:
     defaults:
         _controller: search_bundle.api_controller:delete
         parameterName: manufacturers
+        objectNamespace: Puntmig\Search\Model\ManufacturerReference
         method: deleteManufacturers
 
 api_delete_brands:
@@ -87,6 +90,7 @@ api_delete_brands:
     defaults:
         _controller: search_bundle.api_controller:delete
         parameterName: brands
+        objectNamespace: Puntmig\Search\Model\BrandReference
         method: deleteBrands
 
 api_delete_tags:
@@ -95,4 +99,5 @@ api_delete_tags:
     defaults:
         _controller: search_bundle.api_controller:delete
         parameterName: tags
+        objectNamespace: Puntmig\Search\Model\TagReference
         method: deleteTags
