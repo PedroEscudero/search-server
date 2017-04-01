@@ -64,4 +64,21 @@ trait SearchTest
         $this->assertNTypeElementId($result, Brand::TYPE, 0, '1');
         $this->assertNTypeElementId($result, Manufacturer::TYPE, 0, '1');
     }
+
+    /**
+     * Test basic search with all results method call.
+     */
+    public function testAllResults()
+    {
+        $repository = static::$repository;
+
+        $results = $repository
+            ->query(Query::create('adidas'))
+            ->getResults();
+
+        $this->assertCount(3, $results);
+        $this->assertInstanceof(Manufacturer::class, $results[0]);
+        $this->assertInstanceof(Brand::class, $results[1]);
+        $this->assertInstanceof(Product::class, $results[2]);
+    }
 }

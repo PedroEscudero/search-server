@@ -154,6 +154,7 @@ class ElasticaWrapper
 
         return [
             'results' => $queryResult->getResults(),
+            'suggests' => $queryResult->getSuggests(),
             'aggregations' => $queryResult->getAggregations(),
             'total_hits' => $queryResult->getTotalHits(),
         ];
@@ -219,6 +220,7 @@ class ElasticaWrapper
             'discount_percentage' => ['type' => 'integer'],
             'currency' => ['type' => 'keyword'],
             'image' => ['type' => 'keyword', 'index' => false],
+            'with_image' => ['type' => 'boolean'],
             'rating' => ['type' => 'float'],
             'updated_at' => ['type' => 'date'],
             'coordinate' => ['type' => 'geo_point'],
@@ -295,6 +297,9 @@ class ElasticaWrapper
                 'analyzer' => 'default',
                 'search_analyzer' => 'standard',
             ],
+            'suggest' => [
+                'type' => 'completion',
+            ],
         ]);
 
         $productMapping->send();
@@ -320,6 +325,9 @@ class ElasticaWrapper
                 'analyzer' => 'default',
                 'search_analyzer' => 'standard',
             ],
+            'suggest' => [
+                'type' => 'completion',
+            ],
         ]);
 
         $categoryMapping->send();
@@ -343,6 +351,9 @@ class ElasticaWrapper
                 'type' => 'text',
                 'analyzer' => 'default',
                 'search_analyzer' => 'standard',
+            ],
+            'suggest' => [
+                'type' => 'completion',
             ],
         ]);
 
@@ -368,6 +379,9 @@ class ElasticaWrapper
                 'analyzer' => 'default',
                 'search_analyzer' => 'standard',
             ],
+            'suggest' => [
+                'type' => 'completion',
+            ],
         ]);
 
         $brandMapping->send();
@@ -389,6 +403,9 @@ class ElasticaWrapper
                 'type' => 'text',
                 'analyzer' => 'default',
                 'search_analyzer' => 'standard',
+            ],
+            'suggest' => [
+                'type' => 'completion',
             ],
         ]);
 

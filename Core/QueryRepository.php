@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server\Core;
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
+use Elastica\Suggest;
 
 use Puntmig\Search\Geo\CoordinateAndDistance;
 use Puntmig\Search\Geo\LocationRange;
@@ -68,10 +69,17 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $mainQuery->setSort($query->getSortBy());
         }
 
-        $this->addAggregations(
+        if ($query->areAggregationsEnabled()) {
+            $this->addAggregations(
+                $mainQuery,
+                $query->getAggregations(),
+                $query->getFilters()
+            );
+        }
+
+        $this->addSuggest(
             $mainQuery,
-            $query->getAggregations(),
-            $query->getFilters()
+            $query
         );
 
         $results = $this
@@ -101,17 +109,31 @@ class QueryRepository extends ElasticaWithKeyWrapper
         Query $query,
         array $elasticaResults
     ) : Result {
-        $resultAggregations = $elasticaResults['aggregations']['all']['all_products'];
-        $commonAggregations = $this->getCommonAggregations($resultAggregations);
-        unset($resultAggregations['common']);
 
-        $result = new Result(
-            $elasticaResults['aggregations']['all']['doc_count'],
-            $elasticaResults['aggregations']['all']['all_products']['doc_count'],
-            $elasticaResults['total_hits'],
-            $commonAggregations['min_price'],
-            $commonAggregations['max_price']
-        );
+        /**
+         * @TODO Move this if/else into another place
+         */
+        if ($query->areAggregationsEnabled()) {
+            $resultAggregations = $elasticaResults['aggregations']['all']['all_products'];
+            $commonAggregations = $this->getCommonAggregations($resultAggregations);
+            unset($resultAggregations['common']);
+
+            $result = new Result(
+                $elasticaResults['aggregations']['all']['doc_count'],
+                $elasticaResults['aggregations']['all']['all_products']['doc_count'],
+                $elasticaResults['total_hits'],
+                $commonAggregations['min_price'],
+                $commonAggregations['max_price']
+            );
+        } else {
+            $result = new Result(
+                0,
+                0,
+                $elasticaResults['total_hits'],
+                0,
+                0
+            );
+        }
 
         /**
          * @var ElasticaResult $elasticaResult
@@ -158,57 +180,71 @@ class QueryRepository extends ElasticaWithKeyWrapper
             }
         }
 
-        $aggregations = new ResultAggregations($resultAggregations['doc_count']);
-        unset($resultAggregations['doc_count']);
+        /**
+         * @TODO Move this part into another place
+         */
+        if ($query->areAggregationsEnabled()) {
+            $aggregations = new ResultAggregations($resultAggregations['doc_count']);
+            unset($resultAggregations['doc_count']);
 
-        foreach ($resultAggregations as $aggregationName => $resultAggregation) {
-            $queryAggregation = $query->getAggregation($aggregationName);
-            $relatedFilter = $query->getFilter($aggregationName);
-            $relatedFilterValues = $relatedFilter instanceof Filter
-                ? $relatedFilter->getValues()
-                : [];
+            foreach ($resultAggregations as $aggregationName => $resultAggregation) {
+                $queryAggregation = $query->getAggregation($aggregationName);
+                $relatedFilter = $query->getFilter($aggregationName);
+                $relatedFilterValues = $relatedFilter instanceof Filter
+                    ? $relatedFilter->getValues()
+                    : [];
 
-            $aggregation = new ResultAggregation(
-                $aggregationName,
-                $queryAggregation->getApplicationType(),
-                $resultAggregation['doc_count'],
-                $relatedFilterValues
-            );
+                $aggregation = new ResultAggregation(
+                    $aggregationName,
+                    $queryAggregation->getApplicationType(),
+                    $resultAggregation['doc_count'],
+                    $relatedFilterValues
+                );
 
-            $aggregations->addAggregation($aggregationName, $aggregation);
-            $buckets = isset($resultAggregation[$aggregationName]['buckets'])
-                ? $resultAggregation[$aggregationName]['buckets']
-                : $resultAggregation[$aggregationName][$aggregationName]['buckets'];
+                $aggregations->addAggregation($aggregationName, $aggregation);
+                $buckets = isset($resultAggregation[$aggregationName]['buckets'])
+                    ? $resultAggregation[$aggregationName]['buckets']
+                    : $resultAggregation[$aggregationName][$aggregationName]['buckets'];
 
-            if (empty($buckets)) {
-                continue;
-            }
+                if (empty($buckets)) {
+                    continue;
+                }
 
-            foreach ($buckets as $bucket) {
-                if (
-                    empty($queryAggregation->getSubgroup()) ||
-                    in_array($bucket['key'], $queryAggregation->getSubgroup())
-                ) {
-                    $aggregation->addCounter(
-                        $bucket['key'],
-                        $bucket['doc_count']
-                    );
+                foreach ($buckets as $bucket) {
+                    if (
+                        empty($queryAggregation->getSubgroup()) ||
+                        in_array($bucket['key'], $queryAggregation->getSubgroup())
+                    ) {
+                        $aggregation->addCounter(
+                            $bucket['key'],
+                            $bucket['doc_count']
+                        );
+                    }
+                }
+
+                /**
+                 * We should filter the bucket elements with level that are not part
+                 * of the result.
+                 *
+                 * * Filter type MUST_ALL
+                 * * Elements already filtered
+                 * * Elements with level (if exists) than the highest one
+                 */
+                if ($queryAggregation->getApplicationType() & Filter::MUST_ALL_WITH_LEVELS) {
+                    $aggregation->cleanCountersByLevel();
                 }
             }
+            $result->setAggregations($aggregations);
+        }
 
-            /**
-             * We should filter the bucket elements with level that are not part
-             * of the result.
-             *
-             * * Filter type MUST_ALL
-             * * Elements already filtered
-             * * Elements with level (if exists) than the highest one
-             */
-            if ($queryAggregation->getApplicationType() & Filter::MUST_ALL_WITH_LEVELS) {
-                $aggregation->cleanCountersByLevel();
+        /**
+         * @TODO Move this part into another place
+         */
+        if ($query->areSuggestionsEnabled()) {
+            foreach ($elasticaResults['suggests']['completion'][0]['options'] as $suggest) {
+                $result->addSuggest($suggest['text']);
             }
         }
-        $result->setAggregations($aggregations);
 
         return $result;
     }
@@ -725,5 +761,26 @@ class QueryRepository extends ElasticaWithKeyWrapper
         }
 
         return $rangeAggregation;
+    }
+
+    /**
+     * Add suggest into an Elastica Query.
+     *
+     * @param ElasticaQuery $mainQuery
+     * @param Query         $query
+     */
+    private function addSuggest($mainQuery, $query)
+    {
+        if ($query->areSuggestionsEnabled()) {
+            $completitionText = new Suggest\Completion(
+                'completion',
+                'suggest'
+            );
+            $completitionText->setText($query->getQueryText());
+
+            $mainQuery->setSuggest(
+                new Suggest($completitionText)
+            );
+        }
     }
 }

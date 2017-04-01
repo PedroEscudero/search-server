@@ -82,6 +82,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
             ->getProductReference()
             ->composeUUID();
 
+        $productSuggest = [];
         $productDocument = [
             'id' => $product->getId(),
             'family' => $product->getFamily(),
@@ -99,6 +100,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
             'currency' => $product->getCurrency(),
             'stock' => $product->getStock(),
             'image' => $product->getImage(),
+            'with_image' => !empty($product->getImage()),
             'rating' => $product->getRating(),
             'updated_at' => $product->getUpdatedAt()->format(DATE_ATOM),
             'coordinate' => $product->getCoordinate() instanceof Coordinate
@@ -112,7 +114,10 @@ class IndexRepository extends ElasticaWithKeyWrapper
             'tags' => [],
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
             'second_level_searchable_data' => $product->getSecondLevelSearchableData(),
+            'suggest' => $product->getName(),
         ];
+
+        $productSuggest[] = $product->getName();
 
         foreach ($product->getCategories() as $category) {
             $productDocument['categories'][] = [
@@ -121,12 +126,14 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'slug' => $category->getSlug(),
                 'level' => $category->getLevel(),
             ];
+            $productSuggest[] = $category->getName();
         }
 
         foreach ($product->getTags() as $tag) {
             $productDocument['tags'][] = [
                 'name' => $tag->getName(),
             ];
+            $productSuggest[] = $tag->getName();
         }
 
         foreach ($product->getManufacturers() as $manufacturer) {
@@ -135,6 +142,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'name' => $manufacturer->getName(),
                 'slug' => $manufacturer->getSlug(),
             ];
+            $productSuggest[] = $manufacturer->getName();
         }
 
         $brand = $product->getBrand();
@@ -144,8 +152,10 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'name' => $brand->getName(),
                 'slug' => $brand->getSlug(),
             ];
+            $productSuggest[] = $brand->getName();
         }
 
+        $productDocument['suggest'] = $productSuggest;
         $document = new ElasticaDocument($composedProductId, $productDocument);
         $document->setDocAsUpsert(true);
 
@@ -195,6 +205,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'slug' => $category->getSlug(),
                 'level' => $category->getLevel(),
                 'first_level_searchable_data' => $category->getFirstLevelSearchableData(),
+                'suggest' => $category->getName(),
             ]
         );
         $document->setDocAsUpsert(true);
@@ -244,6 +255,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'name' => $manufacturer->getName(),
                 'slug' => $manufacturer->getSlug(),
                 'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
+                'suggest' => $manufacturer->getName(),
             ]
         );
         $document->setDocAsUpsert(true);
@@ -293,6 +305,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'name' => $brand->getName(),
                 'slug' => $brand->getSlug(),
                 'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),
+                'suggest' => $brand->getName(),
             ]
         );
         $document->setDocAsUpsert(true);
@@ -338,6 +351,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
             [
                 'name' => $tag->getName(),
                 'first_level_searchable_data' => $tag->getFirstLevelSearchableData(),
+                'suggest' => $tag->getName(),
             ]
         );
         $document->setDocAsUpsert(true);
