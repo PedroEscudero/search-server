@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
+use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
 
@@ -252,5 +253,24 @@ trait AggregationsTest
         $firstUsedCategoryElements = reset($usedCategoryElements);
         $this->assertEquals('1', $firstUsedCategoryElements->getId());
         $this->assertTrue($firstUsedCategoryElements->isUsed());
+    }
+
+    /**
+     * Test aggregations with null value.
+     */
+    public function testNullAggregation()
+    {
+        $repository = static::$repository;
+        $aggregations = $repository->query(
+            Query::createMatchAll()
+                ->filterByTypes([Brand::TYPE])
+                ->filterByBrands([])
+        )
+        ->getAggregations();
+
+        $this->assertEmpty($aggregations
+            ->getAggregation('brand')
+            ->getCounters()
+        );
     }
 }

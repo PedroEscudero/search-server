@@ -110,11 +110,12 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 : null,
             'stores' => $product->getStores(),
             'metadata' => $product->getMetadata(),
+            'special_words' => $product->getSpecialWords(),
+            'extra_boost' => $product->getExtraBoost(),
             'categories' => [],
             'tags' => [],
             'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
             'second_level_searchable_data' => $product->getSecondLevelSearchableData(),
-            'suggest' => $product->getName(),
         ];
 
         $productSuggest[] = $product->getName();
@@ -155,7 +156,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
             $productSuggest[] = $brand->getName();
         }
 
-        $productDocument['suggest'] = $productSuggest;
+        $productDocument['suggest'] = array_filter($productSuggest);
         $document = new ElasticaDocument($composedProductId, $productDocument);
         $document->setDocAsUpsert(true);
 
@@ -199,14 +200,14 @@ class IndexRepository extends ElasticaWithKeyWrapper
             $category
                 ->getCategoryReference()
                 ->composeUUID(),
-            [
+            array_filter([
                 'id' => $category->getId(),
                 'name' => $category->getName(),
                 'slug' => $category->getSlug(),
                 'level' => $category->getLevel(),
                 'first_level_searchable_data' => $category->getFirstLevelSearchableData(),
                 'suggest' => $category->getName(),
-            ]
+            ])
         );
         $document->setDocAsUpsert(true);
 
@@ -250,13 +251,13 @@ class IndexRepository extends ElasticaWithKeyWrapper
             $manufacturer
                 ->getManufacturerReference()
                 ->composeUUID(),
-            [
+            array_filter([
                 'id' => $manufacturer->getId(),
                 'name' => $manufacturer->getName(),
                 'slug' => $manufacturer->getSlug(),
                 'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
                 'suggest' => $manufacturer->getName(),
-            ]
+            ])
         );
         $document->setDocAsUpsert(true);
 
@@ -300,13 +301,13 @@ class IndexRepository extends ElasticaWithKeyWrapper
             $brand
                 ->getBrandReference()
                 ->composeUUID(),
-            [
+            array_filter([
                 'id' => $brand->getId(),
                 'name' => $brand->getName(),
                 'slug' => $brand->getSlug(),
                 'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),
                 'suggest' => $brand->getName(),
-            ]
+            ])
         );
         $document->setDocAsUpsert(true);
 
@@ -348,11 +349,11 @@ class IndexRepository extends ElasticaWithKeyWrapper
     {
         $document = new ElasticaDocument(
             $tag->getName(),
-            [
+            array_filter([
                 'name' => $tag->getName(),
                 'first_level_searchable_data' => $tag->getFirstLevelSearchableData(),
                 'suggest' => $tag->getName(),
-            ]
+            ])
         );
         $document->setDocAsUpsert(true);
 

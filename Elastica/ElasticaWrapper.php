@@ -230,6 +230,11 @@ class ElasticaWrapper
                 'dynamic' => true,
                 'include_in_all' => false,
             ],
+            'special_words' => [
+                'type' => 'text',
+                'analyzer' => 'standard',
+                'search_analyzer' => 'standard',
+            ],
             'manufacturers' => [
                 'type' => 'nested',
                 'dynamic' => 'strict',

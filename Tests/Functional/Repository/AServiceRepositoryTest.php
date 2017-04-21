@@ -18,6 +18,10 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 /**
  * Class AServiceRepositoryTest.
+ *
+ * The "A" of the class name is because tests will test first of all direct
+ * service repository instead of HTTP Test, that is faster. If any error occurs,
+ * will be know much faster.
  */
 class AServiceRepositoryTest extends RepositoryTest
 {

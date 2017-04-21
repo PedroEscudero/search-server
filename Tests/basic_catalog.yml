@@ -140,6 +140,8 @@ products:
                 name: kids
         stores:
             - 1
+        special_words:
+            - engonga
 
     bike_1:
         id: 4
@@ -224,3 +226,5 @@ products:
         stores:
             - 3
             - 4
+        special_words:
+            - Vinci

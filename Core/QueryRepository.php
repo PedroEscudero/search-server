@@ -114,13 +114,15 @@ class QueryRepository extends ElasticaWithKeyWrapper
          * @TODO Move this if/else into another place
          */
         if ($query->areAggregationsEnabled()) {
-            $resultAggregations = $elasticaResults['aggregations']['all']['all_products'];
-            $commonAggregations = $this->getCommonAggregations($resultAggregations);
+            $allProductsAggregation = $elasticaResults['aggregations']['all']['all_products'];
+            unset($elasticaResults['aggregations']['all']['all_products']);
+            $resultAggregations = $elasticaResults['aggregations']['all'];
+            $commonAggregations = $this->getCommonAggregations($allProductsAggregation);
             unset($resultAggregations['common']);
 
             $result = new Result(
                 $elasticaResults['aggregations']['all']['doc_count'],
-                $elasticaResults['aggregations']['all']['all_products']['doc_count'],
+                $allProductsAggregation['doc_count'],
                 $elasticaResults['total_hits'],
                 $commonAggregations['min_price'],
                 $commonAggregations['max_price']
@@ -315,6 +317,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             } else {
                 $match = new ElasticaQuery\MultiMatch();
                 $match->setFields([
+                    'special_words^10',
                     'ean^3',
                     'first_level_searchable_data^2',
                     'second_level_searchable_data^1',
@@ -670,7 +673,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
 
             $filteredAggregation->setFilter($boolQuery);
             $filteredAggregation->addAggregation($elasticaAggregation);
-            $productsAggregation->addAggregation($filteredAggregation);
+            $globalAggregation->addAggregation($filteredAggregation);
         }
 
         $elasticaQuery->addAggregation($globalAggregation);
@@ -735,11 +738,14 @@ class QueryRepository extends ElasticaWithKeyWrapper
     private function createAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
     {
         $termsAggregation = new ElasticaAggregation\Terms($aggregation->getName());
-        $fields = array_map(function ($field) {
+        $aggregationFields = explode('|', $aggregation->getField());
+        $fields = array_map(function ($field) use (&$oneField) {
             return "doc['{$field}'].value";
-        }, explode('|', $aggregation->getField()));
+        }, $aggregationFields);
 
-        $termsAggregation->setScript(implode(' + "~~" + ', $fields));
+        count($aggregationFields) > 1
+            ? $termsAggregation->setScript('return ' . implode(' + "~~" + ', $fields))
+            : $termsAggregation->setField($aggregationFields[0]);
 
         return $termsAggregation;
     }
