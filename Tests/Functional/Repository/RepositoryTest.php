@@ -42,6 +42,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     use SuggestTest;
     use SpecialWordsTest;
     use DeletionTest;
+    use ExcludeReferencesTest;
 
     /**
      * @var Repository

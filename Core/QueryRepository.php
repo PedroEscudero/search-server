@@ -170,9 +170,10 @@ class QueryRepository extends ElasticaWithKeyWrapper
                     );
                     break;
                 case Brand::TYPE:
-                    $result->addBrand(
-                        Brand::createFromArray($source)
-                    );
+                    $brand = Brand::createFromArray($source);
+                    if ($brand instanceof Brand) {
+                        $result->addBrand($brand);
+                    }
                     break;
                 case Tag::TYPE:
                     $result->addTag(
@@ -359,60 +360,19 @@ class QueryRepository extends ElasticaWithKeyWrapper
         bool $onlyAddDefinedTermFilter,
         bool $takeInAccountDefinedTermFilter
     ) {
-        return $filter->getApplicationType() & Filter::MUST_ALL
-            ? $this
-                ->createQueryFilterMustAll(
-                    $filter,
-                    $onlyAddDefinedTermFilter,
-                    $takeInAccountDefinedTermFilter
-                )
-            : $this
-                ->createQueryFilterAtLeastOne(
-                    $filter,
-                    $onlyAddDefinedTermFilter,
-                    $takeInAccountDefinedTermFilter
-                );
-    }
+        $verb = 'addMust';
+        switch ($filter->getApplicationType()) {
+            case Filter::AT_LEAST_ONE:
+                $verb = 'addShould';
+                break;
+            case Filter::EXCLUDE:
+                $verb = 'addMustNot';
+                break;
+        }
 
-    /**
-     * Creates a filter where all elements must match.
-     *
-     * @param Filter $filter
-     * @param bool   $onlyAddDefinedTermFilter
-     * @param bool   $takeInAccountDefinedTermFilter
-     *
-     * @return ElasticaQuery\AbstractQuery
-     */
-    private function createQueryFilterMustAll(
-        Filter $filter,
-        bool $onlyAddDefinedTermFilter,
-        bool $takeInAccountDefinedTermFilter
-    ) : ElasticaQuery\AbstractQuery {
         return $this->createQueryFilterByMethod(
             $filter,
-            'addMust',
-            $onlyAddDefinedTermFilter,
-            $takeInAccountDefinedTermFilter
-        );
-    }
-
-    /**
-     * Creates a filter where, at least, one element should match.
-     *
-     * @param Filter $filter
-     * @param bool   $onlyAddDefinedTermFilter
-     * @param bool   $takeInAccountDefinedTermFilter
-     *
-     * @return ElasticaQuery\AbstractQuery
-     */
-    private function createQueryFilterAtLeastOne(
-        Filter $filter,
-        bool $onlyAddDefinedTermFilter,
-        bool $takeInAccountDefinedTermFilter
-    ) : ElasticaQuery\AbstractQuery {
-        return $this->createQueryFilterByMethod(
-            $filter,
-            'addShould',
+            $verb,
             $onlyAddDefinedTermFilter,
             $takeInAccountDefinedTermFilter
         );
@@ -485,7 +445,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
         string $value
     ) : ? ElasticaQuery\AbstractQuery {
         switch ($filter->getFilterType()) {
-            case Filter::TYPE_NESTED :
+            case Filter::TYPE_NESTED:
                 return $this->createdNestedTermFilter(
                     $filter,
                     $value

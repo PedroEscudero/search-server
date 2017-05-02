@@ -348,7 +348,9 @@ class IndexRepository extends ElasticaWithKeyWrapper
     private function createTagDocument(Tag $tag) : Document
     {
         $document = new ElasticaDocument(
-            $tag->getName(),
+            $tag
+                ->getTagReference()
+                ->composeUUID(),
             array_filter([
                 'name' => $tag->getName(),
                 'first_level_searchable_data' => $tag->getFirstLevelSearchableData(),
