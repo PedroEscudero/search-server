@@ -110,6 +110,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 : null,
             'stores' => $product->getStores(),
             'metadata' => $product->getMetadata(),
+            'indexed_metadata' => $product->getIndexedMetadata(),
             'special_words' => $product->getSpecialWords(),
             'extra_boost' => $product->getExtraBoost(),
             'categories' => [],

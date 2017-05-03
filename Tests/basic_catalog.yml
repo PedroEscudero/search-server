@@ -45,7 +45,7 @@ products:
         stores:
             - 1
             - 2
-        metadata:
+        indexed_metadata:
             field_text: "This is my field one"
             field_keyword: "my_keyword"
             field_boolean: true
@@ -228,3 +228,7 @@ products:
             - 4
         special_words:
             - Vinci
+        metadata:
+            field1: value1
+            field2: 10
+            field3: efervescencio

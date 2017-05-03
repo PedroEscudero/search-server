@@ -322,6 +322,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
                     'ean^3',
                     'first_level_searchable_data^2',
                     'second_level_searchable_data^1',
+                    'indexed_metadata^1',
                 ])->setQuery($queryString);
             }
             $boolQuery->addMust($match);

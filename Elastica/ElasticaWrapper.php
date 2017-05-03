@@ -70,6 +70,14 @@ class ElasticaWrapper
     }
 
     /**
+     * Delete index.
+     */
+    public function deleteIndex(string $key)
+    {
+        $this->getSearchIndex($key)->delete();
+    }
+
+    /**
      * Create index.
      *
      * @param string $key
@@ -81,8 +89,9 @@ class ElasticaWrapper
         int $shards = 4,
         int $replicas = 1
     ) {
-        $tagIndex = $this->getSearchIndex($key);
-        $tagIndex->create([
+        $this->deleteIndex($key);
+        $searchIndex = $this->getSearchIndex($key);
+        $searchIndex->create([
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
             'analysis' => [
@@ -108,8 +117,8 @@ class ElasticaWrapper
                 ],
             ],
         ], true);
-        $tagIndex->clearCache();
-        $tagIndex->refresh();
+        $searchIndex->clearCache();
+        $searchIndex->refresh();
     }
 
     /**
@@ -225,10 +234,15 @@ class ElasticaWrapper
             'updated_at' => ['type' => 'date'],
             'coordinate' => ['type' => 'geo_point'],
             'stores' => ['type' => 'string'],
-            'metadata' => [
+            'indexed_metadata' => [
                 'type' => 'object',
                 'dynamic' => true,
                 'include_in_all' => false,
+            ],
+            'metadata' => [
+                'type' => 'object',
+                'dynamic' => true,
+                'enabled' => false,
             ],
             'special_words' => [
                 'type' => 'text',
