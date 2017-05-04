@@ -21,6 +21,7 @@ use Elastica\Index;
 use Elastica\Query;
 use Elastica\Type;
 use Elastica\Type\Mapping;
+use Exception;
 
 use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Model\Category;
@@ -74,7 +75,12 @@ class ElasticaWrapper
      */
     public function deleteIndex(string $key)
     {
-        $this->getSearchIndex($key)->delete();
+        try {
+            $this->getSearchIndex($key)->delete();
+        } catch (Exception $e) {
+
+            // Silent pass
+        }
     }
 
     /**
