@@ -14,6 +14,8 @@ products:
         # discount_percentage: 5%
         currency: EUR
         rating: 4,3
+        stock: 10
+        image: http://images.com/youknow
         coordinate:
             lat: 30
             lon: 30
@@ -66,6 +68,7 @@ products:
         # discount_percentage: 0%
         currency: EUR
         rating: 7,5
+        stock: 100
         coordinate:
             lat: 55
             lon: 35
@@ -157,6 +160,7 @@ products:
         # discount_percentage: 53%
         currency: EUR
         rating: 9,2
+        stock: 1
         coordinate:
             lat: 45
             lon: 60
@@ -200,6 +204,8 @@ products:
         # discount_percentage: 30%
         currency: EUR
         rating: 6,9
+        stock: 0
+        image: http://images.com/anotherone
         coordinate:
             lat: 60
             lon: 70

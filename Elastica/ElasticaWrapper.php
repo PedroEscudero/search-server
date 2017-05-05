@@ -218,6 +218,16 @@ class ElasticaWrapper
         $productMapping = new Mapping();
         $productMapping->setType($this->getType($key, Product::TYPE));
         $productMapping->enableAllField(false);
+        $productMapping->setParam('dynamic_templates', [
+             [
+                'dynamic_metadata_as_keywords' => [
+                    'path_match' => 'indexed_metadata.*',
+                    'mapping' => [
+                        'type' => 'keyword',
+                    ],
+                ],
+            ],
+        ]);
         $productMapping->setProperties([
             'id' => ['type' => 'keyword'],
             'family' => ['type' => 'keyword'],

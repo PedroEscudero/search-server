@@ -54,16 +54,6 @@ trait MetadataTest
     }
 
     /**
-     * Test empty indexed metadata.
-     */
-    public function testEmptyIndexedMetadata()
-    {
-        $repository = static::$repository;
-        $product = $repository->query(Query::createMatchAll()->filterBy('id', ['2'], Filter::MUST_ALL))->getProducts()[0];
-        $this->assertEmpty($product->getIndexedMetadata());
-    }
-
-    /**
      * Test metadata.
      */
     public function testMetadata()
@@ -89,6 +79,50 @@ trait MetadataTest
     {
         $repository = static::$repository;
         $product = $repository->query(Query::createMatchAll()->filterBy('id', ['2'], Filter::MUST_ALL))->getProducts()[0];
-        $this->assertEmpty($product->getIndexedMetadata());
+        $this->assertEmpty($product->getMetadata());
+    }
+
+    /**
+     * Test default with_discount metadata value and aggregations.
+     */
+    public function testWithDiscountMetadata()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createMatchAll()->filterByMeta('with_discount', ['1'], Filter::AT_LEAST_ONE));
+        $firstResult = $result->getFirstResult();
+        $withDiscountAggregation = $result->getMetaAggregation('with_discount');
+        $this->assertEquals(2, $withDiscountAggregation->getCounter('0')->getN());
+        $this->assertEquals(3, $withDiscountAggregation->getCounter('1')->getN());
+        $this->assertEquals('1', $firstResult->getIndexedMetadata()['with_discount']);
+    }
+
+    /**
+     * Test default with_image metadata value and aggregations.
+     */
+    public function testWithImageMetadata()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createMatchAll()->filterByMeta('with_image', ['1'], Filter::AT_LEAST_ONE));
+        $firstResult = $result->getFirstResult();
+        $withDiscountAggregation = $result->getMetaAggregation('with_image');
+        $this->assertEquals(3, $withDiscountAggregation->getCounter('0')->getN());
+        $this->assertEquals(2, $withDiscountAggregation->getCounter('1')->getN());
+        $this->assertEquals('1', $firstResult->getIndexedMetadata()['with_image']);
+        $this->assertNotEmpty($firstResult->getImage());
+    }
+
+    /**
+     * Test default with_stock metadata value and aggregations.
+     */
+    public function testWithStockMetadata()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createMatchAll()->filterByMeta('with_stock', ['0'], Filter::AT_LEAST_ONE));
+        $firstResult = $result->getFirstResult();
+        $withDiscountAggregation = $result->getMetaAggregation('with_stock');
+        $this->assertEquals(2, $withDiscountAggregation->getCounter('0')->getN());
+        $this->assertEquals(3, $withDiscountAggregation->getCounter('1')->getN());
+        $this->assertEquals('0', $firstResult->getIndexedMetadata()['with_stock']);
+        $this->assertTrue($firstResult->getStock() <= 0);
     }
 }
