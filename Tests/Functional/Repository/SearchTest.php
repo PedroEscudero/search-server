@@ -19,7 +19,9 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 use Puntmig\Search\Model\Brand;
 use Puntmig\Search\Model\Category;
 use Puntmig\Search\Model\Manufacturer;
+use Puntmig\Search\Model\ManufacturerReference;
 use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\ProductReference;
 use Puntmig\Search\Query\Query;
 
 /**
@@ -80,5 +82,42 @@ trait SearchTest
         $this->assertInstanceof(Manufacturer::class, $results[0]);
         $this->assertInstanceof(Brand::class, $results[1]);
         $this->assertInstanceof(Product::class, $results[2]);
+    }
+
+    /**
+     * Test search by reference.
+     */
+    public function testSearchByReference()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createByReference(new ProductReference('1', 'product')));
+        $this->assertCount(1, $result->getResults());
+        $this->assertCount(1, $result->getProducts());
+        $this->assertEquals('1', $result->getProducts()[0]->getId());
+    }
+
+    /**
+     * Test search by references.
+     */
+    public function testSearchByReferences()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createByReferences([
+            new ProductReference('1', 'product'),
+            new ManufacturerReference('1'),
+        ]));
+        $this->assertCount(2, $result->getResults());
+        $this->assertCount(1, $result->getProducts());
+        $this->assertCount(1, $result->getManufacturers());
+        $this->assertEquals('1', $result->getProducts()[0]->getId());
+        $this->assertEquals('1', $result->getManufacturers()[0]->getId());
+
+        $repository = static::$repository;
+        $result = $repository->query(Query::createByReferences([
+            new ManufacturerReference('1'),
+            new ManufacturerReference('1'),
+        ]));
+        $this->assertCount(1, $result->getResults());
+        $this->assertCount(1, $result->getManufacturers());
     }
 }

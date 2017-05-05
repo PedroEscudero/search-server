@@ -1,18 +1,18 @@
 #
 # API
 #
-api_query:
+search_bundle_api_query:
     path: /query
     defaults:
         _controller: search_bundle.api_controller:query
 
-api_reset:
+search_bundle_api_reset:
     path: /reset
     methods: ["DELETE"]
     defaults:
         _controller: search_bundle.api_controller:reset
 
-api_index_products:
+search_bundle_api_index_products:
     path: /products
     methods: ["POST"]
     defaults:
@@ -21,7 +21,7 @@ api_index_products:
         objectNamespace: Puntmig\Search\Model\Product
         method: addProducts
 
-api_index_categories:
+search_bundle_api_index_categories:
     path: /categories
     methods: ["POST"]
     defaults:
@@ -30,7 +30,7 @@ api_index_categories:
         objectNamespace: Puntmig\Search\Model\Category
         method: addCategories
 
-api_index_manufacturers:
+search_bundle_api_index_manufacturers:
     path: /manufacturers
     methods: ["POST"]
     defaults:
@@ -39,7 +39,7 @@ api_index_manufacturers:
         objectNamespace: Puntmig\Search\Model\Manufacturer
         method: addManufacturers
 
-api_index_brands:
+search_bundle_api_index_brands:
     path: /brands
     methods: ["POST"]
     defaults:
@@ -48,7 +48,7 @@ api_index_brands:
         objectNamespace: Puntmig\Search\Model\Brand
         method: addBrands
 
-api_index_tags:
+search_bundle_api_index_tags:
     path: /tags
     methods: ["POST"]
     defaults:
@@ -57,7 +57,7 @@ api_index_tags:
         objectNamespace: Puntmig\Search\Model\Tag
         method: addTags
 
-api_delete_products:
+search_bundle_api_delete_products:
     path: /products
     methods: ["DELETE"]
     defaults:
@@ -66,7 +66,7 @@ api_delete_products:
         objectNamespace: Puntmig\Search\Model\ProductReference
         method: deleteProducts
 
-api_delete_categories:
+search_bundle_api_delete_categories:
     path: /categories
     methods: ["DELETE"]
     defaults:
@@ -75,7 +75,7 @@ api_delete_categories:
         objectNamespace: Puntmig\Search\Model\CategoryReference
         method: deleteCategories
 
-api_delete_manufacturers:
+search_bundle_api_delete_manufacturers:
     path: /manufacturers
     methods: ["DELETE"]
     defaults:
@@ -84,7 +84,7 @@ api_delete_manufacturers:
         objectNamespace: Puntmig\Search\Model\ManufacturerReference
         method: deleteManufacturers
 
-api_delete_brands:
+search_bundle_api_delete_brands:
     path: /brands
     methods: ["DELETE"]
     defaults:
@@ -93,7 +93,7 @@ api_delete_brands:
         objectNamespace: Puntmig\Search\Model\BrandReference
         method: deleteBrands
 
-api_delete_tags:
+search_bundle_api_delete_tags:
     path: /tags
     methods: ["DELETE"]
     defaults:
