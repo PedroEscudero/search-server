@@ -855,12 +855,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "7e5451484f8dcb316aa589a75c9dd63b6d09fd6f"
+                "reference": "410524255ba60babe11eabc0a6cb2f056536d512"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/7e5451484f8dcb316aa589a75c9dd63b6d09fd6f",
-                "reference": "7e5451484f8dcb316aa589a75c9dd63b6d09fd6f",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/410524255ba60babe11eabc0a6cb2f056536d512",
+                "reference": "410524255ba60babe11eabc0a6cb2f056536d512",
                 "shasum": ""
             },
             "require": {
@@ -889,7 +889,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-05-02 19:30:43"
+            "time": "2017-05-06 07:17:34"
         },
         {
             "name": "react/promise",
@@ -3319,12 +3319,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/search-bundle.git",
-                "reference": "5706e09f6d5543ae5128f8ff58c0b77645b3320c"
+                "reference": "990937f0c9d869f4cbcfb716523d9a3ce579f940"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/5706e09f6d5543ae5128f8ff58c0b77645b3320c",
-                "reference": "5706e09f6d5543ae5128f8ff58c0b77645b3320c",
+                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/990937f0c9d869f4cbcfb716523d9a3ce579f940",
+                "reference": "990937f0c9d869f4cbcfb716523d9a3ce579f940",
                 "shasum": ""
             },
             "require": {
@@ -3357,7 +3357,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-04-02 11:24:31"
+            "time": "2017-05-06T07:21:59+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

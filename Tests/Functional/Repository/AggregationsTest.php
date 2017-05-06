@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 use Puntmig\Search\Model\Brand;
+use Puntmig\Search\Model\Product;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
 
@@ -271,6 +272,70 @@ trait AggregationsTest
         $this->assertEmpty($aggregations
             ->getAggregation('brand')
             ->getCounters()
+        );
+    }
+
+    /**
+     * Test disable aggregations.
+     */
+    public function testDisableAggregations()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(
+            Query::createMatchAll()
+                ->filterByTypes([])
+                ->disableAggregations()
+        );
+        $aggregations = $result->getAggregations();
+
+        $this->assertEmpty($aggregations);
+        $this->assertEmpty($result->getMinPrice());
+        $this->assertEmpty($result->getMaxPrice());
+        $this->assertEmpty($result->getPriceAverage());
+        $this->assertEmpty($result->getRatingAverage());
+    }
+
+    /**
+     * Test default price aggregations.
+     */
+    public function testDefaultPriceAggregations()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(
+            Query::createMatchAll()
+                ->filterByTypes([Product::TYPE])
+        );
+
+        $this->assertEquals(
+            7,
+            $result->getMinPrice()
+        );
+
+        $this->assertEquals(
+            2000,
+            $result->getMaxPrice()
+        );
+
+        $this->assertEquals(
+            1031.4,
+            $result->getPriceAverage()
+        );
+    }
+
+    /**
+     * Test default rating aggregations.
+     */
+    public function testDefaultRatingAggregations()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(
+            Query::createMatchAll()
+                ->filterByTypes([Product::TYPE])
+        );
+
+        $this->assertEquals(
+            6.18,
+            number_format($result->getRatingAverage(), 2)
         );
     }
 }

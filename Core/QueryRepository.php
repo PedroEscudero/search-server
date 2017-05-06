@@ -125,15 +125,15 @@ class QueryRepository extends ElasticaWithKeyWrapper
                 $allProductsAggregation['doc_count'],
                 $elasticaResults['total_hits'],
                 $commonAggregations['min_price'],
-                $commonAggregations['max_price']
+                $commonAggregations['max_price'],
+                $commonAggregations['price_average'],
+                $commonAggregations['rating_average']
             );
         } else {
             $result = new Result(
-                0,
-                0,
+                0, 0,
                 $elasticaResults['total_hits'],
-                0,
-                0
+                0, 0, 0, 0
             );
         }
 
@@ -264,6 +264,8 @@ class QueryRepository extends ElasticaWithKeyWrapper
         return [
             'min_price' => (int) $elasticaResult['common']['min_price']['value'],
             'max_price' => (int) $elasticaResult['common']['max_price']['value'],
+            'price_average' => (float) $elasticaResult['common']['price_average']['value'],
+            'rating_average' => (float) $elasticaResult['common']['rating_average']['value'],
         ];
     }
 
@@ -363,7 +365,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
     ) {
         $verb = 'addMust';
         switch ($filter->getApplicationType()) {
-            case Filter::AT_LEAST_ONE:
+            case Filter::AT_LEAST_ONE :
                 $verb = 'addShould';
                 break;
             case Filter::EXCLUDE:
@@ -446,7 +448,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
         string $value
     ) : ? ElasticaQuery\AbstractQuery {
         switch ($filter->getFilterType()) {
-            case Filter::TYPE_NESTED:
+            case Filter::TYPE_NESTED :
                 return $this->createdNestedTermFilter(
                     $filter,
                     $value
@@ -668,6 +670,15 @@ class QueryRepository extends ElasticaWithKeyWrapper
         $maxPriceAggregation = new ElasticaAggregation\Max('max_price');
         $maxPriceAggregation->setField('real_price');
         $commonAggregations->addAggregation($maxPriceAggregation);
+
+        $avgPriceAggregation = new ElasticaAggregation\Avg('price_average');
+        $avgPriceAggregation->setField('real_price');
+        $commonAggregations->addAggregation($avgPriceAggregation);
+
+        $ratingAverageAggregation = new ElasticaAggregation\Avg('rating_average');
+        $ratingAverageAggregation->setField('rating');
+        $commonAggregations->addAggregation($ratingAverageAggregation);
+
         $productsAggregation->addAggregation($commonAggregations);
     }
 

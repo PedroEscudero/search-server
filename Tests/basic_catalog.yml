@@ -13,7 +13,7 @@ products:
         # discount: 50
         # discount_percentage: 5%
         currency: EUR
-        rating: 4,3
+        rating: 4.3
         stock: 10
         image: http://images.com/youknow
         coordinate:
@@ -67,7 +67,7 @@ products:
         # discount: 0
         # discount_percentage: 0%
         currency: EUR
-        rating: 7,5
+        rating: 7.5
         stock: 100
         coordinate:
             lat: 55
@@ -159,7 +159,7 @@ products:
         # discount: 800
         # discount_percentage: 53%
         currency: EUR
-        rating: 9,2
+        rating: 9.2
         stock: 1
         coordinate:
             lat: 45
@@ -203,7 +203,7 @@ products:
         # discount: 3
         # discount_percentage: 30%
         currency: EUR
-        rating: 6,9
+        rating: 6.9
         stock: 0
         image: http://images.com/anotherone
         coordinate:
