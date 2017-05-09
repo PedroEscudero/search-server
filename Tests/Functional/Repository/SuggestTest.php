@@ -35,7 +35,7 @@ trait SuggestTest
                 ->disableAggregations()
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['Adidas'],
             $results->getSuggests()
         );

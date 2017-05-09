@@ -36,19 +36,19 @@ trait SearchTest
     {
         $repository = static::$repository;
         $result = $repository->query(Query::createMatchAll());
-        $this->assertEquals(
+        $this->assertSame(
             count($result->getProducts()),
             $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count()
         );
-        $this->assertEquals(
+        $this->assertSame(
             count($result->getCategories()),
             $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count()
         );
-        $this->assertEquals(
+        $this->assertSame(
             count($result->getManufacturers()),
             $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count()
         );
-        $this->assertEquals(
+        $this->assertSame(
             count($result->getBrands()),
             $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count()
         );
@@ -93,7 +93,7 @@ trait SearchTest
         $result = $repository->query(Query::createByReference(new ProductReference('1', 'product')));
         $this->assertCount(1, $result->getResults());
         $this->assertCount(1, $result->getProducts());
-        $this->assertEquals('1', $result->getProducts()[0]->getId());
+        $this->assertSame('1', $result->getProducts()[0]->getId());
     }
 
     /**
@@ -109,8 +109,8 @@ trait SearchTest
         $this->assertCount(2, $result->getResults());
         $this->assertCount(1, $result->getProducts());
         $this->assertCount(1, $result->getManufacturers());
-        $this->assertEquals('1', $result->getProducts()[0]->getId());
-        $this->assertEquals('1', $result->getManufacturers()[0]->getId());
+        $this->assertSame('1', $result->getProducts()[0]->getId());
+        $this->assertSame('1', $result->getManufacturers()[0]->getId());
 
         $repository = static::$repository;
         $result = $repository->query(Query::createByReferences([

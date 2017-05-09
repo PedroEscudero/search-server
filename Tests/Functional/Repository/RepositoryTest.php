@@ -179,7 +179,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
             $cleanId = trim($idWithoutGrouping, '?*!');
 
             if ($mustCheckExistence) {
-                $this->assertEquals(
+                $this->assertSame(
                     $mustExist,
                     $this->idFoundInResults($result, $type, $cleanId)
                 );
@@ -236,7 +236,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
         if (!array_key_exists($position, $elements)) {
             $this->fail("Element $position not found in results stack for type $type");
         } else {
-            $this->assertEquals(
+            $this->assertSame(
                 $id,
                 $elements[$position]->getId()
             );

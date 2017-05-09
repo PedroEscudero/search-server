@@ -30,32 +30,32 @@ trait SpecialWordsTest
     {
         $repository = static::$repository;
         $product = $repository->query(Query::create('Vinci'))->getProducts()[0];
-        $this->assertEquals(
-            5,
+        $this->assertSame(
+            '5',
             $product->getId()
         );
 
         $product = $repository->query(Query::create('vinci'))->getProducts()[0];
-        $this->assertEquals(
-            5,
+        $this->assertSame(
+            '5',
             $product->getId()
         );
 
         $product = $repository->query(Query::create('vinc'))->getProducts()[0];
-        $this->assertEquals(
-            3,
+        $this->assertSame(
+            '3',
             $product->getId()
         );
 
         $product = $repository->query(Query::create('da vinci'))->getProducts()[0];
-        $this->assertEquals(
-            3,
+        $this->assertSame(
+            '3',
             $product->getId()
         );
 
         $product = $repository->query(Query::create('engonga'))->getProducts()[0];
-        $this->assertEquals(
-            3,
+        $this->assertSame(
+            '3',
             $product->getId()
         );
     }

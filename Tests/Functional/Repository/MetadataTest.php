@@ -102,9 +102,9 @@ trait MetadataTest
         $result = $repository->query(Query::createMatchAll()->filterByMeta('with_discount', ['1'], Filter::AT_LEAST_ONE));
         $firstResult = $result->getFirstResult();
         $withDiscountAggregation = $result->getMetaAggregation('with_discount');
-        $this->assertEquals(2, $withDiscountAggregation->getCounter('0')->getN());
-        $this->assertEquals(3, $withDiscountAggregation->getCounter('1')->getN());
-        $this->assertEquals('1', $firstResult->getIndexedMetadata()['with_discount']);
+        $this->assertSame(2, $withDiscountAggregation->getCounter('0')->getN());
+        $this->assertSame(3, $withDiscountAggregation->getCounter('1')->getN());
+        $this->assertSame('1', $firstResult->getIndexedMetadata()['with_discount']);
     }
 
     /**
@@ -116,9 +116,9 @@ trait MetadataTest
         $result = $repository->query(Query::createMatchAll()->filterByMeta('with_image', ['1'], Filter::AT_LEAST_ONE));
         $firstResult = $result->getFirstResult();
         $withDiscountAggregation = $result->getMetaAggregation('with_image');
-        $this->assertEquals(3, $withDiscountAggregation->getCounter('0')->getN());
-        $this->assertEquals(2, $withDiscountAggregation->getCounter('1')->getN());
-        $this->assertEquals('1', $firstResult->getIndexedMetadata()['with_image']);
+        $this->assertSame(3, $withDiscountAggregation->getCounter('0')->getN());
+        $this->assertSame(2, $withDiscountAggregation->getCounter('1')->getN());
+        $this->assertSame('1', $firstResult->getIndexedMetadata()['with_image']);
         $this->assertNotEmpty($firstResult->getImage());
     }
 
@@ -131,9 +131,9 @@ trait MetadataTest
         $result = $repository->query(Query::createMatchAll()->filterByMeta('with_stock', ['0'], Filter::AT_LEAST_ONE));
         $firstResult = $result->getFirstResult();
         $withDiscountAggregation = $result->getMetaAggregation('with_stock');
-        $this->assertEquals(2, $withDiscountAggregation->getCounter('0')->getN());
-        $this->assertEquals(3, $withDiscountAggregation->getCounter('1')->getN());
-        $this->assertEquals('0', $firstResult->getIndexedMetadata()['with_stock']);
+        $this->assertSame(2, $withDiscountAggregation->getCounter('0')->getN());
+        $this->assertSame(3, $withDiscountAggregation->getCounter('1')->getN());
+        $this->assertSame('0', $firstResult->getIndexedMetadata()['with_stock']);
         $this->assertTrue($firstResult->getStock() <= 0);
     }
 
@@ -146,8 +146,8 @@ trait MetadataTest
         $result = $repository->query(Query::createMatchAll()->filterByMeta('color', [], Filter::AT_LEAST_ONE));
         $aggregations = $result->getAggregations();
         $metaAggregation = $aggregations->getMetaAggregation('color');
-        $this->assertEquals(2, $metaAggregation->getCounter('yellow')->getN());
-        $this->assertEquals(1, $metaAggregation->getCounter('blue')->getN());
-        $this->assertEquals(1, $metaAggregation->getCounter('red')->getN());
+        $this->assertSame(2, $metaAggregation->getCounter('yellow')->getN());
+        $this->assertSame(1, $metaAggregation->getCounter('blue')->getN());
+        $this->assertSame(1, $metaAggregation->getCounter('red')->getN());
     }
 }

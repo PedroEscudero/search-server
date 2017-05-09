@@ -32,10 +32,10 @@ trait PopulationTest
      */
     public function testBasicPopulation()
     {
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
-        $this->assertEquals(8, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
-        $this->assertEquals(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
+        $this->assertSame(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count());
+        $this->assertSame(8, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count());
+        $this->assertSame(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count());
+        $this->assertSame(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count());
+        $this->assertSame(5, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Tag::TYPE)->count());
     }
 }

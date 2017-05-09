@@ -52,7 +52,7 @@ trait AggregationsTest
         $this->assertCount(1, $brandAggregation->getCounters());
         $this->assertCount(5, $manufacturerAggregation->getCounters());
 
-        $this->assertEquals(
+        $this->assertSame(
             1,
                 $brandAggregation
                 ->getCounter('1')
@@ -86,14 +86,14 @@ trait AggregationsTest
         ->getAggregations();
 
         $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertEquals(2, $categoryAggregation->getCounter('1')->getN());
+        $this->assertSame(2, $categoryAggregation->getCounter('1')->getN());
         $this->assertNull($categoryAggregation->getCounter('2'));
         $this->assertNull($categoryAggregation->getCounter('3'));
-        $this->assertEquals(1, $categoryAggregation->getCounter('50')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('50')->getN());
         $this->assertNull($categoryAggregation->getCounter('66'));
-        $this->assertEquals(1, $categoryAggregation->getCounter('777')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('777')->getN());
         $this->assertNull($categoryAggregation->getCounter('778'));
-        $this->assertEquals(1, $categoryAggregation->getCounter('800')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('800')->getN());
 
         $aggregations = $repository->query(
             Query::createMatchAll()
@@ -103,8 +103,8 @@ trait AggregationsTest
 
         $categoryAggregation = $aggregations->getAggregation('categories');
         $this->assertNull($categoryAggregation->getCounter('1'));
-        $this->assertEquals(1, $categoryAggregation->getCounter('2')->getN());
-        $this->assertEquals(1, $categoryAggregation->getCounter('3')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('2')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('3')->getN());
         $this->assertNull($categoryAggregation->getCounter('50'));
         $this->assertNull($categoryAggregation->getCounter('66'));
         $this->assertNull($categoryAggregation->getCounter('777'));
@@ -118,10 +118,10 @@ trait AggregationsTest
         ->getAggregations();
 
         $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertEquals(2, $categoryAggregation->getCounter('1')->getN());
-        $this->assertEquals(1, $categoryAggregation->getCounter('2')->getN());
-        $this->assertEquals(1, $categoryAggregation->getCounter('3')->getN());
-        $this->assertEquals(1, $categoryAggregation->getCounter('50')->getN());
+        $this->assertSame(2, $categoryAggregation->getCounter('1')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('2')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('3')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('50')->getN());
 
         $aggregations = $repository->query(
             Query::createMatchAll()
@@ -131,8 +131,8 @@ trait AggregationsTest
         ->getAggregations();
 
         $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertEquals(2, $categoryAggregation->getCounter('1')->getN());
-        $this->assertEquals(1, $categoryAggregation->getCounter('50')->getN());
+        $this->assertSame(2, $categoryAggregation->getCounter('1')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('50')->getN());
         $this->assertCount(2, $categoryAggregation->getCounters());
 
         $aggregations = $repository->query(
@@ -143,8 +143,8 @@ trait AggregationsTest
         ->getAggregations();
 
         $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertEquals(1, $categoryAggregation->getCounter('2')->getN());
-        $this->assertEquals(1, $categoryAggregation->getCounter('3')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('2')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('3')->getN());
         $this->assertCount(2, $categoryAggregation->getCounters());
 
         $aggregations = $repository->query(
@@ -155,7 +155,7 @@ trait AggregationsTest
         ->getAggregations();
 
         $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertEquals(1, $categoryAggregation->getCounter('66')->getN());
+        $this->assertSame(1, $categoryAggregation->getCounter('66')->getN());
         $this->assertCount(1, $categoryAggregation->getCounters());
     }
 
@@ -171,11 +171,11 @@ trait AggregationsTest
         )
         ->getAggregations();
 
-        $this->assertEquals(
+        $this->assertSame(
             2,
             $aggregations->getAggregation('specials')->getCounter('new')->getN()
         );
-        $this->assertEquals(
+        $this->assertSame(
             1,
             $aggregations->getAggregation('specials')->getCounter('last_hour')->getN()
         );
@@ -201,11 +201,11 @@ trait AggregationsTest
                 ->filterByTags('specials', ['new', 'shirt'], [], Filter::MUST_ALL)
         )
         ->getAggregations();
-        $this->assertEquals(
+        $this->assertSame(
             2,
             $aggregations->getAggregation('specials')->getCounter('new')->getN()
         );
-        $this->assertEquals(
+        $this->assertSame(
             1,
             $aggregations->getAggregation('specials')->getCounter('shirt')->getN()
         );
@@ -237,7 +237,7 @@ trait AggregationsTest
             $usedCategoryElements
         );
         $firstUsedCategoryElements = reset($usedCategoryElements);
-        $this->assertEquals('2', $firstUsedCategoryElements->getId());
+        $this->assertSame('2', $firstUsedCategoryElements->getId());
         $this->assertTrue($firstUsedCategoryElements->isUsed());
 
         $aggregations = $repository->query(
@@ -252,7 +252,7 @@ trait AggregationsTest
             $usedCategoryElements
         );
         $firstUsedCategoryElements = reset($usedCategoryElements);
-        $this->assertEquals('1', $firstUsedCategoryElements->getId());
+        $this->assertSame('1', $firstUsedCategoryElements->getId());
         $this->assertTrue($firstUsedCategoryElements->isUsed());
     }
 
@@ -305,17 +305,17 @@ trait AggregationsTest
                 ->filterByTypes([Product::TYPE])
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             7,
             $result->getMinPrice()
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             2000,
             $result->getMaxPrice()
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             1031.4,
             $result->getPriceAverage()
         );
@@ -332,8 +332,8 @@ trait AggregationsTest
                 ->filterByTypes([Product::TYPE])
         );
 
-        $this->assertEquals(
-            6.18,
+        $this->assertSame(
+            '6.18',
             number_format($result->getRatingAverage(), 2)
         );
     }
