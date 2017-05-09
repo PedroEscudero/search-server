@@ -593,7 +593,7 @@ trait FiltersTest
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('field_boolean', [true], Filter::MUST_ALL)),
+            $repository->query(Query::createMatchAll()->filterByMeta('field_boolean', ['1'], Filter::MUST_ALL)),
             Product::TYPE,
             ['?1', '!2', '!3', '!4', '!5']
         );
@@ -602,6 +602,30 @@ trait FiltersTest
             $repository->query(Query::createMatchAll()->filterByMeta('field_keyword', ['my_keyword'], Filter::MUST_ALL)),
             Product::TYPE,
             ['?1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('color', ['yellow'], Filter::AT_LEAST_ONE)),
+            Product::TYPE,
+            ['!1', '!2', '?3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('color', ['yellow', 'red'], Filter::MUST_ALL)),
+            Product::TYPE,
+            ['!1', '!2', '!3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('color', ['yellow', 'nonexistent'], Filter::MUST_ALL)),
+            Product::TYPE,
+            ['!1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByMeta('color', ['nonexistent'], Filter::AT_LEAST_ONE)),
+            Product::TYPE,
+            ['!1', '!2', '!3', '!4', '!5']
         );
     }
 

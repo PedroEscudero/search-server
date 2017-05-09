@@ -145,6 +145,10 @@ products:
             - 1
         special_words:
             - engonga
+        indexed_metadata:
+            color:
+                - blue
+                - yellow
 
     bike_1:
         id: 4
@@ -238,3 +242,7 @@ products:
             field1: value1
             field2: 10
             field3: efervescencio
+        indexed_metadata:
+            color:
+                - red
+                - yellow

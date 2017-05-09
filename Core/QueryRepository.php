@@ -365,7 +365,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
     ) {
         $verb = 'addMust';
         switch ($filter->getApplicationType()) {
-            case Filter::AT_LEAST_ONE :
+            case Filter::AT_LEAST_ONE:
                 $verb = 'addShould';
                 break;
             case Filter::EXCLUDE:
@@ -448,7 +448,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
         string $value
     ) : ? ElasticaQuery\AbstractQuery {
         switch ($filter->getFilterType()) {
-            case Filter::TYPE_NESTED :
+            case Filter::TYPE_NESTED:
                 return $this->createdNestedTermFilter(
                     $filter,
                     $value

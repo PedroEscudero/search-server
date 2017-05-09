@@ -32,25 +32,31 @@ trait MetadataTest
         $repository = static::$repository;
         $product = $repository->query(Query::createMatchAll()->filterBy('id', ['1'], Filter::MUST_ALL))->getProducts()[0];
         $metadata = $product->getIndexedMetadata();
-        $this->assertEquals(
+
+        $this->assertSame(
             'This is my field one',
             $metadata['field_text']
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             'my_keyword',
             $metadata['field_keyword']
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertSame(
+            '1',
             $metadata['field_boolean']
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             '10',
             $metadata['field_integer']
         );
+
+        $this->assertSame('This is my field one', $product->getIndexedMetadataValue('field_text'));
+        $this->assertSame('10', $product->getIndexedMetadataValue('field_integer'));
+        $this->assertSame('This is my field one', $product->getAllMetadataValue('field_text'));
+        $this->assertSame('10', $product->getAllMetadataValue('field_integer'));
     }
 
     /**
@@ -61,15 +67,20 @@ trait MetadataTest
         $repository = static::$repository;
         $product = $repository->query(Query::createMatchAll()->filterBy('id', ['5'], Filter::MUST_ALL))->getProducts()[0];
         $metadata = $product->getMetadata();
-        $this->assertEquals(
+        $this->assertSame(
             'value1',
             $metadata['field1']
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             10,
             $metadata['field2']
         );
+
+        $this->assertSame('value1', $product->getMetadataValue('field1'));
+        $this->assertSame(10, $product->getMetadataValue('field2'));
+        $this->assertSame('value1', $product->getAllMetadataValue('field1'));
+        $this->assertSame(10, $product->getAllMetadataValue('field2'));
     }
 
     /**
@@ -124,5 +135,19 @@ trait MetadataTest
         $this->assertEquals(3, $withDiscountAggregation->getCounter('1')->getN());
         $this->assertEquals('0', $firstResult->getIndexedMetadata()['with_stock']);
         $this->assertTrue($firstResult->getStock() <= 0);
+    }
+
+    /**
+     * Test with indexed metadata when using arrays of strings.
+     */
+    public function testWithArrayIndexedMetadata()
+    {
+        $repository = static::$repository;
+        $result = $repository->query(Query::createMatchAll()->filterByMeta('color', [], Filter::AT_LEAST_ONE));
+        $aggregations = $result->getAggregations();
+        $metaAggregation = $aggregations->getMetaAggregation('color');
+        $this->assertEquals(2, $metaAggregation->getCounter('yellow')->getN());
+        $this->assertEquals(1, $metaAggregation->getCounter('blue')->getN());
+        $this->assertEquals(1, $metaAggregation->getCounter('red')->getN());
     }
 }
