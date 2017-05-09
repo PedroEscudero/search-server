@@ -64,7 +64,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
         $this
             ->elasticaWrapper
             ->getType($this->key, Product::TYPE)
-            ->updateDocuments($documents);
+            ->addDocuments($documents);
 
         $this->refresh();
     }
@@ -159,7 +159,6 @@ class IndexRepository extends ElasticaWithKeyWrapper
 
         $productDocument['suggest'] = array_filter($productSuggest);
         $document = new ElasticaDocument($composedProductId, $productDocument);
-        $document->setDocAsUpsert(true);
 
         return $document;
     }
@@ -183,7 +182,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
         $this
             ->elasticaWrapper
             ->getType($this->key, Category::TYPE)
-            ->updateDocuments($documents);
+            ->addDocuments($documents);
 
         $this->refresh();
     }
@@ -210,7 +209,6 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'suggest' => $category->getName(),
             ])
         );
-        $document->setDocAsUpsert(true);
 
         return $document;
     }
@@ -234,7 +232,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
         $this
             ->elasticaWrapper
             ->getType($this->key, Manufacturer::TYPE)
-            ->updateDocuments($documents);
+            ->addDocuments($documents);
 
         $this->refresh();
     }
@@ -260,7 +258,6 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'suggest' => $manufacturer->getName(),
             ])
         );
-        $document->setDocAsUpsert(true);
 
         return $document;
     }
@@ -284,7 +281,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
         $this
             ->elasticaWrapper
             ->getType($this->key, Brand::TYPE)
-            ->updateDocuments($documents);
+            ->addDocuments($documents);
 
         $this->refresh();
     }
@@ -310,7 +307,6 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'suggest' => $brand->getName(),
             ])
         );
-        $document->setDocAsUpsert(true);
 
         return $document;
     }
@@ -334,7 +330,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
         $this
             ->elasticaWrapper
             ->getType($this->key, Tag::TYPE)
-            ->updateDocuments($documents);
+            ->addDocuments($documents);
 
         $this->refresh();
     }
@@ -358,7 +354,6 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 'suggest' => $tag->getName(),
             ])
         );
-        $document->setDocAsUpsert(true);
 
         return $document;
     }

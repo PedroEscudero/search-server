@@ -281,14 +281,13 @@ trait AggregationsTest
     public function testDisableAggregations()
     {
         $repository = static::$repository;
-        $result = $repository->query(
-            Query::createMatchAll()
-                ->filterByTypes([])
-                ->disableAggregations()
-        );
+        $query = Query::createMatchAll()
+            ->filterByTypes([])
+            ->disableAggregations();
+        $result = $repository->query($query);
         $aggregations = $result->getAggregations();
 
-        $this->assertEmpty($aggregations);
+        $this->assertNull($aggregations);
         $this->assertEmpty($result->getMinPrice());
         $this->assertEmpty($result->getMaxPrice());
         $this->assertEmpty($result->getPriceAverage());
