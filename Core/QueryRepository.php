@@ -38,7 +38,6 @@ use Puntmig\Search\Query\SortBy;
 use Puntmig\Search\Result\Aggregation as ResultAggregation;
 use Puntmig\Search\Result\Aggregations as ResultAggregations;
 use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class QueryRepository.
@@ -121,6 +120,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             unset($resultAggregations['common']);
 
             $result = new Result(
+                $query,
                 $elasticaResults['aggregations']['all']['doc_count'],
                 $allProductsAggregation['doc_count'],
                 $elasticaResults['total_hits'],
@@ -131,6 +131,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             );
         } else {
             $result = new Result(
+                $query,
                 0, 0,
                 $elasticaResults['total_hits'],
                 0, 0, 0, 0
@@ -712,7 +713,10 @@ class QueryRepository extends ElasticaWithKeyWrapper
         $termsAggregation = new ElasticaAggregation\Terms($aggregation->getName());
         $aggregationFields = explode('|', $aggregation->getField());
         $fields = array_map(function ($field) use (&$oneField) {
-            return "doc['{$field}'].value";
+            $fieldParts = explode('.', $field);
+            return count($fieldParts) == 2
+                ? "'{$fieldParts[1]}##' + doc['$field'].value"
+                : "doc['$field'].value";
         }, $aggregationFields);
 
         count($aggregationFields) > 1
