@@ -18,11 +18,7 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 use Symfony\Component\Yaml\Yaml;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Model\Item;
 use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Result\Result;
 use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
@@ -32,17 +28,15 @@ use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTe
  */
 abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
 {
-    use PopulationTest;
-    use SearchTest;
-    use FiltersTest;
-    use LocationFiltersTest;
     use AggregationsTest;
-    use SortTest;
-    use MetadataTest;
-    use SuggestTest;
-    use SpecialWordsTest;
-    use DeletionTest;
     use ExcludeReferencesTest;
+    use FiltersTest;
+    use ExactMatchingMetadataTest;
+    use DeletionTest;
+    use LocationFiltersTest;
+    use SortTest;
+    use SuggestTest;
+    use SearchTest;
 
     /**
      * @var Repository
@@ -80,38 +74,17 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      */
     public static function resetScenario()
     {
+        self::get('search_bundle.elastica_wrapper')->deleteIndex(self::$key);
         self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1);
         self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1);
 
         self::$repository = self::get(static::getRepositoryServiceName());
         self::$repository->setKey(self::$key);
-        $products = Yaml::parse(file_get_contents(__DIR__ . '/../../basic_catalog.yml'));
-        foreach ($products['products'] as $product) {
-            self::$repository->addProduct(
-                Product::createFromArray($product)
+        $items = Yaml::parse(file_get_contents(__DIR__ . '/../../items.yml'));
+        foreach ($items['items'] as $item) {
+            self::$repository->addItem(
+                Item::createFromArray($item)
             );
-
-            foreach ($product['categories'] as $category) {
-                self::$repository->addCategory(
-                    Category::createFromArray($category)
-                );
-            }
-
-            foreach ($product['manufacturers'] as $manufacturer) {
-                self::$repository->addManufacturer(
-                    Manufacturer::createFromArray($manufacturer)
-                );
-            }
-
-            self::$repository->addBrand(
-                Brand::createFromArray($product['brand'])
-            );
-
-            foreach ($product['tags'] as $tag) {
-                self::$repository->addTag(
-                    Tag::createFromArray($tag)
-                );
-            }
         }
 
         self::$repository->flush(500);
@@ -161,12 +134,10 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      * Only one group nesting is allowing
      *
      * @param Result   $result
-     * @param string   $type
      * @param string[] $ids
      */
     protected function assertResults(
         Result $result,
-        string $type,
         array $ids
     ) {
         $lastIdFound = false;
@@ -181,7 +152,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
             if ($mustCheckExistence) {
                 $this->assertSame(
                     $mustExist,
-                    $this->idFoundInResults($result, $type, $cleanId)
+                    $this->idFoundInResults($result, $cleanId)
                 );
             }
 
@@ -191,7 +162,6 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
             ) {
                 $this->assertId1MatchesBetterThanId2(
                     $result,
-                    $type,
                     $lastIdFound,
                     $cleanId
                 );
@@ -218,27 +188,21 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      * If position is null, will assert if the entry does not exists
      *
      * @param Result $result
-     * @param string $type
      * @param int    $position
      * @param string $id
      */
     protected function assertNTypeElementId(
         Result $result,
-        string $type,
         int $position,
         string $id
     ) {
-        $elements = $this->getResultsByType(
-            $result,
-            $type
-        );
-
+        $elements = $result->getItems();
         if (!array_key_exists($position, $elements)) {
-            $this->fail("Element $position not found in results stack for type $type");
+            $this->fail("Element $position not found in results stack");
         } else {
             $this->assertSame(
                 $id,
-                $elements[$position]->getId()
+                $elements[$position]->getUUID()->getId()
             );
         }
     }
@@ -248,94 +212,51 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      * and a type.
      *
      * @param Result $result
-     * @param string $type
      * @param string $id1
      * @param string $id2
      */
     protected function assertId1MatchesBetterThanId2(
         Result $result,
-        string $type,
         string $id1,
         string $id2
     ) {
-        $elements = $this->getResultsByType(
-            $result,
-            $type
-        );
-
         $foundId1 = false;
-        foreach ($elements as $element) {
-            $foundId = $element->getId();
+        foreach ($result->getItems() as $element) {
+            $foundId = $element->getUUID()->getId();
             if ($id1 === $foundId) {
                 $foundId1 = true;
                 continue;
             }
 
             if ($id2 === $foundId) {
-                $this->assertTrue($foundId1, "$type $id2 was not found after $type $id1");
+                $this->assertTrue($foundId1, "Item $id2 was not found after Item $id1");
 
                 return;
             }
         }
 
-        $this->assertTrue($foundId1, "$type $id2 was not found after $type $id1");
+        $this->assertTrue($foundId1, "Item $id2 was not found after Item $id1");
     }
 
     /**
-     * Id is found in results of type.
+     * Id is found in results.
      *
      * @param Result $result
-     * @param string $type
      * @param string $id
      *
      * @return bool
      */
     protected function idFoundInResults(
         Result $result,
-        string $type,
         string $id
     ) : bool {
-        $elements = $this->getResultsByType(
-            $result,
-            $type
-        );
         $found = false;
-        foreach ($elements as $element) {
-            if ($element->getId() === $id) {
+        foreach ($result->getItems() as $element) {
+            if ($element->getUUID()->getId() === $id) {
                 $found = true;
             }
         }
 
         return $found;
-    }
-
-    /**
-     * Get result results set by type.
-     *
-     * @param Result $result
-     * @param string $type
-     *
-     * @return array
-     */
-    protected function getResultsByType(
-        Result $result,
-        string $type
-    ): array {
-        $elements = null;
-        if ($type === Product::TYPE) {
-            $elements = $result->getProducts();
-        } elseif ($type === Category::TYPE) {
-            $elements = $result->getCategories();
-        } elseif ($type === Manufacturer::TYPE) {
-            $elements = $result->getManufacturers();
-        } elseif ($type === Brand::TYPE) {
-            $elements = $result->getBrands();
-        }
-
-        if (is_null($elements)) {
-            $this->fail("$type not defined properly");
-        }
-
-        return $elements;
     }
 }

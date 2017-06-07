@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use Puntmig\Search\Model\HttpTransportable;
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Query;
 use Puntmig\Search\Server\Core\DeleteRepository;
 use Puntmig\Search\Server\Core\IndexRepository;
@@ -121,22 +123,15 @@ class ApiController
      * Add objects.
      *
      * @param Request $request
-     * @param string  $parameterName
-     * @param string  $objectNamespace
-     * @param string  $method
      *
      * @return JsonResponse
      */
-    public function index(
-        Request $request,
-        string $parameterName,
-        string $objectNamespace,
-        string $method
-    ) {
+    public function index(Request $request)
+    {
         $objects = $this->checkRequestQuality(
             $request,
             'request',
-            $parameterName
+            'items'
         );
 
         if ($objects instanceof Response) {
@@ -148,35 +143,28 @@ class ApiController
          */
         $this
             ->indexRepository
-            ->$method(
-                array_map(function (array $object) use ($objectNamespace) {
-                    return $objectNamespace::createFromArray($object);
+            ->addItems(
+                array_map(function (array $object) {
+                    return Item::createFromArray($object);
                 }, $objects)
             );
 
-        return new JsonResponse('Objects indexed', 200);
+        return new JsonResponse('Items indexed', 200);
     }
 
     /**
      * Remove objects.
      *
      * @param Request $request
-     * @param string  $parameterName
-     * @param string  $objectNamespace
-     * @param string  $method
      *
      * @return JsonResponse
      */
-    public function delete(
-        Request $request,
-        string $parameterName,
-        string $objectNamespace,
-        string $method
-    ) {
+    public function delete(Request $request)
+    {
         $objects = $this->checkRequestQuality(
             $request,
             'request',
-            $parameterName
+            'items'
         );
 
         if ($objects instanceof Response) {
@@ -188,13 +176,13 @@ class ApiController
          */
         $this
             ->deleteRepository
-            ->$method(
-                array_map(function (array $object) use ($objectNamespace) {
-                    return $objectNamespace::createFromArray($object);
+            ->deleteItems(
+                array_map(function (array $object) {
+                    return ItemUUID::createFromArray($object);
                 }, $objects)
             );
 
-        return new JsonResponse('Objects removed', 200);
+        return new JsonResponse('Items deleted', 200);
     }
 
     /**

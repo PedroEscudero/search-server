@@ -1,4 +1,7 @@
 services:
 
+    #
+    # Elastica related services
+    #
     search_bundle.elastica_wrapper:
         class: Puntmig\Search\Server\Elastica\ElasticaWrapper

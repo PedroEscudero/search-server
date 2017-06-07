@@ -16,9 +16,6 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\Product;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
 
@@ -28,72 +25,63 @@ use Puntmig\Search\Query\Query;
 trait FiltersTest
 {
     /**
-     * Test family filter.
+     * Filter by simple fields.
      */
-    public function testFamilyFilter()
+    public function testFilterBySimpleFields()
     {
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['product'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByIds(['1'])),
+            ['?1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterByIds(['1', '2'])),
             ['?1', '?2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['book'])),
-            Product::TYPE,
-            ['?3', '!1', '!2', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['book', 'products']))->getProducts()
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['_nonexistent']))->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['_nonexistent'])->filterByFamilies([])),
-            Product::TYPE,
-            ['?3', '?1', '?2', '?4', '?5']
         );
     }
 
     /**
-     * Test at least one family filter.
+     * Filter by metadata fields.
      */
-    public function testAtLeastFamilyFilter()
+    public function testFilterBydataFields()
     {
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['product'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
+            $repository->query(Query::createMatchAll()->filterBy('i', 'field_integer', ['10'], Filter::MUST_ALL)),
+            ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['book'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?3', '!1', '!2', '!4', '!5']
+            $repository->query(Query::createMatchAll()->filterBy('b', 'field_boolean', ['true'], Filter::MUST_ALL)),
+            ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['book', 'product'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?3', '?1', '?2', '!4', '!5']
+            $repository->query(Query::createMatchAll()->filterBy('k', 'field_keyword', ['my_keyword'], Filter::MUST_ALL)),
+            ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['book', 'product', '_nonexistent'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?3', '?1', '?2', '!4', '!5']
+            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow'], Filter::AT_LEAST_ONE)),
+            ['!1', '!2', '?3', '!4', '?5']
         );
 
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByFamilies(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow', 'red'], Filter::MUST_ALL)),
+            ['!1', '!2', '!3', '!4', '?5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow', 'nonexistent'], Filter::MUST_ALL)),
+            ['!1', '!2', '!3', '!4', '!5']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['nonexistent'], Filter::AT_LEAST_ONE)),
+            ['!1', '!2', '!3', '!4', '!5']
         );
     }
 
@@ -105,277 +93,27 @@ trait FiltersTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5', '!800']
+            $repository->query(Query::createMatchAll()->filterByTypes(['product'])),
+            ['?1', '?2', '!3', '!4', '!5', '!800']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE])),
-            Product::TYPE,
-            ['!3', '!1', '!2', '!4', '!5']
+            $repository->query(Query::createMatchAll()->filterByTypes(['product', 'book'])),
+            ['?1', '?2', '?3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Category::TYPE])),
-            Product::TYPE,
-            ['!3', '!1', '!2', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Category::TYPE])),
-            Category::TYPE,
-            ['?1', '?2', '?3', '?50', '?66', '?777', '?778', '?800']
+            $repository->query(Query::createMatchAll()->filterByTypes(['book'])),
+            ['!1', '!2', '?3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE]))->getCategories()
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes(['_nonexistent']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByTypes(['_nonexistent']))->getItems()
         );
 
         $repository->setKey(self::$anotherKey);
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE]))->getProducts()
-        );
-    }
-
-    /**
-     * Test type filter.
-     */
-    public function testAtLeastOneTypeFilter()
-    {
-        $repository = static::$repository;
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5', '!800']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE], Filter::AT_LEAST_ONE)),
-            Category::TYPE,
-            ['?1', '?2', '?3', '?50', '?66', '?777', '?778', '?800']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE, Category::TYPE, Brand::TYPE], Filter::AT_LEAST_ONE)),
-            Brand::TYPE,
-            ['?444']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE))->getCategories()
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes(['_nonexistent'], Filter::AT_LEAST_ONE))->getProducts()
-        );
-
-        $repository->setKey(self::$anotherKey);
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes([Product::TYPE], Filter::AT_LEAST_ONE))->getProducts()
-        );
-    }
-
-    /**
-     * Test category filter.
-     */
-    public function testCategoryFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['1'])),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByCategories(['_4578943']))->getProducts()
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByCategories(['1', '_4578943']))->getProducts()
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['1', '2'])),
-            Product::TYPE,
-            ['?1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['3'])),
-            Product::TYPE,
-            ['?2', '!1', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['1', '_4578943'])->filterByCategories([])),
-            Product::TYPE,
-            ['?2', '?1', '?3', '?4', '?5']
-        );
-
-        $repository->setKey(self::$anotherKey);
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByCategories(['2', '3']))->getProducts()
-        );
-    }
-
-    /**
-     * Test at least one category filter.
-     */
-    public function testAtLeastOneCategoryFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['1'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByCategories(['_4578943'], Filter::AT_LEAST_ONE))->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['1', '_4578943'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByCategories(['2', '3', '800'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '?5']
-        );
-    }
-
-    /**
-     * Test manufacturer filter.
-     */
-    public function testManufacturerFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1', '2'], Filter::MUST_ALL))->getProducts()
-        );
-
-        $this->assertEmpty(
-             $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::MUST_ALL))->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::MUST_ALL)->filterByManufacturers([])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5']
-        );
-
-        $repository->setKey(self::$anotherKey);
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1'], Filter::MUST_ALL))->getProducts()
-        );
-    }
-
-    /**
-     * Test at least one manufacturer filter.
-     */
-    public function testAtLeastOneManufacturerFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByManufacturers(['1', '2', '3', '444'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '?3', '!4', '?5']
-        );
-
-        $this->assertEmpty(
-             $repository->query(Query::createMatchAll()->filterByManufacturers(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
-        );
-    }
-
-    /**
-     * Test brand filter.
-     */
-    public function testBrandFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1', '2'], Filter::MUST_ALL))->getProducts()
-        );
-
-        $this->assertEmpty(
-             $repository->query(Query::createMatchAll()->filterByBrands(['_4543543'], Filter::MUST_ALL))->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByBrands(['_4543543'], Filter::MUST_ALL)->filterByBrands([])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5']
-        );
-
-        $repository->setKey(self::$anotherKey);
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1'], Filter::MUST_ALL))->getProducts()
-        );
-    }
-
-    /**
-     * Test at least one brand filter.
-     */
-    public function testAtLeastOneBrandFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByBrands(['1', '2', '3', '10'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '!5']
-        );
-
-        $this->assertEmpty(
-             $repository->query(Query::createMatchAll()->filterByBrands(['_4543543'], Filter::AT_LEAST_ONE))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByTypes(['product']))->getItems()
         );
     }
 
@@ -387,261 +125,46 @@ trait FiltersTest
         $repository = static::$repository;
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['1000..2000'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1000..2000'])),
             ['!1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['1000..2001'])->filterByFamilies(['book'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1000..2001'])->filterByTypes(['book'])),
             ['!1', '!2', '?3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['900..1900'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['900..1900'])),
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['100..200']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['100..200']))->getItems()
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['0..1']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..1']))->getItems()
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['0..-1'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1'])),
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['1..-1'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1..-1'])),
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['0..0'])->filterByPriceRange([], ['0..-1'])),
-            Product::TYPE,
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..0'])->filterByRange('price', 'price', [], ['0..-1'])),
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $repository->setKey(self::$anotherKey);
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByPriceRange([], ['0..-1']))->getProducts()
+            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1']))->getItems()
         );
-    }
-
-    /**
-     * Test tags filter.
-     */
-    public function testTagFilter()
-    {
-        $repository = static::$repository;
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new'])),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt'])),
-            Product::TYPE,
-            ['?1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent']))->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()
-                ->filterByTags('_', $this->allFilters(), ['new', 'shirt', '_nonexistent'])
-                ->filterByTags('_', $this->allFilters(), ['new'])
-            ),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
-        );
-
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()
-                ->filterByTags('_1', $this->allFilters(), ['kids'])
-                ->filterByTags('_2', $this->allFilters(), ['sugar', 'last_hour'])
-            )->getProducts()
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()
-                ->filterByTags('_1', $this->allFilters(), ['kids'])
-                ->filterByTags('_2', $this->allFilters(), ['sugar', 'last_hour'], Filter::AT_LEAST_ONE)
-            ),
-            Product::TYPE,
-            ['!1', '!2', '?3', '!4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()
-                ->filterByTags('_', $this->allFilters(), ['sugar', 'kids', 'new'], Filter::AT_LEAST_ONE)
-            ),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5']
-        );
-
-        $repository->setKey(self::$anotherKey);
-        $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTags('_', $this->allFilters(), ['new']))->getProducts()
-        );
-    }
-
-    /**
-     * Test store filter.
-     */
-    public function testStoresFilter()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['1', '2'])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['1'])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['2'])),
-            Product::TYPE,
-            ['?1', '?2', '!3', '?4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['3'])),
-            Product::TYPE,
-            ['!1', '!2', '!3', '!4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['3', '4'])),
-            Product::TYPE,
-            ['!1', '!2', '!3', '!4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['1', '3', '4'])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '!4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['1', '2', '3', '4'])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['1', '2', '3', '4', '5'])),
-            Product::TYPE,
-            ['?1', '?2', '?3', '?4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByStores(['5'])),
-            Product::TYPE,
-            ['!1', '!2', '!3', '!4', '!5']
-        );
-    }
-
-    /**
-     * Filter by simple fields.
-     */
-    public function testFilterBySimpleFields()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('id', ['1'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['?1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('id', ['1', '2'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['?1', '?2', '!3', '!4', '!5']
-        );
-    }
-
-    /**
-     * Filter by metadata fields.
-     */
-    public function testFilterByMetadataFields()
-    {
-        $repository = static::$repository;
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('field_integer', ['10'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['?1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('field_boolean', ['1'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['?1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('field_keyword', ['my_keyword'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['?1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('color', ['yellow'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['!1', '!2', '?3', '!4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('color', ['yellow', 'red'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['!1', '!2', '!3', '!4', '?5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('color', ['yellow', 'nonexistent'], Filter::MUST_ALL)),
-            Product::TYPE,
-            ['!1', '!2', '!3', '!4', '!5']
-        );
-
-        $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByMeta('color', ['nonexistent'], Filter::AT_LEAST_ONE)),
-            Product::TYPE,
-            ['!1', '!2', '!3', '!4', '!5']
-        );
-    }
-
-    /**
-     * Get all filters.
-     *
-     * @return string[]
-     */
-    private function allFilters() : array
-    {
-        return [
-            'new',
-            'shirt',
-            'last_hour',
-            'kids',
-            'sugar',
-        ];
     }
 }

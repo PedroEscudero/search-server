@@ -25,11 +25,7 @@ use Puntmig\Search\Geo\CoordinateAndDistance;
 use Puntmig\Search\Geo\LocationRange;
 use Puntmig\Search\Geo\Polygon;
 use Puntmig\Search\Geo\Square;
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Model\Item;
 use Puntmig\Search\Query\Aggregation as QueryAggregation;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
@@ -59,6 +55,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
         $this->addFilters(
             $boolQuery,
             $query->getFilters(),
+            $query->getFilterFields(),
             null,
             false
         );
@@ -72,7 +69,8 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $this->addAggregations(
                 $mainQuery,
                 $query->getAggregations(),
-                $query->getFilters()
+                $query->getFilters(),
+                $query->getFilterFields()
             );
         }
 
@@ -113,75 +111,37 @@ class QueryRepository extends ElasticaWithKeyWrapper
          * @TODO Move this if/else into another place
          */
         if ($query->areAggregationsEnabled()) {
-            $allProductsAggregation = $elasticaResults['aggregations']['all']['all_products'];
-            unset($elasticaResults['aggregations']['all']['all_products']);
             $resultAggregations = $elasticaResults['aggregations']['all'];
-            $commonAggregations = $this->getCommonAggregations($allProductsAggregation);
             unset($resultAggregations['common']);
 
             $result = new Result(
                 $query,
                 $elasticaResults['aggregations']['all']['doc_count'],
-                $allProductsAggregation['doc_count'],
-                $elasticaResults['total_hits'],
-                $commonAggregations['min_price'],
-                $commonAggregations['max_price'],
-                $commonAggregations['price_average'],
-                $commonAggregations['rating_average']
+                $elasticaResults['total_hits']
             );
         } else {
             $result = new Result(
                 $query,
-                0, 0,
-                $elasticaResults['total_hits'],
-                0, 0, 0, 0
+                0,
+                $elasticaResults['total_hits']
             );
         }
 
         /**
          * @var ElasticaResult $elasticaResult
          */
-        foreach ($elasticaResults['results'] as $elasticaResult) {
+        foreach ($elasticaResults['items'] as $elasticaResult) {
             $source = $elasticaResult->getSource();
-            switch ($elasticaResult->getType()) {
-                case Product::TYPE:
-
-                    /**
-                     * We should find a possible distance.
-                     */
-                    if (
-                        isset($elasticaResult->getParam('sort')[0]) &&
-                        is_float($elasticaResult->getParam('sort')[0])
-                    ) {
-                        $source['distance'] = $elasticaResult->getParam('sort')[0];
-                    }
-
-                    $result->addProduct(
-                        Product::createFromArray($source)
-                    );
-                    break;
-                case Category::TYPE:
-                    $result->addCategory(
-                        Category::createFromArray($source)
-                    );
-                    break;
-                case Manufacturer::TYPE:
-                    $result->addManufacturer(
-                        Manufacturer::createFromArray($source)
-                    );
-                    break;
-                case Brand::TYPE:
-                    $brand = Brand::createFromArray($source);
-                    if ($brand instanceof Brand) {
-                        $result->addBrand($brand);
-                    }
-                    break;
-                case Tag::TYPE:
-                    $result->addTag(
-                        Tag::createFromArray($source)
-                    );
-                    break;
+            if (
+                isset($elasticaResult->getParam('sort')[0]) &&
+                is_float($elasticaResult->getParam('sort')[0])
+            ) {
+                $source['distance'] = $elasticaResult->getParam('sort')[0];
             }
+
+            $result->addItem(
+                Item::createFromArray($source)
+            );
         }
 
         /**
@@ -190,7 +150,6 @@ class QueryRepository extends ElasticaWithKeyWrapper
         if ($query->areAggregationsEnabled()) {
             $aggregations = new ResultAggregations($resultAggregations['doc_count']);
             unset($resultAggregations['doc_count']);
-
             foreach ($resultAggregations as $aggregationName => $resultAggregation) {
                 $queryAggregation = $query->getAggregation($aggregationName);
                 $relatedFilter = $query->getFilter($aggregationName);
@@ -220,8 +179,8 @@ class QueryRepository extends ElasticaWithKeyWrapper
                         in_array($bucket['key'], $queryAggregation->getSubgroup())
                     ) {
                         $aggregation->addCounter(
-                            $bucket['key'],
-                            $bucket['doc_count']
+                            (string) $bucket['key'],
+                            (int) $bucket['doc_count']
                         );
                     }
                 }
@@ -254,33 +213,18 @@ class QueryRepository extends ElasticaWithKeyWrapper
     }
 
     /**
-     * Get common aggregations from ElasticaResult.
-     *
-     * @param array $elasticaResult
-     *
-     * @return array
-     */
-    private function getCommonAggregations(array $elasticaResult) : array
-    {
-        return [
-            'min_price' => (int) $elasticaResult['common']['min_price']['value'],
-            'max_price' => (int) $elasticaResult['common']['max_price']['value'],
-            'price_average' => (float) $elasticaResult['common']['price_average']['value'],
-            'rating_average' => (float) $elasticaResult['common']['rating_average']['value'],
-        ];
-    }
-
-    /**
      * Add filters to a Query.
      *
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter[]                $filters
+     * @param string[]                $filterFields
      * @param null|string             $filterToIgnore
      * @param bool                    $takeInAccountDefinedTermFilter
      */
     private function addFilters(
         ElasticaQuery\BoolQuery $boolQuery,
         array $filters,
+        array $filterFields,
         ? string $filterToIgnore,
         bool $takeInAccountDefinedTermFilter
     ) {
@@ -293,6 +237,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $this->addFilter(
                 $boolQuery,
                 $filter,
+                $filterFields,
                 $onlyAddDefinedTermFilter,
                 $takeInAccountDefinedTermFilter
             );
@@ -304,12 +249,14 @@ class QueryRepository extends ElasticaWithKeyWrapper
      *
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter                  $filter
+     * @param string[]                $filterFields
      * @param bool                    $onlyAddDefinedTermFilter
      * @param bool                    $takeInAccountDefinedTermFilter
      */
     private function addFilter(
         ElasticaQuery\BoolQuery $boolQuery,
         Filter $filter,
+        array $filterFields,
         bool $onlyAddDefinedTermFilter,
         bool $takeInAccountDefinedTermFilter
     ) {
@@ -320,13 +267,17 @@ class QueryRepository extends ElasticaWithKeyWrapper
                 $match = new ElasticaQuery\MatchAll();
             } else {
                 $match = new ElasticaQuery\MultiMatch();
-                $match->setFields([
-                    'special_words^10',
-                    'ean^3',
-                    'first_level_searchable_data^2',
-                    'second_level_searchable_data^1',
-                    'indexed_metadata^1',
-                ])->setQuery($queryString);
+                $filterFields = empty($filterFields)
+                    ? [
+                        'indexed_metadata^1',
+                        'searchable_metadata^5',
+                        'exact_matching_metadata^10',
+                    ]
+                    : $filterFields;
+
+                $match
+                    ->setFields($filterFields)
+                    ->setQuery($queryString);
             }
             $boolQuery->addMust($match);
 
@@ -449,11 +400,6 @@ class QueryRepository extends ElasticaWithKeyWrapper
         string $value
     ) : ? ElasticaQuery\AbstractQuery {
         switch ($filter->getFilterType()) {
-            case Filter::TYPE_NESTED:
-                return $this->createdNestedTermFilter(
-                    $filter,
-                    $value
-                );
             case Filter::TYPE_FIELD:
                 return $this->createTermFilter(
                     $filter,
@@ -465,31 +411,6 @@ class QueryRepository extends ElasticaWithKeyWrapper
                     $value
                 );
         }
-    }
-
-    /**
-     * Adds terms filter given a BoolQuery.
-     *
-     * @param Filter $filter
-     * @param string $value
-     *
-     * @return ElasticaQuery\AbstractQuery
-     */
-    private function createdNestedTermFilter(
-        Filter $filter,
-        string $value
-    ) : ElasticaQuery\AbstractQuery {
-        list($path, $fieldName) = explode('.', $filter->getField(), 2);
-
-        $nestedQuery = new ElasticaQuery\Nested();
-        $nestedQuery->setPath($path);
-        $nestedQuery->setScoreMode('max');
-        $nestedQuery->setQuery($this->createTermFilter(
-            $filter,
-            $value
-        ));
-
-        return $nestedQuery;
     }
 
     /**
@@ -605,21 +526,19 @@ class QueryRepository extends ElasticaWithKeyWrapper
      * @param ElasticaQuery      $elasticaQuery
      * @param QueryAggregation[] $aggregations
      * @param Filter[]           $filters
+     * @param string[]           $filterFields
      */
     private function addAggregations(
         ElasticaQuery $elasticaQuery,
         array $aggregations,
-        array $filters
+        array $filters,
+        array $filterFields
     ) {
         $globalAggregation = new ElasticaAggregation\GlobalAggregation('all');
-        $productsAggregation = new ElasticaAggregation\Filter('all_products', new ElasticaQuery\Term(['_type' => Product::TYPE]));
-        $globalAggregation->addAggregation($productsAggregation);
         foreach ($aggregations as $aggregation) {
             $filterType = $aggregation->getFilterType();
             if ($filterType == Filter::TYPE_RANGE) {
                 $elasticaAggregation = $this->createRangeAggregation($aggregation);
-            } elseif ($filterType == Filter::TYPE_NESTED) {
-                $elasticaAggregation = $this->createNestedAggregation($aggregation);
             } else {
                 $elasticaAggregation = $this->createAggregation($aggregation);
             }
@@ -629,6 +548,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $this->addFilters(
                 $boolQuery,
                 $filters,
+                $filterFields,
                 $aggregation->getApplicationType() & Filter::AT_LEAST_ONE
                     ? $aggregation->getName()
                     : null,
@@ -641,64 +561,6 @@ class QueryRepository extends ElasticaWithKeyWrapper
         }
 
         $elasticaQuery->addAggregation($globalAggregation);
-        $this->addCommonAggregations($productsAggregation, $filters);
-    }
-
-    /**
-     * Add common aggregations.
-     *
-     * @param ElasticaAggregation\AbstractAggregation $productsAggregation
-     * @param Filter[]                                $filters
-     */
-    private function addCommonAggregations(
-        ElasticaAggregation\AbstractAggregation $productsAggregation,
-        array $filters
-    ) {
-        $commonAggregations = new ElasticaAggregation\Filter('common');
-        $boolQuery = new ElasticaQuery\BoolQuery();
-        $this->addFilters(
-            $boolQuery,
-            $filters,
-            '',
-            false
-        );
-        $commonAggregations->setFilter($boolQuery);
-
-        $minPriceAggregation = new ElasticaAggregation\Min('min_price');
-        $minPriceAggregation->setField('real_price');
-        $commonAggregations->addAggregation($minPriceAggregation);
-
-        $maxPriceAggregation = new ElasticaAggregation\Max('max_price');
-        $maxPriceAggregation->setField('real_price');
-        $commonAggregations->addAggregation($maxPriceAggregation);
-
-        $avgPriceAggregation = new ElasticaAggregation\Avg('price_average');
-        $avgPriceAggregation->setField('real_price');
-        $commonAggregations->addAggregation($avgPriceAggregation);
-
-        $ratingAverageAggregation = new ElasticaAggregation\Avg('rating_average');
-        $ratingAverageAggregation->setField('rating');
-        $commonAggregations->addAggregation($ratingAverageAggregation);
-
-        $productsAggregation->addAggregation($commonAggregations);
-    }
-
-    /**
-     * Create nested aggregation.
-     *
-     * @param QueryAggregation $aggregation
-     *
-     * @return ElasticaAggregation\AbstractAggregation
-     */
-    private function createNestedAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
-    {
-        $path = explode('.', $aggregation->getField())[0];
-        $nestedAggregation = new ElasticaAggregation\Nested($aggregation->getName(), $path);
-        $nestedAggregation->addAggregation(
-            $this->createAggregation($aggregation)
-        );
-
-        return $nestedAggregation;
     }
 
     /**
@@ -712,16 +574,8 @@ class QueryRepository extends ElasticaWithKeyWrapper
     {
         $termsAggregation = new ElasticaAggregation\Terms($aggregation->getName());
         $aggregationFields = explode('|', $aggregation->getField());
-        $fields = array_map(function ($field) use (&$oneField) {
-            $fieldParts = explode('.', $field);
-            return count($fieldParts) == 2
-                ? "'{$fieldParts[1]}##' + doc['$field'].value"
-                : "doc['$field'].value";
-        }, $aggregationFields);
-
-        count($aggregationFields) > 1
-            ? $termsAggregation->setScript('return ' . implode(' + "~~" + ', $fields))
-            : $termsAggregation->setField($aggregationFields[0]);
+        $termsAggregation->setField($aggregationFields[0]);
+        $termsAggregation->setSize(9999);
 
         return $termsAggregation;
     }

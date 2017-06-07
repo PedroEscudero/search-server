@@ -30,13 +30,13 @@ trait SuggestTest
     {
         $repository = static::$repository;
         $results = $repository->query(
-            Query::create('adi')
+            Query::create('barc')
                 ->enableSuggestions()
                 ->disableAggregations()
         );
 
         $this->assertSame(
-            ['Adidas'],
+            ['Barcelona'],
             $results->getSuggests()
         );
     }

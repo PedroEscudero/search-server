@@ -23,17 +23,18 @@ use Elastica\Type;
 use Elastica\Type\Mapping;
 use Exception;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\Tag;
-
 /**
  * Class ElasticaWrapper.
  */
 class ElasticaWrapper
 {
+    /**
+     * @var string
+     *
+     * Item type
+     */
+    const ITEM_TYPE = 'item';
+
     /**
      * @var Client
      *
@@ -67,7 +68,7 @@ class ElasticaWrapper
     {
         return $this
             ->client
-            ->getIndex("indesky_$key");
+            ->getIndex("puntmig_$key");
     }
 
     /**
@@ -168,7 +169,7 @@ class ElasticaWrapper
             ]);
 
         return [
-            'results' => $queryResult->getResults(),
+            'items' => $queryResult->getResults(),
             'suggests' => $queryResult->getSuggests(),
             'aggregations' => $queryResult->getAggregations(),
             'total_hits' => $queryResult->getTotalHits(),
@@ -200,250 +201,73 @@ class ElasticaWrapper
         int $replicas = 1
     ) {
         $this->createIndex($key, $shards, $replicas);
-        $this->createProductIndexMapping($key);
-        $this->createCategoryIndexMapping($key);
-        $this->createManufacturerIndexMapping($key);
-        $this->createBrandIndexMapping($key);
-        $this->createTagIndexMapping($key);
+        $this->createItemIndexMapping($key);
         $this->refresh($key);
     }
 
     /**
-     * Create product index mapping.
+     * Create item index mapping.
      *
      * @param string $key
      */
-    private function createProductIndexMapping(string $key)
+    private function createItemIndexMapping(string $key)
     {
-        $productMapping = new Mapping();
-        $productMapping->setType($this->getType($key, Product::TYPE));
-        $productMapping->enableAllField(false);
-        $productMapping->setParam('dynamic_templates', [
-             [
+        $itemMapping = new Mapping();
+        $itemMapping->setType($this->getType($key, 'item'));
+        $itemMapping->enableAllField(false);
+        $itemMapping->setParam('dynamic_templates', [
+            [
                 'dynamic_metadata_as_keywords' => [
                     'path_match' => 'indexed_metadata.*',
+                    'match_mapping_type' => 'string',
                     'mapping' => [
                         'type' => 'keyword',
                     ],
                 ],
             ],
         ]);
-        $productMapping->setProperties([
-            'id' => ['type' => 'keyword'],
-            'family' => ['type' => 'keyword'],
-            'ean' => ['type' => 'keyword'],
-            'name' => ['type' => 'text', 'index' => false],
-            'slug' => ['type' => 'text', 'index' => false],
-            'sortable_name' => ['type' => 'keyword'],
-            'stock' => ['type' => 'integer', 'index' => false],
-            'description' => ['type' => 'text', 'index' => false],
-            'long_description' => ['type' => 'text', 'index' => false],
-            'price' => ['type' => 'float'],
-            'reduced_price' => ['type' => 'float'],
-            'real_price' => ['type' => 'float'],
-            'discount' => ['type' => 'float'],
-            'discount_percentage' => ['type' => 'integer'],
-            'currency' => ['type' => 'keyword'],
-            'image' => ['type' => 'keyword', 'index' => false],
-            'with_image' => ['type' => 'boolean'],
-            'rating' => ['type' => 'float'],
-            'updated_at' => ['type' => 'date'],
-            'coordinate' => ['type' => 'geo_point'],
-            'stores' => ['type' => 'string'],
-            'indexed_metadata' => [
+        $itemMapping->setProperties([
+            'uuid' => [
                 'type' => 'object',
-                'dynamic' => true,
+                'dynamic' => 'strict',
                 'include_in_all' => false,
+                'properties' => [
+                    'id' => [
+                        'type' => 'keyword',
+                    ],
+                    'type' => [
+                        'type' => 'keyword',
+                    ],
+                ],
             ],
+            'coordinate' => ['type' => 'geo_point'],
             'metadata' => [
                 'type' => 'object',
                 'dynamic' => true,
                 'enabled' => false,
             ],
-            'special_words' => [
+            'indexed_metadata' => [
+                'type' => 'object',
+                'dynamic' => true,
+                'include_in_all' => false,
+            ],
+            'searchable_metadata' => [
                 'type' => 'text',
+                'include_in_all' => false,
+                'analyzer' => 'default',
+                'search_analyzer' => 'standard',
+            ],
+            'exact_matching_metadata' => [
+                'type' => 'text',
+                'include_in_all' => false,
                 'analyzer' => 'standard',
                 'search_analyzer' => 'standard',
             ],
-            'manufacturers' => [
-                'type' => 'nested',
-                'dynamic' => 'strict',
-                'properties' => [
-                    'name' => [
-                        'type' => 'keyword',
-                    ],
-                    'id' => [
-                        'type' => 'keyword',
-                    ],
-                    'slug' => [
-                        'type' => 'keyword',
-                    ],
-                ],
-            ],
-            'brand' => [
-                'type' => 'object',
-                'dynamic' => 'strict',
-                'properties' => [
-                    'name' => [
-                        'type' => 'keyword',
-                    ],
-                    'id' => [
-                        'type' => 'keyword',
-                    ],
-                    'slug' => [
-                        'type' => 'keyword',
-                    ],
-                ],
-            ],
-            'categories' => [
-                'type' => 'nested',
-                'dynamic' => 'strict',
-                'properties' => [
-                    'name' => [
-                        'type' => 'keyword',
-                    ],
-                    'id' => [
-                        'type' => 'keyword',
-                    ],
-                    'level' => [
-                        'type' => 'integer',
-                    ],
-                    'slug' => [
-                        'type' => 'keyword',
-                    ],
-                ],
-            ],
-            'tags' => [
-                'type' => 'nested',
-                'dynamic' => 'strict',
-                'properties' => [
-                    'name' => [
-                        'type' => 'keyword',
-                    ],
-                ],
-            ],
-            'first_level_searchable_data' => [
-                'type' => 'text',
-                'analyzer' => 'default',
-                'search_analyzer' => 'standard',
-            ],
-            'second_level_searchable_data' => [
-                'type' => 'text',
-                'analyzer' => 'default',
-                'search_analyzer' => 'standard',
-            ],
             'suggest' => [
                 'type' => 'completion',
             ],
         ]);
 
-        $productMapping->send();
-    }
-
-    /**
-     * Create category index mapping.
-     *
-     * @param string $key
-     */
-    private function createCategoryIndexMapping(string $key)
-    {
-        $categoryMapping = new Mapping();
-        $categoryMapping->setType($this->getType($key, Category::TYPE));
-        $categoryMapping->enableAllField(false);
-        $categoryMapping->setProperties([
-            'id' => ['type' => 'keyword'],
-            'name' => ['type' => 'text', 'index' => false],
-            'slug' => ['type' => 'text', 'index' => false],
-            'level' => ['type' => 'integer', 'index' => false],
-            'first_level_searchable_data' => [
-                'type' => 'text',
-                'analyzer' => 'default',
-                'search_analyzer' => 'standard',
-            ],
-            'suggest' => [
-                'type' => 'completion',
-            ],
-        ]);
-
-        $categoryMapping->send();
-    }
-
-    /**
-     * Create manufacturer index mapping.
-     *
-     * @param string $key
-     */
-    private function createManufacturerIndexMapping(string $key)
-    {
-        $manufacturerMapping = new Mapping();
-        $manufacturerMapping->setType($this->getType($key, Manufacturer::TYPE));
-        $manufacturerMapping->enableAllField(false);
-        $manufacturerMapping->setProperties([
-            'id' => ['type' => 'keyword'],
-            'name' => ['type' => 'text', 'index' => false],
-            'slug' => ['type' => 'text', 'index' => false],
-            'first_level_searchable_data' => [
-                'type' => 'text',
-                'analyzer' => 'default',
-                'search_analyzer' => 'standard',
-            ],
-            'suggest' => [
-                'type' => 'completion',
-            ],
-        ]);
-
-        $manufacturerMapping->send();
-    }
-
-    /**
-     * Create brand index mapping.
-     *
-     * @param string $key
-     */
-    private function createBrandIndexMapping(string $key)
-    {
-        $brandMapping = new Mapping();
-        $brandMapping->setType($this->getType($key, Brand::TYPE));
-        $brandMapping->enableAllField(false);
-        $brandMapping->setProperties([
-            'id' => ['type' => 'keyword'],
-            'name' => ['type' => 'text', 'index' => false],
-            'slug' => ['type' => 'text', 'index' => false],
-            'first_level_searchable_data' => [
-                'type' => 'text',
-                'analyzer' => 'default',
-                'search_analyzer' => 'standard',
-            ],
-            'suggest' => [
-                'type' => 'completion',
-            ],
-        ]);
-
-        $brandMapping->send();
-    }
-
-    /**
-     * Create tag index mapping.
-     *
-     * @param string $key
-     */
-    private function createTagIndexMapping(string $key)
-    {
-        $tagMapping = new Mapping();
-        $tagMapping->setType($this->getType($key, Tag::TYPE));
-        $tagMapping->enableAllField(false);
-        $tagMapping->setProperties([
-            'name' => ['type' => 'text', 'index' => false],
-            'first_level_searchable_data' => [
-                'type' => 'text',
-                'analyzer' => 'default',
-                'search_analyzer' => 'standard',
-            ],
-            'suggest' => [
-                'type' => 'completion',
-            ],
-        ]);
-
-        $tagMapping->send();
+        $itemMapping->send();
     }
 }

@@ -19,12 +19,8 @@ namespace Puntmig\Search\Server\Core;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Category;
 use Puntmig\Search\Model\Coordinate;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\Tag;
+use Puntmig\Search\Model\Item;
 use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
@@ -46,15 +42,15 @@ class IndexRepository extends ElasticaWithKeyWrapper
     }
 
     /**
-     * Generate product documents.
+     * Generate items documents.
      *
-     * @param Product[] $products
+     * @param Item[] $items
      */
-    public function addProducts(array $products)
+    public function addItems(array $items)
     {
         $documents = [];
-        foreach ($products as $product) {
-            $documents[] = $this->createProductDocument($product);
+        foreach ($items as $item) {
+            $documents[] = $this->createItemDocument($item);
         }
 
         if (empty($documents)) {
@@ -63,298 +59,39 @@ class IndexRepository extends ElasticaWithKeyWrapper
 
         $this
             ->elasticaWrapper
-            ->getType($this->key, Product::TYPE)
+            ->getType($this->key, ElasticaWrapper::ITEM_TYPE)
             ->addDocuments($documents);
 
         $this->refresh();
     }
 
     /**
-     * Create product document.
+     * Create item document.
      *
-     * @param Product $product
+     * @param Item $item
      *
      * @return Document
      */
-    private function createProductDocument(Product $product) : Document
+    private function createItemDocument(Item $item) : Document
     {
-        $composedProductId = $product
-            ->getProductReference()
-            ->composeUUID();
-
-        $productSuggest = [];
-        $productDocument = [
-            'id' => $product->getId(),
-            'family' => $product->getFamily(),
-            'ean' => $product->getEan(),
-            'name' => $product->getName(),
-            'slug' => $product->getSlug(),
-            'sortable_name' => $product->getName(),
-            'description' => $product->getDescription(),
-            'long_description' => $product->getLongDescription(),
-            'price' => $product->getPrice(),
-            'reduced_price' => $product->getReducedPrice(),
-            'real_price' => $product->getRealPrice(),
-            'discount' => $product->getDiscount(),
-            'discount_percentage' => $product->getDiscountPercentage(),
-            'currency' => $product->getCurrency(),
-            'stock' => $product->getStock(),
-            'image' => $product->getImage(),
-            'with_image' => !empty($product->getImage()),
-            'rating' => $product->getRating(),
-            'updated_at' => $product->getUpdatedAt()->format(DATE_ATOM),
-            'coordinate' => $product->getCoordinate() instanceof Coordinate
-                ? $product
+        $uuid = $item->getUUID();
+        $itemDocument = [
+            'uuid' => [
+                'id' => $uuid->getId(),
+                'type' => $uuid->getType(),
+            ],
+            'coordinate' => $item->getCoordinate() instanceof Coordinate
+                ? $item
                     ->getCoordinate()
                     ->toArray()
                 : null,
-            'stores' => $product->getStores(),
-            'metadata' => $product->getMetadata(),
-            'indexed_metadata' => $product->getIndexedMetadata(),
-            'special_words' => $product->getSpecialWords(),
-            'extra_boost' => $product->getExtraBoost(),
-            'categories' => [],
-            'tags' => [],
-            'first_level_searchable_data' => $product->getFirstLevelSearchableData(),
-            'second_level_searchable_data' => $product->getSecondLevelSearchableData(),
+            'metadata' => array_filter($item->getMetadata()),
+            'indexed_metadata' => array_filter($item->getIndexedMetadata()),
+            'searchable_metadata' => array_filter($item->getSearchableMetadata()),
+            'exact_matching_metadata' => array_filter($item->getExactMatchingMetadata()),
+            'suggest' => array_filter($item->getSuggest()),
         ];
 
-        $productSuggest[] = $product->getName();
-
-        foreach ($product->getCategories() as $category) {
-            $productDocument['categories'][] = [
-                'id' => $category->getId(),
-                'name' => $category->getName(),
-                'slug' => $category->getSlug(),
-                'level' => $category->getLevel(),
-            ];
-            $productSuggest[] = $category->getName();
-        }
-
-        foreach ($product->getTags() as $tag) {
-            $productDocument['tags'][] = [
-                'name' => $tag->getName(),
-            ];
-            $productSuggest[] = $tag->getName();
-        }
-
-        foreach ($product->getManufacturers() as $manufacturer) {
-            $productDocument['manufacturers'][] = [
-                'id' => $manufacturer->getId(),
-                'name' => $manufacturer->getName(),
-                'slug' => $manufacturer->getSlug(),
-            ];
-            $productSuggest[] = $manufacturer->getName();
-        }
-
-        $brand = $product->getBrand();
-        if ($brand instanceof Brand) {
-            $productDocument['brand'] = [
-                'id' => $brand->getId(),
-                'name' => $brand->getName(),
-                'slug' => $brand->getSlug(),
-            ];
-            $productSuggest[] = $brand->getName();
-        }
-
-        $productDocument['suggest'] = array_filter($productSuggest);
-        $document = new ElasticaDocument($composedProductId, $productDocument);
-
-        return $document;
-    }
-
-    /**
-     * Add categories.
-     *
-     * @param Category[] $categories
-     */
-    public function addCategories(array $categories)
-    {
-        $documents = [];
-        foreach ($categories as $category) {
-            $documents[] = $this->createCategoryDocument($category);
-        }
-
-        if (empty($documents)) {
-            return;
-        }
-
-        $this
-            ->elasticaWrapper
-            ->getType($this->key, Category::TYPE)
-            ->addDocuments($documents);
-
-        $this->refresh();
-    }
-
-    /**
-     * Create category document.
-     *
-     * @param Category $category
-     *
-     * @return Document
-     */
-    private function createCategoryDocument(Category $category) : Document
-    {
-        $document = new ElasticaDocument(
-            $category
-                ->getCategoryReference()
-                ->composeUUID(),
-            array_filter([
-                'id' => $category->getId(),
-                'name' => $category->getName(),
-                'slug' => $category->getSlug(),
-                'level' => $category->getLevel(),
-                'first_level_searchable_data' => $category->getFirstLevelSearchableData(),
-                'suggest' => $category->getName(),
-            ])
-        );
-
-        return $document;
-    }
-
-    /**
-     * Add manufacturers.
-     *
-     * @param Manufacturer[] $manufacturers
-     */
-    public function addManufacturers(array $manufacturers)
-    {
-        $documents = [];
-        foreach ($manufacturers as $manufacturer) {
-            $documents[] = $this->createManufacturerDocument($manufacturer);
-        }
-
-        if (empty($documents)) {
-            return;
-        }
-
-        $this
-            ->elasticaWrapper
-            ->getType($this->key, Manufacturer::TYPE)
-            ->addDocuments($documents);
-
-        $this->refresh();
-    }
-
-    /**
-     * Index manufacturer.
-     *
-     * @param Manufacturer $manufacturer
-     *
-     * @return Document
-     */
-    private function createManufacturerDocument(Manufacturer $manufacturer) : Document
-    {
-        $document = new ElasticaDocument(
-            $manufacturer
-                ->getManufacturerReference()
-                ->composeUUID(),
-            array_filter([
-                'id' => $manufacturer->getId(),
-                'name' => $manufacturer->getName(),
-                'slug' => $manufacturer->getSlug(),
-                'first_level_searchable_data' => $manufacturer->getFirstLevelSearchableData(),
-                'suggest' => $manufacturer->getName(),
-            ])
-        );
-
-        return $document;
-    }
-
-    /**
-     * Add brands.
-     *
-     * @param Brand[] $brands
-     */
-    public function addBrands(array $brands)
-    {
-        $documents = [];
-        foreach ($brands as $brand) {
-            $documents[] = $this->createBrandDocument($brand);
-        }
-
-        if (empty($documents)) {
-            return;
-        }
-
-        $this
-            ->elasticaWrapper
-            ->getType($this->key, Brand::TYPE)
-            ->addDocuments($documents);
-
-        $this->refresh();
-    }
-
-    /**
-     * Index brand.
-     *
-     * @param Brand $brand
-     *
-     * @return Document
-     */
-    private function createBrandDocument(Brand $brand) : Document
-    {
-        $document = new ElasticaDocument(
-            $brand
-                ->getBrandReference()
-                ->composeUUID(),
-            array_filter([
-                'id' => $brand->getId(),
-                'name' => $brand->getName(),
-                'slug' => $brand->getSlug(),
-                'first_level_searchable_data' => $brand->getFirstLevelSearchableData(),
-                'suggest' => $brand->getName(),
-            ])
-        );
-
-        return $document;
-    }
-
-    /**
-     * Add tags.
-     *
-     * @param Tag[] $tags
-     */
-    public function addTags(array $tags)
-    {
-        $documents = [];
-        foreach ($tags as $tag) {
-            $documents[] = $this->createTagDocument($tag);
-        }
-
-        if (empty($documents)) {
-            return;
-        }
-
-        $this
-            ->elasticaWrapper
-            ->getType($this->key, Tag::TYPE)
-            ->addDocuments($documents);
-
-        $this->refresh();
-    }
-
-    /**
-     * Index tag.
-     *
-     * @param Tag $tag
-     *
-     * @return Document
-     */
-    private function createTagDocument(Tag $tag) : Document
-    {
-        $document = new ElasticaDocument(
-            $tag
-                ->getTagReference()
-                ->composeUUID(),
-            array_filter([
-                'name' => $tag->getName(),
-                'first_level_searchable_data' => $tag->getFirstLevelSearchableData(),
-                'suggest' => $tag->getName(),
-            ])
-        );
-
-        return $document;
+        return new ElasticaDocument($uuid->composeUUID(), $itemDocument);
     }
 }

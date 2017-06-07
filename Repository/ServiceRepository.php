@@ -16,16 +16,8 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Repository;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\BrandReference;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\CategoryReference;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\ManufacturerReference;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\ProductReference;
-use Puntmig\Search\Model\Tag;
-use Puntmig\Search\Model\TagReference;
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Query;
 use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Result\Result;
@@ -93,117 +85,25 @@ class ServiceRepository extends Repository
     }
 
     /**
-     * Flush products.
+     * Flush items.
      *
-     * @param Product[]          $productsToUpdate
-     * @param ProductReference[] $productsToDelete
+     * @param Item[]     $itemsToUpdate
+     * @param ItemUUID[] $itemsToDelete
      */
-    protected function flushProducts(
-        array $productsToUpdate,
-        array $productsToDelete
+    protected function flushItems(
+        array $itemsToUpdate,
+        array $itemsToDelete
     ) {
-        if (!empty($productsToUpdate)) {
+        if (!empty($itemsToUpdate)) {
             $this
                 ->indexRepository
-                ->addProducts($productsToUpdate);
+                ->addItems($itemsToUpdate);
         }
 
-        if (!empty($productsToDelete)) {
+        if (!empty($itemsToDelete)) {
             $this
                 ->deleteRepository
-                ->deleteProducts($productsToDelete);
-        }
-    }
-
-    /**
-     * Flush categories.
-     *
-     * @param Category[]          $categoriesToUpdate
-     * @param CategoryReference[] $categoriesToDelete
-     */
-    protected function flushCategories(
-        array $categoriesToUpdate,
-        array $categoriesToDelete
-    ) {
-        if (!empty($categoriesToUpdate)) {
-            $this
-                ->indexRepository
-                ->addCategories($categoriesToUpdate);
-        }
-
-        if (!empty($categoriesToDelete)) {
-            $this
-                ->deleteRepository
-                ->deleteCategories($categoriesToDelete);
-        }
-    }
-
-    /**
-     * Flush manufacturers.
-     *
-     * @param Manufacturer[]          $manufacturersToUpdate
-     * @param ManufacturerReference[] $manufacturersToDelete
-     */
-    protected function flushManufacturers(
-        array $manufacturersToUpdate,
-        array $manufacturersToDelete
-    ) {
-        if (!empty($manufacturersToUpdate)) {
-            $this
-                ->indexRepository
-                ->addManufacturers($manufacturersToUpdate);
-        }
-
-        if (!empty($manufacturersToDelete)) {
-            $this
-                ->deleteRepository
-                ->deleteManufacturers($manufacturersToDelete);
-        }
-    }
-
-    /**
-     * Flush brands.
-     *
-     * @param Brand[]          $brandsToUpdate
-     * @param BrandReference[] $brandsToDelete
-     */
-    protected function flushBrands(
-        array $brandsToUpdate,
-        array $brandsToDelete
-    ) {
-        if (!empty($brandsToUpdate)) {
-            $this
-                ->indexRepository
-                ->addBrands($brandsToUpdate);
-        }
-
-        if (!empty($brandsToDelete)) {
-            $this
-                ->deleteRepository
-                ->deleteBrands($brandsToDelete);
-        }
-    }
-
-    /**
-     * Flush tags.
-     *
-     * @param Tag[]          $tagsToUpdate
-     * @param TagReference[] $tagsToDelete
-     */
-    protected function flushTags(
-        array $tagsToUpdate,
-        array $tagsToDelete
-    ) {
-        if (!empty($tagsToUpdate)) {
-            $this
-                ->indexRepository
-                ->addTags($tagsToUpdate);
-        }
-
-        if (!empty($tagsToDelete)) {
-            $this
-                ->deleteRepository
-                ->deleteTags($tagsToDelete);
+                ->deleteItems($itemsToDelete);
         }
     }
 

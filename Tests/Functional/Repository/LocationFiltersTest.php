@@ -20,7 +20,6 @@ use Puntmig\Search\Geo\CoordinateAndDistance;
 use Puntmig\Search\Geo\Polygon;
 use Puntmig\Search\Geo\Square;
 use Puntmig\Search\Model\Coordinate;
-use Puntmig\Search\Model\Product;
 use Puntmig\Search\Query\Query;
 
 /**
@@ -44,7 +43,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['!1', '!2', '!3', '!4', '!5']
         );
 
@@ -57,7 +55,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['!1', '!2', '?3', '!4', '!5']
         );
 
@@ -70,7 +67,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['!1', '!2', '?3', '?4', '!5']
         );
 
@@ -83,7 +79,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['!1', '?2', '?3', '?4', '!5']
         );
 
@@ -96,7 +91,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['?1', '?2', '?3', '?4', '!5']
         );
 
@@ -109,7 +103,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
     }
@@ -130,7 +123,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['!1', '!2', '!3', '!4', '!5']
         );
 
@@ -143,7 +135,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['?1', '?2', '?3', '?4', '!5']
         );
 
@@ -156,7 +147,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['?1', '?2', '?3', '?4', '?5']
         );
     }
@@ -179,7 +169,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['!1', '!2', '!3', '!4', '!5']
         );
 
@@ -194,7 +183,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['?1', '?2', '?3', '?4', '!5']
         );
 
@@ -209,7 +197,6 @@ trait LocationFiltersTest
                 [],
                 []
             )),
-            Product::TYPE,
             ['?1', '?2', '!3', '!4', '?5']
         );
     }
