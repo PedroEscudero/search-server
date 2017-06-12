@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Model\Metadata;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
 
@@ -155,5 +158,45 @@ trait AggregationsTest
             ->getAggregations();
 
         $this->assertCount(3, $aggregations->getAggregation('author')->getCounters());
+    }
+
+    /**
+     * Test aggregation with metadata format conversion.
+     */
+    public function testAggregationWithMetadataFormatConversion()
+    {
+        $repository = static::$repository;
+        $repository->addItem(Item::create(
+            new ItemUUID('1', 'testing'),
+            [],
+            [
+                'author_data' => [
+                    0 => Metadata::toMetadata([
+                        'id' => 777,
+                        'name' => 'Engonga',
+                        'last_name' => 'Efervescencio',
+                    ]),
+                ],
+            ]
+        ));
+
+        $repository->flush();
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'author',
+                        'author_data',
+                        FILTER::AT_LEAST_ONE
+                    )
+            )
+            ->getAggregations();
+
+        $this->assertCount(4, $aggregations->getAggregation('author')->getCounters());
+
+        /**
+         * Reseting scenario for next calls.
+         */
+        self::resetScenario();
     }
 }
