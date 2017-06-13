@@ -87,8 +87,8 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 : null,
             'metadata' => array_filter($item->getMetadata()),
             'indexed_metadata' => array_filter($item->getIndexedMetadata()),
-            'searchable_metadata' => array_filter($item->getSearchableMetadata()),
-            'exact_matching_metadata' => array_filter($item->getExactMatchingMetadata()),
+            'searchable_metadata' => array_filter(array_values($item->getSearchableMetadata())),
+            'exact_matching_metadata' => array_filter(array_values($item->getExactMatchingMetadata())),
             'suggest' => array_filter($item->getSuggest()),
         ];
 
