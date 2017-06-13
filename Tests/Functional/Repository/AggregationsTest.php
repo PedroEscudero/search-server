@@ -16,8 +16,9 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Product;
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Model\Metadata;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
 
@@ -40,220 +41,28 @@ trait AggregationsTest
     public function testBasicAggregations()
     {
         $repository = static::$repository;
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByManufacturers(['1'], FILTER::AT_LEAST_ONE)
-                ->filterByBrands([], FILTER::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-        $brandAggregation = $aggregations->getAggregation('brand');
-        $manufacturerAggregation = $aggregations->getAggregation('manufacturers');
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->filterBy('color', 'color', ['pink'], FILTER::AT_LEAST_ONE)
+            )
+            ->getAggregations();
 
-        $this->assertCount(1, $brandAggregation->getCounters());
-        $this->assertCount(5, $manufacturerAggregation->getCounters());
-
+        $aggregation = $aggregations->getAggregation('color');
+        $this->assertCount(4, $aggregation->getCounters());
         $this->assertSame(
             1,
-                $brandAggregation
-                ->getCounter('1')
+                $aggregation
+                ->getCounter('pink')
                 ->getN()
         );
 
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByManufacturers(['1', '3'], FILTER::AT_LEAST_ONE)
-                ->filterByBrands([], FILTER::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-        $brandAggregation = $aggregations->getAggregation('brand');
-        $manufacturerAggregation = $aggregations->getAggregation('manufacturers');
-
-        $this->assertCount(2, $brandAggregation->getCounters());
-        $this->assertCount(5, $manufacturerAggregation->getCounters());
-    }
-
-    /**
-     * Test nested aggregations.
-     */
-    public function testNestedAggregations()
-    {
-        $repository = static::$repository;
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories([])
-                ->filterByCategories([])
-        )
-        ->getAggregations();
-
-        $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertSame(2, $categoryAggregation->getCounter('1')->getN());
-        $this->assertNull($categoryAggregation->getCounter('2'));
-        $this->assertNull($categoryAggregation->getCounter('3'));
-        $this->assertSame(1, $categoryAggregation->getCounter('50')->getN());
-        $this->assertNull($categoryAggregation->getCounter('66'));
-        $this->assertSame(1, $categoryAggregation->getCounter('777')->getN());
-        $this->assertNull($categoryAggregation->getCounter('778'));
-        $this->assertSame(1, $categoryAggregation->getCounter('800')->getN());
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories(['1'])
-        )
-        ->getAggregations();
-
-        $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertNull($categoryAggregation->getCounter('1'));
-        $this->assertSame(1, $categoryAggregation->getCounter('2')->getN());
-        $this->assertSame(1, $categoryAggregation->getCounter('3')->getN());
-        $this->assertNull($categoryAggregation->getCounter('50'));
-        $this->assertNull($categoryAggregation->getCounter('66'));
-        $this->assertNull($categoryAggregation->getCounter('777'));
-        $this->assertNull($categoryAggregation->getCounter('778'));
-        $this->assertNull($categoryAggregation->getCounter('800'));
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories(['1'], Filter::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-
-        $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertSame(2, $categoryAggregation->getCounter('1')->getN());
-        $this->assertSame(1, $categoryAggregation->getCounter('2')->getN());
-        $this->assertSame(1, $categoryAggregation->getCounter('3')->getN());
-        $this->assertSame(1, $categoryAggregation->getCounter('50')->getN());
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories([], Filter::MUST_ALL_WITH_LEVELS)
-                ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-
-        $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertSame(2, $categoryAggregation->getCounter('1')->getN());
-        $this->assertSame(1, $categoryAggregation->getCounter('50')->getN());
-        $this->assertCount(2, $categoryAggregation->getCounters());
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories(['1'], Filter::MUST_ALL_WITH_LEVELS)
-                ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-
-        $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertSame(1, $categoryAggregation->getCounter('2')->getN());
-        $this->assertSame(1, $categoryAggregation->getCounter('3')->getN());
-        $this->assertCount(2, $categoryAggregation->getCounters());
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories(['50'], Filter::MUST_ALL_WITH_LEVELS)
-                ->filterByBrands(['1', '2', '3'], Filter::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-
-        $categoryAggregation = $aggregations->getAggregation('categories');
-        $this->assertSame(1, $categoryAggregation->getCounter('66')->getN());
-        $this->assertCount(1, $categoryAggregation->getCounters());
-    }
-
-    /**
-     * Test Tag filter aggregations.
-     */
-    public function testTagsFilterAggregations()
-    {
-        $repository = static::$repository;
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByTags('specials', ['new', 'last_hour'], [], Filter::AT_LEAST_ONE)
-        )
-        ->getAggregations();
-
         $this->assertSame(
             2,
-            $aggregations->getAggregation('specials')->getCounter('new')->getN()
+                $aggregation
+                ->getCounter('yellow')
+                ->getN()
         );
-        $this->assertSame(
-            1,
-            $aggregations->getAggregation('specials')->getCounter('last_hour')->getN()
-        );
-
-        $this->assertCount(
-            3,
-            $repository->query(
-                Query::createMatchAll()
-                    ->filterByTags('specials', ['new', 'last_hour'], ['new', 'last_hour'], Filter::AT_LEAST_ONE)
-            )->getProducts()
-        );
-
-        $this->assertCount(
-            1,
-            $repository->query(
-                Query::createMatchAll()
-                    ->filterByTags('specials', ['new', 'last_hour'], ['last_hour'], Filter::AT_LEAST_ONE)
-            )->getProducts()
-        );
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByTags('specials', ['new', 'shirt'], [], Filter::MUST_ALL)
-        )
-        ->getAggregations();
-        $this->assertSame(
-            2,
-            $aggregations->getAggregation('specials')->getCounter('new')->getN()
-        );
-        $this->assertSame(
-            1,
-            $aggregations->getAggregation('specials')->getCounter('shirt')->getN()
-        );
-
-        $this->assertCount(
-            1,
-            $repository->query(
-                Query::createMatchAll()
-                    ->filterByTags('specials', ['new', 'shirt'], ['new', 'shirt'], Filter::MUST_ALL)
-            )->getProducts()
-        );
-    }
-
-    /**
-     * Test leveled filter and aggregations.
-     */
-    public function testLeveledFilterAndAggregation()
-    {
-        $repository = static::$repository;
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories(['1', '2'])
-        )
-        ->getAggregations();
-
-        $usedCategoryElements = $aggregations->getAggregation('categories')->getActiveElements();
-        $this->assertCount(
-            1,
-            $usedCategoryElements
-        );
-        $firstUsedCategoryElements = reset($usedCategoryElements);
-        $this->assertSame('2', $firstUsedCategoryElements->getId());
-        $this->assertTrue($firstUsedCategoryElements->isUsed());
-
-        $aggregations = $repository->query(
-            Query::createMatchAll()
-                ->filterByCategories(['1'])
-        )
-        ->getAggregations();
-
-        $usedCategoryElements = $aggregations->getAggregation('categories')->getActiveElements();
-        $this->assertCount(
-            1,
-            $usedCategoryElements
-        );
-        $firstUsedCategoryElements = reset($usedCategoryElements);
-        $this->assertSame('1', $firstUsedCategoryElements->getId());
-        $this->assertTrue($firstUsedCategoryElements->isUsed());
     }
 
     /**
@@ -264,13 +73,12 @@ trait AggregationsTest
         $repository = static::$repository;
         $aggregations = $repository->query(
             Query::createMatchAll()
-                ->filterByTypes([Brand::TYPE])
-                ->filterByBrands([])
+                ->filterBy('nonexistent', 'nonexistent', [])
         )
         ->getAggregations();
 
         $this->assertEmpty($aggregations
-            ->getAggregation('brand')
+            ->getAggregation('nonexistent')
             ->getCounters()
         );
     }
@@ -281,60 +89,114 @@ trait AggregationsTest
     public function testDisableAggregations()
     {
         $repository = static::$repository;
-        $query = Query::createMatchAll()
-            ->filterByTypes([])
-            ->disableAggregations();
-        $result = $repository->query($query);
-        $aggregations = $result->getAggregations();
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->filterBy('color', 'color', ['1'], FILTER::AT_LEAST_ONE)
+                    ->disableAggregations()
+            )
+            ->getAggregations();
 
         $this->assertNull($aggregations);
-        $this->assertEmpty($result->getMinPrice());
-        $this->assertEmpty($result->getMaxPrice());
-        $this->assertEmpty($result->getPriceAverage());
-        $this->assertEmpty($result->getRatingAverage());
     }
 
     /**
-     * Test default price aggregations.
+     * Test editorial.
      */
-    public function testDefaultPriceAggregations()
+    public function testEditorialAggregations()
     {
         $repository = static::$repository;
-        $result = $repository->query(
-            Query::createMatchAll()
-                ->filterByTypes([Product::TYPE])
-        );
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'editorial',
+                        'editorial_data',
+                        FILTER::AT_LEAST_ONE
+                    )
+            )
+            ->getAggregations();
 
-        $this->assertSame(
-            7,
-            $result->getMinPrice()
-        );
-
-        $this->assertSame(
-            2000,
-            $result->getMaxPrice()
-        );
-
-        $this->assertSame(
-            1031.4,
-            $result->getPriceAverage()
-        );
+        $this->assertCount(3, $aggregations->getAggregation('editorial')->getCounters());
     }
 
     /**
-     * Test default rating aggregations.
+     * Test aggregation with one to many field.
      */
-    public function testDefaultRatingAggregations()
+    public function testSimpleOneToManyAggregations()
     {
         $repository = static::$repository;
-        $result = $repository->query(
-            Query::createMatchAll()
-                ->filterByTypes([Product::TYPE])
-        );
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'stores',
+                        'stores',
+                        FILTER::AT_LEAST_ONE
+                    )
+            )
+            ->getAggregations();
 
-        $this->assertSame(
-            '6.18',
-            number_format($result->getRatingAverage(), 2)
-        );
+        $this->assertCount(4, $aggregations->getAggregation('stores')->getCounters());
+    }
+
+    /**
+     * Test aggregation with several fields.
+     */
+    public function testAuthorAggregations()
+    {
+        $repository = static::$repository;
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'author',
+                        'author_data',
+                        FILTER::AT_LEAST_ONE
+                    )
+            )
+            ->getAggregations();
+
+        $this->assertCount(3, $aggregations->getAggregation('author')->getCounters());
+    }
+
+    /**
+     * Test aggregation with metadata format conversion.
+     */
+    public function testAggregationWithMetadataFormatConversion()
+    {
+        $repository = static::$repository;
+        $repository->addItem(Item::create(
+            new ItemUUID('1', 'testing'),
+            [],
+            [
+                'author_data' => [
+                    0 => Metadata::toMetadata([
+                        'id' => 777,
+                        'name' => 'Engonga',
+                        'last_name' => 'Efervescencio',
+                    ]),
+                ],
+            ]
+        ));
+
+        $repository->flush();
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'author',
+                        'author_data',
+                        FILTER::AT_LEAST_ONE
+                    )
+            )
+            ->getAggregations();
+
+        $this->assertCount(4, $aggregations->getAggregation('author')->getCounters());
+
+        /**
+         * Reseting scenario for next calls.
+         */
+        self::resetScenario();
     }
 }

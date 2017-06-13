@@ -19,9 +19,9 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 use Puntmig\Search\Query\Query;
 
 /**
- * Class SpecialWordsTest.
+ * Class ExactMatchingMetadataTest.
  */
-trait SpecialWordsTest
+trait ExactMatchingMetadataTest
 {
     /**
      * Test metadata.
@@ -29,34 +29,28 @@ trait SpecialWordsTest
     public function testSpecialWords()
     {
         $repository = static::$repository;
-        $product = $repository->query(Query::create('Vinci'))->getProducts()[0];
+        $item = $repository->query(Query::create('Vinci'))->getItems()[0];
         $this->assertSame(
             '5',
-            $product->getId()
+            $item->getUUID()->getId()
         );
 
-        $product = $repository->query(Query::create('vinci'))->getProducts()[0];
+        $item = $repository->query(Query::create('vinci'))->getItems()[0];
         $this->assertSame(
             '5',
-            $product->getId()
+            $item->getUUID()->getId()
         );
 
-        $product = $repository->query(Query::create('vinc'))->getProducts()[0];
+        $item = $repository->query(Query::create('vinc'))->getItems()[0];
         $this->assertSame(
             '3',
-            $product->getId()
+            $item->getUUID()->getId()
         );
 
-        $product = $repository->query(Query::create('da vinci'))->getProducts()[0];
+        $item = $repository->query(Query::create('engonga'))->getItems()[0];
         $this->assertSame(
             '3',
-            $product->getId()
-        );
-
-        $product = $repository->query(Query::create('engonga'))->getProducts()[0];
-        $this->assertSame(
-            '3',
-            $product->getId()
+            $item->getUUID()->getId()
         );
     }
 }

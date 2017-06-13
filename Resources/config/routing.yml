@@ -2,102 +2,25 @@
 # API
 #
 search_bundle_api_query:
-    path: /query
+    path: /
+    methods: ["GET"]
     defaults:
         _controller: search_bundle.api_controller:query
 
 search_bundle_api_reset:
-    path: /reset
+    path: /
     methods: ["DELETE"]
     defaults:
         _controller: search_bundle.api_controller:reset
 
-search_bundle_api_index_products:
-    path: /products
+search_bundle_api_index:
+    path: /items
     methods: ["POST"]
     defaults:
         _controller: search_bundle.api_controller:index
-        parameterName: products
-        objectNamespace: Puntmig\Search\Model\Product
-        method: addProducts
 
-search_bundle_api_index_categories:
-    path: /categories
-    methods: ["POST"]
-    defaults:
-        _controller: search_bundle.api_controller:index
-        parameterName: categories
-        objectNamespace: Puntmig\Search\Model\Category
-        method: addCategories
-
-search_bundle_api_index_manufacturers:
-    path: /manufacturers
-    methods: ["POST"]
-    defaults:
-        _controller: search_bundle.api_controller:index
-        parameterName: manufacturers
-        objectNamespace: Puntmig\Search\Model\Manufacturer
-        method: addManufacturers
-
-search_bundle_api_index_brands:
-    path: /brands
-    methods: ["POST"]
-    defaults:
-        _controller: search_bundle.api_controller:index
-        parameterName: brands
-        objectNamespace: Puntmig\Search\Model\Brand
-        method: addBrands
-
-search_bundle_api_index_tags:
-    path: /tags
-    methods: ["POST"]
-    defaults:
-        _controller: search_bundle.api_controller:index
-        parameterName: tags
-        objectNamespace: Puntmig\Search\Model\Tag
-        method: addTags
-
-search_bundle_api_delete_products:
-    path: /products
+search_bundle_api_delete:
+    path: /items
     methods: ["DELETE"]
     defaults:
         _controller: search_bundle.api_controller:delete
-        parameterName: products
-        objectNamespace: Puntmig\Search\Model\ProductReference
-        method: deleteProducts
-
-search_bundle_api_delete_categories:
-    path: /categories
-    methods: ["DELETE"]
-    defaults:
-        _controller: search_bundle.api_controller:delete
-        parameterName: categories
-        objectNamespace: Puntmig\Search\Model\CategoryReference
-        method: deleteCategories
-
-search_bundle_api_delete_manufacturers:
-    path: /manufacturers
-    methods: ["DELETE"]
-    defaults:
-        _controller: search_bundle.api_controller:delete
-        parameterName: manufacturers
-        objectNamespace: Puntmig\Search\Model\ManufacturerReference
-        method: deleteManufacturers
-
-search_bundle_api_delete_brands:
-    path: /brands
-    methods: ["DELETE"]
-    defaults:
-        _controller: search_bundle.api_controller:delete
-        parameterName: brands
-        objectNamespace: Puntmig\Search\Model\BrandReference
-        method: deleteBrands
-
-search_bundle_api_delete_tags:
-    path: /tags
-    methods: ["DELETE"]
-    defaults:
-        _controller: search_bundle.api_controller:delete
-        parameterName: tags
-        objectNamespace: Puntmig\Search\Model\TagReference
-        method: deleteTags

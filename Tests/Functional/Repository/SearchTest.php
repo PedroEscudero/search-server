@@ -16,12 +16,8 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\ManufacturerReference;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\ProductReference;
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Query;
 
 /**
@@ -37,20 +33,8 @@ trait SearchTest
         $repository = static::$repository;
         $result = $repository->query(Query::createMatchAll());
         $this->assertSame(
-            count($result->getProducts()),
-            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Product::TYPE)->count()
-        );
-        $this->assertSame(
-            count($result->getCategories()),
-            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Category::TYPE)->count()
-        );
-        $this->assertSame(
-            count($result->getManufacturers()),
-            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Manufacturer::TYPE)->count()
-        );
-        $this->assertSame(
-            count($result->getBrands()),
-            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, Brand::TYPE)->count()
+            count($result->getItems()),
+            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, 'item')->count()
         );
     }
 
@@ -61,10 +45,8 @@ trait SearchTest
     {
         $repository = static::$repository;
 
-        $result = $repository->query(Query::create('adidas'));
-        $this->assertNTypeElementId($result, Product::TYPE, 0, '1');
-        $this->assertNTypeElementId($result, Brand::TYPE, 0, '1');
-        $this->assertNTypeElementId($result, Manufacturer::TYPE, 0, '1');
+        $result = $repository->query(Query::create('badal'));
+        $this->assertNTypeElementId($result, 0, '5');
     }
 
     /**
@@ -75,13 +57,11 @@ trait SearchTest
         $repository = static::$repository;
 
         $results = $repository
-            ->query(Query::create('adidas'))
-            ->getResults();
+            ->query(Query::create('barcelona'))
+            ->getItems();
 
-        $this->assertCount(3, $results);
-        $this->assertInstanceof(Manufacturer::class, $results[0]);
-        $this->assertInstanceof(Brand::class, $results[1]);
-        $this->assertInstanceof(Product::class, $results[2]);
+        $this->assertCount(1, $results);
+        $this->assertInstanceof(Item::class, $results[0]);
     }
 
     /**
@@ -90,10 +70,10 @@ trait SearchTest
     public function testSearchByReference()
     {
         $repository = static::$repository;
-        $result = $repository->query(Query::createByReference(new ProductReference('1', 'product')));
-        $this->assertCount(1, $result->getResults());
-        $this->assertCount(1, $result->getProducts());
-        $this->assertSame('1', $result->getProducts()[0]->getId());
+        $result = $repository->query(Query::createByUUID(new ItemUUID('4', 'bike')));
+        $this->assertCount(1, $result->getItems());
+        $this->assertSame('4', $result->getItems()[0]->getUUID()->getId());
+        $this->assertSame('bike', $result->getItems()[0]->getUUID()->getType());
     }
 
     /**
@@ -102,22 +82,20 @@ trait SearchTest
     public function testSearchByReferences()
     {
         $repository = static::$repository;
-        $result = $repository->query(Query::createByReferences([
-            new ProductReference('1', 'product'),
-            new ManufacturerReference('1'),
+        $result = $repository->query(Query::createByUUIDs([
+            new ItemUUID('5', 'gum'),
+            new ItemUUID('3', 'book'),
         ]));
-        $this->assertCount(2, $result->getResults());
-        $this->assertCount(1, $result->getProducts());
-        $this->assertCount(1, $result->getManufacturers());
-        $this->assertSame('1', $result->getProducts()[0]->getId());
-        $this->assertSame('1', $result->getManufacturers()[0]->getId());
+        $this->assertCount(2, $result->getItems());
+        $this->assertSame('3', $result->getItems()[0]->getUUID()->getId());
+        $this->assertSame('5', $result->getItems()[1]->getUUID()->getId());
 
         $repository = static::$repository;
-        $result = $repository->query(Query::createByReferences([
-            new ManufacturerReference('1'),
-            new ManufacturerReference('1'),
+        $result = $repository->query(Query::createByUUIDs([
+            new ItemUUID('5', 'gum'),
+            new ItemUUID('5', 'gum'),
         ]));
-        $this->assertCount(1, $result->getResults());
-        $this->assertCount(1, $result->getManufacturers());
+        $this->assertCount(1, $result->getItems());
+        $this->assertSame('5', $result->getItems()[0]->getUUID()->getId());
     }
 }

@@ -16,16 +16,8 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Core;
 
-use Puntmig\Search\Model\Brand;
-use Puntmig\Search\Model\BrandReference;
-use Puntmig\Search\Model\Category;
-use Puntmig\Search\Model\CategoryReference;
-use Puntmig\Search\Model\Manufacturer;
-use Puntmig\Search\Model\ManufacturerReference;
-use Puntmig\Search\Model\Product;
-use Puntmig\Search\Model\ProductReference;
-use Puntmig\Search\Model\Tag;
-use Puntmig\Search\Model\TagReference;
+use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class DeleteRepository.
@@ -33,110 +25,22 @@ use Puntmig\Search\Model\TagReference;
 class DeleteRepository extends ElasticaWithKeyWrapper
 {
     /**
-     * Delete products.
+     * Delete items.
      *
-     * @param ProductReference[] $productReferences
+     * @param ItemUUID[] $itemUUIDs
      */
-    public function deleteProducts(array $productReferences)
+    public function deleteItems(array $itemUUIDs)
     {
         $this
             ->elasticaWrapper
             ->getType(
                 $this->key,
-                Product::TYPE
+                ElasticaWrapper::ITEM_TYPE
             )
             ->deleteIds(
-                array_map(function (ProductReference $productReference) {
-                    return $productReference->composeUUID();
-                }, $productReferences)
-            );
-
-        $this->refresh();
-    }
-
-    /**
-     * Delete categories.
-     *
-     * @param CategoryReference[] $categoryReferences
-     */
-    public function deleteCategories(array $categoryReferences)
-    {
-        $this
-            ->elasticaWrapper
-            ->getType(
-                $this->key,
-                Category::TYPE
-            )
-            ->deleteIds(
-                array_map(function (CategoryReference $categoryReference) {
-                    return $categoryReference->composeUUID();
-                }, $categoryReferences)
-            );
-
-        $this->refresh();
-    }
-
-    /**
-     * Delete manufacturers.
-     *
-     * @param ManufacturerReference[] $manufacturerReferences
-     */
-    public function deleteManufacturers(array $manufacturerReferences)
-    {
-        $this
-            ->elasticaWrapper
-            ->getType(
-                $this->key,
-                Manufacturer::TYPE
-            )
-            ->deleteIds(
-                array_map(function (ManufacturerReference $manufacturerReference) {
-                    return $manufacturerReference->composeUUID();
-                }, $manufacturerReferences)
-            );
-
-        $this->refresh();
-    }
-
-    /**
-     * Delete brands.
-     *
-     * @param BrandReference[] $brandReferences
-     */
-    public function deleteBrands(array $brandReferences)
-    {
-        $this
-            ->elasticaWrapper
-            ->getType(
-                $this->key,
-                Brand::TYPE
-            )
-            ->deleteIds(
-                array_map(function (BrandReference $brandReference) {
-                    return $brandReference->composeUUID();
-                }, $brandReferences)
-            );
-
-        $this->refresh();
-    }
-
-    /**
-     * Delete tags.
-     *
-     * @param TagReference[] $tagReferences
-     */
-    public function deleteTags(array $tagReferences)
-    {
-        $this
-            ->elasticaWrapper
-            ->getType(
-                $this->key,
-                Tag::TYPE
-            )
-            ->deleteIds(
-                array_map(function (TagReference $tagReference) {
-                    return $tagReference->composeUUID();
-                }, $tagReferences)
+                array_map(function (ItemUUID $itemUUID) {
+                    return $itemUUID->composeUUID();
+                }, $itemUUIDs)
             );
 
         $this->refresh();
