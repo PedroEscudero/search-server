@@ -20,6 +20,14 @@ items:
                 - 111
             editorial_data:
                 - "id##111~~name##Alfaguarra"
+            category:
+                - 1
+                - 2
+                - 3
+            category_data:
+                - "id##1~~name##cat1~~level##1"
+                - "id##2~~name##cat2~~level##2"
+                - "id##3~~name##cat3~~level##3"
             stores:
                 - ppal
 
@@ -42,6 +50,14 @@ items:
                 - 333
             editorial_data:
                 - "id##333~~name##Matutano"
+            category:
+                - 1
+                - 2
+                - 4
+            category_data:
+                - "id##1~~name##cat1~~level##1"
+                - "id##2~~name##cat2~~level##2"
+                - "id##4~~name##cat4~~level##3"
             stores:
                 - sec
 
@@ -69,6 +85,14 @@ items:
                 - 222
             editorial_data:
                 - "id##222~~name##Filibuster"
+            category:
+                - 1
+                - 2
+                - 4
+            category_data:
+                - "id##1~~name##cat1~~level##1"
+                - "id##2~~name##cat2~~level##2"
+                - "id##4~~name##cat4~~level##3"
             stores:
                 - ppal
         searchable_metadata:
@@ -89,6 +113,14 @@ items:
             simple_int: 9
             simple_string: eleuterio
             price: 700
+            category:
+                - 1
+                - 5
+                - 6
+            category_data:
+                - "id##1~~name##cat1~~level##1"
+                - "id##5~~name##cat5~~level##2"
+                - "id##6~~name##cat6~~level##3"
         suggest:
             - Eleuterio
 
@@ -114,6 +146,14 @@ items:
                 - ppal
                 - three
                 - four
+            category:
+                - 7
+                - 8
+                - 9
+            category_data:
+                - "id##7~~name##cat7~~level##1"
+                - "id##8~~name##cat8~~level##2"
+                - "id##9~~name##cat9~~level##3"
         searchable_metadata:
             - barcelona
             - badalona

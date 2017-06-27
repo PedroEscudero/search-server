@@ -229,7 +229,7 @@ class ApiController
          */
         $bag = $request->$bagName;
         $key = $bag->get('key', null);
-
+        
         if (is_null($key)) {
             return new JsonResponse([
                 'message' => 'Invalid key',

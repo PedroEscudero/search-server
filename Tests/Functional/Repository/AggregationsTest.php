@@ -199,4 +199,43 @@ trait AggregationsTest
          */
         self::resetScenario();
     }
+
+    /**
+     * Test leveled aggregations.
+     */
+    public function testLeveledAggregations()
+    {
+        $repository = static::$repository;
+        $aggregation = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy('category', 'category_data', FILTER::MUST_ALL_WITH_LEVELS)
+            )
+            ->getAggregation('category');
+        $this->assertCount(2, $aggregation->getCounters());
+        $this->assertTrue(array_key_exists('1', $aggregation->getCounters()));
+        $this->assertTrue(array_key_exists('7', $aggregation->getCounters()));
+
+        $aggregation = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->filterBy('category', 'category', ['1'], FILTER::MUST_ALL_WITH_LEVELS)
+                    ->aggregateBy('category', 'category_data', FILTER::MUST_ALL_WITH_LEVELS)
+            )
+            ->getAggregation('category');
+        $this->assertCount(2, $aggregation->getCounters());
+        $this->assertTrue(array_key_exists('2', $aggregation->getCounters()));
+        $this->assertTrue(array_key_exists('5', $aggregation->getCounters()));
+
+        $aggregation = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->filterBy('category', 'category', ['2'], FILTER::MUST_ALL_WITH_LEVELS)
+                    ->aggregateBy('category', 'category_data', FILTER::MUST_ALL_WITH_LEVELS)
+            )
+            ->getAggregation('category');
+        $this->assertCount(2, $aggregation->getCounters());
+        $this->assertTrue(array_key_exists('3', $aggregation->getCounters()));
+        $this->assertTrue(array_key_exists('4', $aggregation->getCounters()));
+    }
 }

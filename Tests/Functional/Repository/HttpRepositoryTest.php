@@ -28,6 +28,6 @@ class HttpRepositoryTest extends RepositoryTest
      */
     protected static function getRepositoryServiceName() : string
     {
-        return 'search_bundle.http_repository';
+        return 'puntmig_search.repository_search';
     }
 }
