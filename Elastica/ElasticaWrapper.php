@@ -87,18 +87,20 @@ class ElasticaWrapper
     /**
      * Create index.
      *
-     * @param string $key
-     * @param int    $shards
-     * @param int    $replicas
+     * @param string      $key
+     * @param int         $shards
+     * @param int         $replicas
+     * @param null|string $language
      */
     public function createIndex(
         string $key,
-        int $shards = 4,
-        int $replicas = 1
+        int $shards,
+        int $replicas,
+        ? string $language
     ) {
         $this->deleteIndex($key);
         $searchIndex = $this->getSearchIndex($key);
-        $searchIndex->create([
+        $indexConfiguration = [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
             'analysis' => [
@@ -109,21 +111,46 @@ class ElasticaWrapper
                         'filter' => [
                             'lowercase',
                             'ngram_filter',
+                            'stop_words',
+                        ],
+                    ],
+                    'search_analyzer' => [
+                        'type' => 'custom',
+                        'tokenizer' => 'standard',
+                        'filter' => [
+                            'lowercase',
+                            'stop_words',
                         ],
                     ],
                 ],
                 'filter' => [
                     'ngram_filter' => [
                         'type' => 'edge_ngram',
-                        'min_gram' => 1,
+                        'min_gram' => 2,
                         'max_gram' => 20,
                         'token_chars' => [
                             'letter',
                         ],
                     ],
+                    'stop_words' => [
+                        'type' => 'stop',
+                        'stopwords' => ElasticaLanguages::getStopwordsLanguageByIso($language),
+                    ],
                 ],
             ],
-        ], true);
+        ];
+
+        $stemmer = ElasticaLanguages::getStemmerLanguageByIso($language);
+        if (!is_null($stemmer)) {
+            $indexConfiguration['analysis']['analyzer']['default']['filter'][] = 'stemmer';
+            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
+            $indexConfiguration['analysis']['filter']['stemmer'] = [
+                'type' => 'stemmer',
+                'name' => $stemmer,
+            ];
+        }
+
+        $searchIndex->create($indexConfiguration, true);
         $searchIndex->clearCache();
         $searchIndex->refresh();
     }
@@ -191,16 +218,18 @@ class ElasticaWrapper
     /**
      * Create mapping.
      *
-     * @param string $key
-     * @param int    $shards
-     * @param int    $replicas
+     * @param string      $key
+     * @param int         $shards
+     * @param int         $replicas
+     * @param null|string $language
      */
     public function createIndexMapping(
         string $key,
-        int $shards = 4,
-        int $replicas = 1
+        int $shards,
+        int $replicas,
+        ? string $language
     ) {
-        $this->createIndex($key, $shards, $replicas);
+        $this->createIndex($key, $shards, $replicas, $language);
         $this->createItemIndexMapping($key);
         $this->refresh($key);
     }
@@ -255,7 +284,7 @@ class ElasticaWrapper
                 'type' => 'text',
                 'include_in_all' => false,
                 'analyzer' => 'default',
-                'search_analyzer' => 'standard',
+                'search_analyzer' => 'search_analyzer',
             ],
             'exact_matching_metadata' => [
                 'type' => 'text',

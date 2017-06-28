@@ -37,6 +37,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     use SortTest;
     use SuggestTest;
     use SearchTest;
+    use StopwordsSteemerTest;
 
     /**
      * @var Repository
@@ -71,12 +72,14 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
 
     /**
      * Reset scenario.
+     *
+     * @param null|string $language
      */
-    public static function resetScenario()
+    public static function resetScenario(? string $language = null)
     {
         self::get('search_bundle.elastica_wrapper')->deleteIndex(self::$key);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1);
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1, 1, $language);
+        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1, 1, $language);
 
         self::$repository = self::get(static::getRepositoryServiceName());
         self::$repository->setKey(self::$key);

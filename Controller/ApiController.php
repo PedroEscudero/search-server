@@ -203,9 +203,13 @@ class ApiController
             return $query;
         }
 
+        $language = $request
+            ->request
+            ->get('language', null);
+
         $this
             ->indexRepository
-            ->createIndex();
+            ->createIndex($language);
 
         return new JsonResponse('Index created', 200);
     }
@@ -229,7 +233,7 @@ class ApiController
          */
         $bag = $request->$bagName;
         $key = $bag->get('key', null);
-        
+
         if (is_null($key)) {
             return new JsonResponse([
                 'message' => 'Invalid key',

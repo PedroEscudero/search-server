@@ -97,6 +97,7 @@ items:
                 - ppal
         searchable_metadata:
             - Code da vinci
+            - Código de Hernando
         exact_matching_metadata:
             - engonga
         suggest:
@@ -121,6 +122,8 @@ items:
                 - "id##1~~name##cat1~~level##1"
                 - "id##5~~name##cat5~~level##2"
                 - "id##6~~name##cat6~~level##3"
+        searchable_metadata:
+            - álamo
         suggest:
             - Eleuterio
 

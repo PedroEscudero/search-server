@@ -123,11 +123,13 @@ class ServiceRepository extends Repository
 
     /**
      * Reset the index.
+     *
+     * @var null|string $language
      */
-    public function reset()
+    public function reset(? string $language)
     {
         $this
             ->indexRepository
-            ->createIndex();
+            ->createIndex($language);
     }
 }

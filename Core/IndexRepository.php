@@ -30,14 +30,18 @@ class IndexRepository extends ElasticaWithKeyWrapper
 {
     /**
      * Create the index.
+     *
+     * @param null|string $language
      */
-    public function createIndex()
+    public function createIndex(? string $language)
     {
         $this
             ->elasticaWrapper
             ->createIndexMapping(
                 $this->key,
-                4
+                4,
+                1,
+                $language
             );
     }
 
