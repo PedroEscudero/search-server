@@ -77,11 +77,11 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      */
     public static function resetScenario(? string $language = null)
     {
-        self::get('search_bundle.elastica_wrapper')->deleteIndex(self::$key);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1, 1, $language);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1, 1, $language);
+        self::$container->get('search_bundle.elastica_wrapper')->deleteIndex(self::$key);
+        self::$container->get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1, 1, $language);
+        self::$container->get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1, 1, $language);
 
-        self::$repository = self::get(static::getRepositoryServiceName());
+        self::$repository = self::$container->get(static::getRepositoryServiceName());
         self::$repository->setKey(self::$key);
         $items = Yaml::parse(file_get_contents(__DIR__ . '/../../items.yml'));
         foreach ($items['items'] as $item) {
