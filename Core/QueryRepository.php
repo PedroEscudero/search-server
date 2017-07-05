@@ -60,6 +60,14 @@ class QueryRepository extends ElasticaWithKeyWrapper
             false
         );
 
+        $this->addFilters(
+            $boolQuery,
+            $query->getUniverseFilters(),
+            $query->getFilterFields(),
+            null,
+            false
+        );
+
         $mainQuery->setQuery($boolQuery);
         if ($query->getSortBy() !== SortBy::SCORE) {
             $mainQuery->setSort($query->getSortBy());
@@ -69,6 +77,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $this->addAggregations(
                 $mainQuery,
                 $query->getAggregations(),
+                $query->getUniverseFilters(),
                 $query->getFilters(),
                 $query->getFilterFields()
             );
@@ -111,12 +120,12 @@ class QueryRepository extends ElasticaWithKeyWrapper
          * @TODO Move this if/else into another place
          */
         if ($query->areAggregationsEnabled()) {
-            $resultAggregations = $elasticaResults['aggregations']['all'];
+            $resultAggregations = $elasticaResults['aggregations']['all']['universe'];
             unset($resultAggregations['common']);
 
             $result = new Result(
                 $query,
-                $elasticaResults['aggregations']['all']['doc_count'],
+                $elasticaResults['aggregations']['all']['universe']['doc_count'],
                 $elasticaResults['total_hits']
             );
         } else {
@@ -525,16 +534,30 @@ class QueryRepository extends ElasticaWithKeyWrapper
      *
      * @param ElasticaQuery      $elasticaQuery
      * @param QueryAggregation[] $aggregations
+     * @param Filter[]           $universeFilters
      * @param Filter[]           $filters
      * @param string[]           $filterFields
      */
     private function addAggregations(
         ElasticaQuery $elasticaQuery,
         array $aggregations,
+        array $universeFilters,
         array $filters,
         array $filterFields
     ) {
         $globalAggregation = new ElasticaAggregation\GlobalAggregation('all');
+        $universeAggregation = new ElasticaAggregation\Filter('universe');
+        $aggregationBoolQuery = new ElasticaQuery\BoolQuery();
+        $this->addFilters(
+            $aggregationBoolQuery,
+            $universeFilters,
+            $filterFields,
+            null,
+            true
+        );
+        $universeAggregation->setFilter($aggregationBoolQuery);
+        $globalAggregation->addAggregation($universeAggregation);
+
         foreach ($aggregations as $aggregation) {
             $filterType = $aggregation->getFilterType();
             if ($filterType == Filter::TYPE_RANGE) {
@@ -557,7 +580,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
 
             $filteredAggregation->setFilter($boolQuery);
             $filteredAggregation->addAggregation($elasticaAggregation);
-            $globalAggregation->addAggregation($filteredAggregation);
+            $universeAggregation->addAggregation($filteredAggregation);
         }
 
         $elasticaQuery->addAggregation($globalAggregation);
