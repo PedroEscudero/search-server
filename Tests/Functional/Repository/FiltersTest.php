@@ -40,6 +40,11 @@ trait FiltersTest
             $repository->query(Query::createMatchAll()->filterByIds(['1', '2'])),
             ['?1', '?2', '!3', '!4', '!5']
         );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('id', 'id', ['1', '2'])),
+            ['?1', '?2', '!3', '!4', '!5']
+        );
     }
 
     /**
@@ -94,6 +99,11 @@ trait FiltersTest
 
         $this->assertResults(
             $repository->query(Query::createMatchAll()->filterByTypes(['product'])),
+            ['?1', '?2', '!3', '!4', '!5', '!800']
+        );
+
+        $this->assertResults(
+            $repository->query(Query::createMatchAll()->filterBy('type', 'type', ['product'])),
             ['?1', '?2', '!3', '!4', '!5', '!800']
         );
 
