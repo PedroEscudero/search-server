@@ -182,13 +182,14 @@ class QueryRepository extends ElasticaWithKeyWrapper
                     continue;
                 }
 
-                foreach ($buckets as $bucket) {
+                foreach ($buckets as $key => $bucket) {
+                    $usedKey = $bucket['key'] ?? $key;
                     if (
                         empty($queryAggregation->getSubgroup()) ||
-                        in_array($bucket['key'], $queryAggregation->getSubgroup())
+                        in_array($usedKey, $queryAggregation->getSubgroup())
                     ) {
                         $aggregation->addCounter(
-                            (string) $bucket['key'],
+                            (string) $usedKey,
                             (int) $bucket['doc_count']
                         );
                     }
@@ -414,11 +415,15 @@ class QueryRepository extends ElasticaWithKeyWrapper
                     $filter,
                     $value
                 );
+                break;
+
             case Filter::TYPE_RANGE:
+            case Filter::TYPE_DATE_RANGE:
                 return $this->createRangeFilter(
                     $filter,
                     $value
                 );
+                break;
         }
     }
 
@@ -488,9 +493,13 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $rangeData['lt'] = $to;
         }
 
+        $rangeClass = $filter->getFilterType() === Filter::TYPE_DATE_RANGE
+            ? ElasticaQuery\Range::class
+            : ElasticaQuery\Range::class;
+
         return empty($rangeData)
             ? null
-            : new ElasticaQuery\Range($filter->getField(), $rangeData);
+            : new $rangeClass($filter->getField(), $rangeData);
     }
 
     /**
@@ -560,10 +569,14 @@ class QueryRepository extends ElasticaWithKeyWrapper
 
         foreach ($aggregations as $aggregation) {
             $filterType = $aggregation->getFilterType();
-            if ($filterType == Filter::TYPE_RANGE) {
-                $elasticaAggregation = $this->createRangeAggregation($aggregation);
-            } else {
-                $elasticaAggregation = $this->createAggregation($aggregation);
+            switch ($filterType) {
+                case Filter::TYPE_RANGE:
+                case Filter::TYPE_DATE_RANGE:
+                    $elasticaAggregation = $this->createRangeAggregation($aggregation);
+                    break;
+                default:
+                    $elasticaAggregation = $this->createAggregation($aggregation);
+                    break;
             }
 
             $filteredAggregation = new ElasticaAggregation\Filter($aggregation->getName());
@@ -612,7 +625,12 @@ class QueryRepository extends ElasticaWithKeyWrapper
      */
     private function createRangeAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
     {
-        $rangeAggregation = new ElasticaAggregation\Range($aggregation->getName());
+        $rangeClass = $aggregation->getFilterType() === Filter::TYPE_DATE_RANGE
+            ? ElasticaAggregation\DateRange::class
+            : ElasticaAggregation\Range::class;
+
+        $rangeAggregation = new $rangeClass($aggregation->getName());
+        $rangeAggregation->setKeyedResponse();
         $rangeAggregation->setField($aggregation->getField());
         foreach ($aggregation->getSubgroup() as $range) {
             list($from, $to) = Range::stringToArray($range);

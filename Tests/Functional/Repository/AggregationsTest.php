@@ -238,4 +238,26 @@ trait AggregationsTest
         $this->assertTrue(array_key_exists('3', $aggregation->getCounters()));
         $this->assertTrue(array_key_exists('4', $aggregation->getCounters()));
     }
+
+    /**
+     * Aggregate by date.
+     */
+    public function testDateRangeAggregations()
+    {
+        $this->assertCount(
+            1,
+            static::$repository->query(Query::createMatchAll()
+                ->filterUniverseByDateRange('created_at', ['2020-02-02..2020-04-04'], Filter::AT_LEAST_ONE)
+                ->aggregateByDateRange('created_at', 'created_at', ['2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE)
+            )->getAggregation('created_at')
+        );
+
+        $this->assertCount(
+            2,
+            static::$repository->query(Query::createMatchAll()
+                ->filterUniverseByDateRange('created_at', ['2020-02-02..2020-04-04'], Filter::AT_LEAST_ONE)
+                ->aggregateByDateRange('created_at', 'created_at', ['2020-02-02..2020-03-03', '2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE)
+            )->getAggregation('created_at')
+        );
+    }
 }

@@ -18,6 +18,7 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
+use Puntmig\Search\Result\Result;
 
 /**
  * Class FiltersTest.
@@ -176,5 +177,129 @@ trait FiltersTest
         $this->assertEmpty(
             $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1']))->getItems()
         );
+    }
+
+    /**
+     * Test filter by rangde dates.
+     */
+    public function testDateRangeFilter()
+    {
+        $this->assertCount(
+            4,
+            $this->buildCreatedAtFilteredResult('2010-01-01..2021-01-01')->getItems()
+        );
+
+        $this->assertResults(
+            $this->buildCreatedAtFilteredResult('2010-01-01..2021-01-01'),
+            ['?1', '?2', '?3', '?4', '!5']
+        );
+
+        $this->assertResults(
+            $this->buildCreatedAtFilteredResult('..2021-01-01'),
+            ['?1', '?2', '?3', '?4', '!5']
+        );
+
+        $this->assertCount(
+            2,
+            $this->buildCreatedAtFilteredResult('..2020-03-03')->getItems()
+        );
+
+        $this->assertCount(
+            3,
+            $this->buildCreatedAtFilteredResult('..2020-03-03T23:59:59Z')->getItems()
+        );
+
+        $this->assertCount(
+            2,
+            $this->buildCreatedAtFilteredResult('2020-02-02..2020-04-04')->getItems()
+        );
+
+        $this->assertCount(
+            3,
+            $this->buildCreatedAtFilteredResult('2020-02-02..')->getItems()
+        );
+
+        $this->assertCount(
+            5,
+            $this->buildCreatedAtFilteredResult('..')->getItems()
+        );
+    }
+
+    /**
+     * Build created at filtered Result.
+     *
+     * @pram string $filter
+     *
+     * @return Result
+     */
+    private function buildCreatedAtFilteredResult(string $filter) : Result
+    {
+        return static::$repository->query(Query::createMatchAll()->filterByDateRange('created_at', 'created_at', [], [$filter], Filter::AT_LEAST_ONE, false));
+    }
+
+    /**
+     * Test filter by rangde dates.
+     */
+    public function testUniverseDateRangeFilter()
+    {
+        $this->assertCount(
+            4,
+            $this->buildCreatedAtUniverseFilteredResult('2010-01-01..2021-01-01')->getItems()
+        );
+
+        $this->assertResults(
+            $this->buildCreatedAtUniverseFilteredResult('2010-01-01..2021-01-01'),
+            ['?1', '?2', '?3', '?4', '!5']
+        );
+
+        $this->assertResults(
+            $this->buildCreatedAtUniverseFilteredResult('..2021-01-01'),
+            ['?1', '?2', '?3', '?4', '!5']
+        );
+
+        $this->assertCount(
+            2,
+            $this->buildCreatedAtUniverseFilteredResult('..2020-03-03')->getItems()
+        );
+
+        $this->assertCount(
+            3,
+            $this->buildCreatedAtUniverseFilteredResult('..2020-03-03T23:59:59Z')->getItems()
+        );
+
+        $this->assertCount(
+            2,
+            $this->buildCreatedAtUniverseFilteredResult('2020-02-02..2020-04-04')->getItems()
+        );
+
+        $this->assertCount(
+            3,
+            $this->buildCreatedAtUniverseFilteredResult('2020-02-02..')->getItems()
+        );
+
+        $this->assertCount(
+            5,
+            $this->buildCreatedAtUniverseFilteredResult('..')->getItems()
+        );
+
+        $this->assertCount(
+            1,
+            static::$repository->query(Query::createMatchAll()
+                ->filterUniverseByDateRange('created_at', ['2020-02-02..2020-04-04'], Filter::AT_LEAST_ONE)
+                ->filterByDateRange('created_at', 'created_at', [], ['2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE, false)
+            )->getItems()
+        );
+    }
+
+    /**
+     * Build created at filtered Result.
+     *
+     * @pram string $filter
+     *
+     * @return Result
+     */
+    private function buildCreatedAtUniverseFilteredResult(string $filter) : Result
+    {
+        return static::$repository->query(Query::createMatchAll()->filterUniverseByDateRange('created_at', [$filter], Filter::AT_LEAST_ONE));
     }
 }

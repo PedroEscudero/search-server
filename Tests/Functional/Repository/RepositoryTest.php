@@ -86,6 +86,11 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
         self::$repository->setKey(self::$key);
         $items = Yaml::parse(file_get_contents(__DIR__ . '/../../items.yml'));
         foreach ($items['items'] as $item) {
+            if (isset($item['indexed_metadata']['created_at'])) {
+                $date = new \DateTime($item['indexed_metadata']['created_at']);
+                $item['indexed_metadata']['created_at'] = $date->format(DATE_ATOM);
+            }
+
             self::$repository->addItem(
                 Item::createFromArray($item)
             );
