@@ -14,7 +14,4 @@ config:
                 path:     '%kernel.logs_dir%/%kernel.environment%.log'
                 level:    debug
                 channels: ['!event']
-            console:
-                type:   console
-                bubble: false
-                channels: ['!event', '!doctrine']
+                # formatter: search_bundle.log_formatter

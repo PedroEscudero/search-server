@@ -37,6 +37,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
             'repositories',
             'controllers',
             'elastica',
+            'formatter',
         ];
     }
 

@@ -1,0 +1,7 @@
+services:
+
+    #
+    # Log formatter
+    #
+    search_bundle.log_formatter:
+        class: Puntmig\Search\Server\Formatter\LogFormatter
