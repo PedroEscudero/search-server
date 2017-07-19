@@ -110,4 +110,31 @@ trait SortTest
         $this->assertTrue($items[0]->getDistance() < 346);
         $this->assertTrue($items[0]->getDistance() > 344);
     }
+
+    /**
+     * Test random sort.
+     */
+    public function testRandomSort()
+    {
+        $iterations = 10;
+        $id = $this->generateFirstResultRandomSort();
+        $sameIdTimes = 0;
+        for ($i = 0; $i < $iterations; ++$i) {
+            if ($id === $this->generateFirstResultRandomSort()) {
+                ++$sameIdTimes;
+            }
+        }
+
+        if ($sameIdTimes === $iterations) {
+            $this->fail('Random sort is not working...');
+        }
+    }
+
+    /**
+     * Return first item from random search.
+     */
+    private function generateFirstResultRandomSort()
+    {
+        return self::$repository->query(Query::createMatchAll()->sortBy(SortBy::RANDOM))->getFirstItem()->getId();
+    }
 }

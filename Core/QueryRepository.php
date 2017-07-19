@@ -69,8 +69,22 @@ class QueryRepository extends ElasticaWithKeyWrapper
         );
 
         $mainQuery->setQuery($boolQuery);
+
         if ($query->getSortBy() !== SortBy::SCORE) {
-            $mainQuery->setSort($query->getSortBy());
+            if ($query->getSortBy() === SortBy::RANDOM) {
+
+                /**
+                 * Random elements in Elasticsearch need a wrapper in order to
+                 * apply a random score per each result.
+                 */
+                $functionScore = new ElasticaQuery\FunctionScore();
+                $functionScore->addRandomScoreFunction(uniqid());
+                $functionScore->setQuery($boolQuery);
+                $mainQuery = new ElasticaQuery();
+                $mainQuery->setQuery($functionScore);
+            } else {
+                $mainQuery->setSort($query->getSortBy());
+            }
         }
 
         if ($query->areAggregationsEnabled()) {
