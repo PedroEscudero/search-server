@@ -79,6 +79,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
     private function createItemDocument(Item $item) : Document
     {
         $uuid = $item->getUUID();
+        var_dump(array_values(array_filter($item->getSearchableMetadata())));
         $itemDocument = [
             'uuid' => [
                 'id' => $uuid->getId(),
@@ -91,8 +92,8 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 : null,
             'metadata' => array_filter($item->getMetadata()),
             'indexed_metadata' => array_filter($item->getIndexedMetadata()),
-            'searchable_metadata' => array_filter(array_values($item->getSearchableMetadata())),
-            'exact_matching_metadata' => array_filter(array_values($item->getExactMatchingMetadata())),
+            'searchable_metadata' => array_values(array_filter($item->getSearchableMetadata())),
+            'exact_matching_metadata' => array_values(array_filter($item->getExactMatchingMetadata())),
             'suggest' => array_filter($item->getSuggest()),
         ];
 
