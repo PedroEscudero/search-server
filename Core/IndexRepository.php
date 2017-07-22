@@ -91,11 +91,37 @@ class IndexRepository extends ElasticaWithKeyWrapper
                 : null,
             'metadata' => array_filter($item->getMetadata()),
             'indexed_metadata' => array_filter($item->getIndexedMetadata()),
-            'searchable_metadata' => array_values(array_filter($item->getSearchableMetadata())),
-            'exact_matching_metadata' => array_values(array_filter($item->getExactMatchingMetadata())),
+            'searchable_metadata' => array_values(
+                array_filter(
+                    $item->getSearchableMetadata(),
+                    [$this, 'filterElement']
+                )
+            ),
+            'exact_matching_metadata' => array_values(
+                array_filter(
+                    $item->getExactMatchingMetadata(),
+                    [$this, 'filterElement']
+                )
+            ),
             'suggest' => array_filter($item->getSuggest()),
         ];
 
         return new ElasticaDocument($uuid->composeUUID(), $itemDocument);
+    }
+
+    /**
+     * Specific array filter.
+     *
+     * @param mixed $element
+     *
+     * @return mixed $element
+     */
+    private function filterElement($element)
+    {
+        return !(
+            is_null($element) ||
+            (is_bool($element) && !$element) ||
+            (is_array($element) && empty($element))
+        );
     }
 }
