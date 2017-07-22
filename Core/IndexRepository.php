@@ -79,7 +79,6 @@ class IndexRepository extends ElasticaWithKeyWrapper
     private function createItemDocument(Item $item) : Document
     {
         $uuid = $item->getUUID();
-        var_dump(array_values(array_filter($item->getSearchableMetadata())));
         $itemDocument = [
             'uuid' => [
                 'id' => $uuid->getId(),

@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 use Puntmig\Search\Model\Item;
 use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Model\Metadata;
+use Puntmig\Search\Query\Aggregation;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
 
@@ -259,5 +260,45 @@ trait AggregationsTest
                 ->aggregateByDateRange('created_at', 'created_at', ['2020-02-02..2020-03-03', '2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE)
             )->getAggregation('created_at')
         );
+    }
+
+    /**
+     * Test aggregation sort.
+     *
+     * @param int   $firstId
+     * @param array $order
+     *
+     * @dataProvider dataSort
+     */
+    public function testSort(
+        int $firstId,
+        ? array $order
+    ) {
+        $query = Query::createMatchAll();
+        is_null($order)
+            ? $query->aggregateBy('sortable', 'sortable_data', FILTER::AT_LEAST_ONE)
+            : $query->aggregateBy('sortable', 'sortable_data', FILTER::AT_LEAST_ONE, $order);
+
+        $counters = static::$repository
+            ->query($query)
+            ->getAggregation('sortable')
+            ->getCounters();
+
+        $firstCounter = reset($counters);
+        $this->assertEquals($firstId, $firstCounter->getId());
+    }
+
+    /**
+     * data for testSort.
+     */
+    public function dataSort()
+    {
+        return [
+            ['3', null],
+            ['3', Aggregation::SORT_BY_COUNT_DESC],
+            ['1', Aggregation::SORT_BY_COUNT_ASC],
+            ['9', Aggregation::SORT_BY_NAME_DESC],
+            ['1', Aggregation::SORT_BY_NAME_ASC],
+        ];
     }
 }
