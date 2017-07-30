@@ -301,4 +301,26 @@ trait AggregationsTest
             ['1', Aggregation::SORT_BY_NAME_ASC],
         ];
     }
+
+    /**
+     * Test aggregation limit.
+     */
+    public function testLimit()
+    {
+        $repository = static::$repository;
+        $aggregations = $repository
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'stores',
+                        'stores',
+                        FILTER::AT_LEAST_ONE,
+                        Aggregation::SORT_BY_COUNT_DESC,
+                        2
+                    )
+            )
+            ->getAggregations();
+
+        $this->assertCount(2, $aggregations->getAggregation('stores')->getCounters());
+    }
 }

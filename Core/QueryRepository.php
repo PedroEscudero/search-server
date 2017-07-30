@@ -625,7 +625,11 @@ class QueryRepository extends ElasticaWithKeyWrapper
         $termsAggregation = new ElasticaAggregation\Terms($aggregation->getName());
         $aggregationFields = explode('|', $aggregation->getField());
         $termsAggregation->setField($aggregationFields[0]);
-        $termsAggregation->setSize(9999);
+        $termsAggregation->setSize(
+            $aggregation->getLimit() > 0
+                ? $aggregation->getLimit()
+                : 1000
+        );
         $termsAggregation->setOrder($aggregation->getSort()[0], $aggregation->getSort()[1]);
 
         return $termsAggregation;
