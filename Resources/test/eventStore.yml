@@ -1,0 +1,4 @@
+services:
+
+    search_server.event_store:
+        class: Puntmig\Search\Server\Domain\Event\InMemoryEventStore

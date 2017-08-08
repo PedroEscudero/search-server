@@ -20,7 +20,15 @@ use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Yaml\Yaml;
 
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Query\Query;
+use Puntmig\Search\Result\Result;
+use Puntmig\Search\Server\Domain\Command\DeleteCommand;
+use Puntmig\Search\Server\Domain\Command\IndexCommand;
+use Puntmig\Search\Server\Domain\Command\QueryCommand;
+use Puntmig\Search\Server\Domain\Command\ResetCommand;
 use Puntmig\Search\Server\PuntmigSearchServerBundle;
 
 /**
@@ -29,33 +37,28 @@ use Puntmig\Search\Server\PuntmigSearchServerBundle;
 abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTest
 {
     /**
-     * Schema must be loaded in all test cases.
-     *
-     * @return bool
-     */
-    protected static function loadSchema() : bool
-    {
-        return true;
-    }
-
-    /**
      * Get kernel.
      *
      * @return KernelInterface
      */
     protected static function getKernel() : KernelInterface
     {
+        $imports = [
+            ['resource' => '@BaseBundle/Resources/config/providers.yml'],
+            ['resource' => '@BaseBundle/Resources/test/doctrine.test.yml'],
+            ['resource' => '@PuntmigSearchServerBundle/Resources/config/tactician.yml'],
+        ];
+
+        if (static::useInMemoryEventStore()) {
+            $imports[] = ['resource' => '@PuntmigSearchServerBundle/Resources/test/eventStore.yml'];
+        }
+
         return new BaseKernel(
             [
                 BaseBundle::class,
                 PuntmigSearchServerBundle::class,
             ], [
-                'imports' => [
-                    ['resource' => '@BaseBundle/Resources/config/providers.yml'],
-                    ['resource' => '@PuntmigSearchServerBundle/Resources/config/doctrine.test.yml'],
-                    ['resource' => '@PuntmigSearchServerBundle/Resources/config/tactician.yml'],
-                    ['resource' => '@PuntmigSearchServerBundle/Resources/config/test.yml'],
-                ],
+                'imports' => $imports,
                 'framework' => [
                     'test' => true,
                 ],
@@ -84,4 +87,132 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      * @return string
      */
     abstract protected static function getRepositoryServiceName() : string;
+
+    /**
+     * Use in memory event store.
+     *
+     * @return bool
+     */
+    protected static function useInMemoryEventStore() : bool
+    {
+        return true;
+    }
+
+    /**
+     * @var string
+     *
+     * Used api key
+     */
+    protected static $key = 'hjk45hj4k4';
+
+    /**
+     * @var string
+     *
+     * Another used api key
+     */
+    protected static $anotherKey = '5h43jk5h43';
+
+    /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     */
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        self::resetScenario();
+    }
+
+    /**
+     * Reset scenario.
+     *
+     * @param null|string $language
+     */
+    public static function resetScenario(? string $language = null)
+    {
+        self::reset($language, self::$key);
+        $items = Yaml::parse(file_get_contents(__DIR__ . '/../items.yml'));
+        $itemsInstances = [];
+        foreach ($items['items'] as $item) {
+            if (isset($item['indexed_metadata']['created_at'])) {
+                $date = new \DateTime($item['indexed_metadata']['created_at']);
+                $item['indexed_metadata']['created_at'] = $date->format(DATE_ATOM);
+            }
+            $itemsInstances[] = Item::createFromArray($item);
+        }
+        self::addItems($itemsInstances, self::$key);
+    }
+
+    /**
+     * Query using the bus.
+     *
+     * @param Query  $query
+     * @param string $key
+     *
+     * @return Result
+     */
+    public function query(
+        Query $query,
+        string $key = null
+    ) {
+        return self::$container
+            ->get('tactician.commandbus')
+            ->handle(new QueryCommand(
+                $key ?? self::$key,
+                $query
+            ));
+    }
+
+    /**
+     * Delete using the bus.
+     *
+     * @param ItemUUID[] $itemsUUID
+     * @param string     $key
+     */
+    public function deleteItems(
+        array $itemsUUID,
+        string $key = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new DeleteCommand(
+                $key ?? self::$key,
+                $itemsUUID
+            ));
+    }
+
+    /**
+     * Add items using the bus.
+     *
+     * @param Item[] $items
+     * @param string $key
+     */
+    public function addItems(
+        array $items,
+        string $key = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new IndexCommand(
+                $key ?? self::$key,
+                $items
+            ));
+    }
+
+    /**
+     * Reset repository using the bus.
+     *
+     * @param string $language
+     * @param string $key
+     */
+    public function reset(
+        string $language = null,
+        string $key = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new ResetCommand(
+                $key ?? self::$key,
+                $language
+            ));
+    }
 }

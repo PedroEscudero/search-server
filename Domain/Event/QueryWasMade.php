@@ -69,7 +69,7 @@ class QueryWasMade extends DomainEvent
     public static function fromPayload(string $payload) : array
     {
         return [
-            Result::createFromArray($payload),
+            Result::createFromArray(json_decode($payload, true)),
         ];
     }
 }

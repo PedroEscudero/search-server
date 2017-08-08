@@ -28,7 +28,6 @@ trait StopwordsSteemerTest
      */
     public function testSearchWithoutStopwords()
     {
-        $repository = static::$repository;
         $this->assertEmpty(
             $this->query(
                 Query::create('alamo', 1, 1)

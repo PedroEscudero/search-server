@@ -39,7 +39,6 @@ trait AggregationsTest
                     ->filterBy('color', 'color', ['pink'], FILTER::AT_LEAST_ONE)
             )
             ->getAggregations();
-        die();
 
         $aggregation = $aggregations->getAggregation('color');
         $this->assertCount(4, $aggregation->getCounters());
