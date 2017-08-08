@@ -3,7 +3,9 @@ routes:
     - "@PuntmigSearchServerBundle/Resources/config/routing.yml"
 config:
     imports:
-        - "@PuntmigSearchServerBundle/Resources/config/tactician.yml"
+        - { resource: "@PuntmigSearchServerBundle/Resources/config/tactician.yml"}
+        - { resource: "@BaseBundle/Resources/config/providers.yml"}
+
     parameters:
         kernel.secret: nsdjkfhdsupoifjñksd
         database_driver: pdo_mysql

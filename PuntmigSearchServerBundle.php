@@ -18,6 +18,7 @@ namespace Puntmig\Search\Server;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use League\Tactician\Bundle\TacticianBundle;
+use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\CompilerPass\MappingCompilerPass;
 use Mmoreram\BaseBundle\SimpleBaseBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -60,6 +61,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
             PuntmigSearchBundle::class,
             FrameworkBundle::class,
             MonologBundle::class,
+            BaseBundle::class,
             TacticianBundle::class,
             DoctrineBundle::class,
         ];
