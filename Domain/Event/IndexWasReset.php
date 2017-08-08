@@ -44,15 +44,15 @@ class IndexWasReset extends DomainEvent
     }
 
     /**
-     * To payload.
+     * To array.
      *
-     * @return string
+     * @return array
      */
-    public function toPayload() : string
+    public function toArray() : array
     {
-        return json_encode([
+        return [
             'language' => $this->language,
-        ]);
+        ];
     }
 
     /**

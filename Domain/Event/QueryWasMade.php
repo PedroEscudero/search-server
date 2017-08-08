@@ -16,7 +16,8 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\Event;
 
-use Puntmig\Search\Result\Result;
+use Puntmig\Search\Query\Filter;
+use Puntmig\Search\Query\User;
 
 /**
  * Class QueryWasMade.
@@ -24,39 +25,102 @@ use Puntmig\Search\Result\Result;
 class QueryWasMade extends DomainEvent
 {
     /**
-     * @var Result
+     * @var string
      *
-     * Result
+     * Query text
      */
-    private $result;
+    private $queryText;
 
     /**
-     * ItemsWasIndexed constructor.
+     * @var Filter[]
      *
-     * @param string $key
-     * @param Result $result
+     * Applied filters
+     */
+    private $appliedFilters;
+
+    /**
+     * @var string
+     *
+     * Sort field
+     */
+    private $sortField;
+
+    /**
+     * @var string
+     *
+     * Sort direction
+     */
+    private $sortDirection;
+
+    /**
+     * @var int
+     *
+     * Size
+     */
+    private $size;
+
+    /**
+     * @var User|null
+     *
+     * User
+     */
+    private $user;
+
+    /**
+     * QueryWasMade constructor.
+     *
+     * @param string    $key
+     * @param string    $queryText
+     * @param Filter[]  $appliedFilters
+     * @param string    $sortField
+     * @param string    $sortDirection
+     * @param int       $size
+     * @param User|null $user
      */
     public function __construct(
         string $key,
-        Result $result
+        string $queryText,
+        array $appliedFilters,
+        string $sortField,
+        string $sortDirection,
+        int $size,
+        ? User $user
     ) {
         $this->key = $key;
-        $this->result = $result;
+        $this->queryText = $queryText;
+        $this->appliedFilters = $appliedFilters;
+        $this->sortField = $sortField;
+        $this->sortDirection = $sortDirection;
+        $this->size = $size;
+        $this->user = $user;
         $this->setNow();
     }
 
     /**
-     * To payload.
+     * To array.
      *
-     * @return string
+     * @return array
      */
-    public function toPayload() : string
+    public function toArray() : array
     {
-        return json_encode(
-            $this
-                ->result
-                ->toArray()
-        );
+        return array_filter([
+            'q' => $this->queryText,
+            'filters' => array_map(function (Filter $filter) {
+                return $filter->toArray();
+            }, $this->appliedFilters),
+            'sort_field' => $this->sortField,
+            'sort_direction' => $this->sortDirection,
+            'size' => $this->size,
+            'user' => ($this->user instanceof User)
+                ? $this->user->toArray()
+                : null,
+        ], function ($element) {
+            return
+            !(
+                is_null($element) ||
+                (is_array($element) && empty($element))
+            );
+        });
     }
 
     /**
@@ -68,8 +132,21 @@ class QueryWasMade extends DomainEvent
      */
     public static function fromPayload(string $payload) : array
     {
+        $payload = json_decode($payload, true);
+
         return [
-            Result::createFromArray(json_decode($payload, true)),
+            $payload['q'],
+            array_values(
+                array_map(function (array $filter) {
+                    return Filter::createFromArray($filter);
+                }, ($payload['filters'] ?? []))
+            ),
+            $payload['sort_field'],
+            $payload['sort_direction'],
+            $payload['size'],
+            isset($payload['user'])
+                ? User::createFromArray($payload['user'])
+                : null,
         ];
     }
 }

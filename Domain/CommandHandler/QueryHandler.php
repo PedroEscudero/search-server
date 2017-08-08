@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\CommandHandler;
 
+use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Result\Result;
 use Puntmig\Search\Server\Domain\Command\QueryCommand;
 use Puntmig\Search\Server\Domain\Event\EventPublisher;
@@ -79,9 +80,37 @@ class QueryHandler
             ->eventPublisher
             ->publish(new QueryWasMade(
                 $key,
-                $result
+                $query->getQueryText(),
+                $this->filterFiltersByType($query->getFilters(), Filter::TYPE_FIELD),
+                array_keys($query->getSortBy())[0],
+                array_values($query->getSortBy())[0]['order'],
+                $query->getSize(),
+                $query->getUser()
             ));
 
         return $result;
+    }
+
+    /**
+     * Filter filters by type.
+     *
+     * @param Filter[] $filters
+     * @param string   $filterType
+     *
+     * @return Filter[]
+     */
+    private function filterFiltersByType(
+        array $filters,
+        string $filterType
+    ) : array {
+        return
+            array_values(
+                array_filter(
+                    $filters,
+                    function (Filter $filter) use ($filterType) {
+                        return $filter->getFilterType() === $filterType;
+                    }
+                )
+            );
     }
 }

@@ -44,17 +44,12 @@ class ElasticaWrapper
 
     /**
      * Construct.
+     *
+     * @param Client $client
      */
-    public function __construct()
+    public function __construct(Client $client)
     {
-        $this->client = new Client([
-            'servers' => [
-                'default' => [
-                    'host' => 'localhost',
-                    'port' => 9200,
-                ],
-            ],
-        ]);
+        $this->client = $client;
     }
 
     /**

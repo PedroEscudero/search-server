@@ -1,0 +1,4 @@
+services:
+
+    search_server.middleware.log_all_domain_events_to_elastica:
+        class: Puntmig\Search\Server\Domain\Middleware\EmptyMiddleware

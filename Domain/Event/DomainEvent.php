@@ -44,7 +44,7 @@ abstract class DomainEvent
      */
     protected function setNow()
     {
-        $this->occurredOn = Carbon::today('UTC')->getTimestamp();
+        $this->occurredOn = Carbon::now('UTC')->getTimestamp();
     }
 
     /**
@@ -100,7 +100,17 @@ abstract class DomainEvent
      *
      * @return string
      */
-    abstract public function toPayload() : string;
+    public function toPayload() : string
+    {
+        return json_encode($this->toArray());
+    }
+
+    /**
+     * To payload.
+     *
+     * @return array
+     */
+    abstract public function toArray() : array;
 
     /**
      * To payload.

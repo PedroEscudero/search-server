@@ -4,5 +4,6 @@ tactician:
             middleware:
                 - tactician.middleware.locking
                 - tactician.middleware.doctrine
+                - search_server.middleware.log_all_domain_events_to_elastica
                 - search_server.middleware.domain_events
                 - tactician.middleware.command_handler

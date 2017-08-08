@@ -46,17 +46,19 @@ class ItemsWereIndexed extends DomainEvent
     }
 
     /**
-     * To payload.
+     * To array.
      *
-     * @return string
+     * @return array
      */
-    public function toPayload() : string
+    public function toArray() : array
     {
-        return json_encode(
-            array_map(function (Item $item) {
-                return $item->toArray();
-            }, $this->items)
-        );
+        return [
+            'items' => array_values(
+                array_map(function (Item $item) {
+                    return $item->toArray();
+                }, $this->items)
+            ),
+        ];
     }
 
     /**
@@ -71,7 +73,7 @@ class ItemsWereIndexed extends DomainEvent
         return [
             array_map(function (array $item) {
                 return Item::createFromArray($item);
-            }, json_decode($payload, true)),
+            }, json_decode($payload, true)['items']),
         ];
     }
 }

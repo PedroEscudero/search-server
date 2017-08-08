@@ -3,8 +3,15 @@ services:
     #
     # Elastica related services
     #
+    search_server.elastica_client:
+        class: Elastica\Client
+        arguments:
+            - { servers: { default: { host: localhost, port: 9200}}}
+
     search_server.elastica_wrapper:
         class: Puntmig\Search\Server\Elastica\ElasticaWrapper
+        arguments:
+            - "@search_server.elastica_client"
 
     #
     # Elastica repositories
@@ -37,3 +44,13 @@ services:
             - "@search_server.elastica_query_repository"
             - "@search_server.elastica_index_repository"
             - "@search_server.elastica_delete_repository"
+
+    #
+    # Middlewares
+    #
+    search_server.middleware.log_all_domain_events_to_elastica:
+        class: Puntmig\Search\Server\Elastica\Middleware\LogAllDomainEventsToElasticaMiddleware
+        arguments:
+            - "@search_server.elastica_client"
+            - "@search_server.event_publisher"
+        public: false

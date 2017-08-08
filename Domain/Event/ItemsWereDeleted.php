@@ -46,17 +46,19 @@ class ItemsWereDeleted extends DomainEvent
     }
 
     /**
-     * To payload.
+     * To array.
      *
-     * @return string
+     * @return array
      */
-    public function toPayload() : string
+    public function toArray() : array
     {
-        return json_encode(
-            array_map(function (ItemUUID $itemUUID) {
-                return $itemUUID->toArray();
-            }, $this->itemsUUID)
-        );
+        return [
+            'items' => array_values(
+                array_map(function (ItemUUID $itemUUID) {
+                    return $itemUUID->toArray();
+                }, $this->itemsUUID)
+            ),
+        ];
     }
 
     /**
@@ -71,7 +73,7 @@ class ItemsWereDeleted extends DomainEvent
         return [
             array_map(function (array $itemUUID) {
                 return ItemUUID::createFromArray($itemUUID);
-            }, json_decode($payload, true)),
+            }, json_decode($payload, true)['items']),
         ];
     }
 }

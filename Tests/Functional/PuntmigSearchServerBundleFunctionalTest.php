@@ -53,6 +53,10 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
             $imports[] = ['resource' => '@PuntmigSearchServerBundle/Resources/test/eventStore.yml'];
         }
 
+        if (!static::logDomainEvents()) {
+            $imports[] = ['resource' => '@PuntmigSearchServerBundle/Resources/test/logDomainEventsMiddleware.yml'];
+        }
+
         return new BaseKernel(
             [
                 BaseBundle::class,
@@ -99,18 +103,28 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     }
 
     /**
+     * Log domain events.
+     *
+     * @return bool
+     */
+    protected static function logDomainEvents() : bool
+    {
+        return true;
+    }
+
+    /**
      * @var string
      *
      * Used api key
      */
-    protected static $key = 'hjk45hj4k4';
+    public static $key = 'hjk45hj4k4';
 
     /**
      * @var string
      *
      * Another used api key
      */
-    protected static $anotherKey = '5h43jk5h43';
+    public static $anotherKey = '5h43jk5h43';
 
     /**
      * Sets up the fixture, for example, open a network connection.
