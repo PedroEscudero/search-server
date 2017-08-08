@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Core;
+namespace Puntmig\Search\Server\Elastica\Repository;
 
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
@@ -34,11 +34,13 @@ use Puntmig\Search\Query\SortBy;
 use Puntmig\Search\Result\Aggregation as ResultAggregation;
 use Puntmig\Search\Result\Aggregations as ResultAggregations;
 use Puntmig\Search\Result\Result;
+use Puntmig\Search\Server\Domain\Repository\QueryRepository as BaseQueryRepository;
+use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
 
 /**
  * Class QueryRepository.
  */
-class QueryRepository extends ElasticaWithKeyWrapper
+class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryRepository
 {
     /**
      * Search cross the index types.

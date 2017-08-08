@@ -29,15 +29,13 @@ trait ExcludeReferencesTest
      */
     public function testExcludeProducts()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->excludeUUID(new ItemUUID('2', 'product'))),
+            $this->query(Query::createMatchAll()->excludeUUID(new ItemUUID('2', 'product'))),
             ['?1', '!2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->excludeUUIDs([
+            $this->query(Query::createMatchAll()->excludeUUIDs([
                 new ItemUUID('2', 'product'),
                 new ItemUUID('3', 'book'),
                 new ItemUUID('4', 'superbike'),
@@ -47,7 +45,7 @@ trait ExcludeReferencesTest
         );
 
         $this->assertEmpty(
-            $repository->query(Query::create('engonga')->excludeUUID(new ItemUUID('3', 'book')))->getItems()
+            $this->query(Query::create('engonga')->excludeUUID(new ItemUUID('3', 'book')))->getItems()
         );
     }
 }

@@ -14,9 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Core;
-
-use Puntmig\Search\Server\Elastica\ElasticaWrapper;
+namespace Puntmig\Search\Server\Elastica;
 
 /**
  * Class ElasticaWithKeyWrapper.
@@ -52,7 +50,7 @@ abstract class ElasticaWithKeyWrapper
      *
      * @param string $key
      */
-    public function setKey($key)
+    public function setKey(string $key)
     {
         $this->key = $key;
     }

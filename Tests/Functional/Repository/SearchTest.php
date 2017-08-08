@@ -30,11 +30,10 @@ trait SearchTest
      */
     public function testMatchAll()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createMatchAll());
+        $result = $this->query(Query::createMatchAll());
         $this->assertSame(
             count($result->getItems()),
-            $this->get('search_bundle.elastica_wrapper')->getType(self::$key, 'item')->count()
+            $this->get('search_server.elastica_wrapper')->getType(self::$key, 'item')->count()
         );
     }
 
@@ -43,9 +42,7 @@ trait SearchTest
      */
     public function testBasicSearch()
     {
-        $repository = static::$repository;
-
-        $result = $repository->query(Query::create('badal'));
+        $result = $this->query(Query::create('badal'));
         $this->assertNTypeElementId($result, 0, '5');
     }
 
@@ -54,9 +51,7 @@ trait SearchTest
      */
     public function testAllResults()
     {
-        $repository = static::$repository;
-
-        $results = $repository
+        $results = $this
             ->query(Query::create('barcelona'))
             ->getItems();
 
@@ -69,8 +64,7 @@ trait SearchTest
      */
     public function testSearchByReference()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createByUUID(new ItemUUID('4', 'bike')));
+        $result = $this->query(Query::createByUUID(new ItemUUID('4', 'bike')));
         $this->assertCount(1, $result->getItems());
         $this->assertSame('4', $result->getItems()[0]->getUUID()->getId());
         $this->assertSame('bike', $result->getItems()[0]->getUUID()->getType());
@@ -81,8 +75,7 @@ trait SearchTest
      */
     public function testSearchByReferences()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createByUUIDs([
+        $result = $this->query(Query::createByUUIDs([
             new ItemUUID('5', 'gum'),
             new ItemUUID('3', 'book'),
         ]));
@@ -90,8 +83,7 @@ trait SearchTest
         $this->assertSame('3', $result->getItems()[0]->getUUID()->getId());
         $this->assertSame('5', $result->getItems()[1]->getUUID()->getId());
 
-        $repository = static::$repository;
-        $result = $repository->query(Query::createByUUIDs([
+        $result = $this->query(Query::createByUUIDs([
             new ItemUUID('5', 'gum'),
             new ItemUUID('5', 'gum'),
         ]));

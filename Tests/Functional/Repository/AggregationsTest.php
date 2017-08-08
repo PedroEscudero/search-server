@@ -29,25 +29,17 @@ use Puntmig\Search\Query\Query;
 trait AggregationsTest
 {
     /**
-     * Test something.
-     */
-    public function testSomething()
-    {
-        $repository = static::$repository;
-    }
-
-    /**
      * Test basic aggregations.
      */
     public function testBasicAggregations()
     {
-        $repository = static::$repository;
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->filterBy('color', 'color', ['pink'], FILTER::AT_LEAST_ONE)
             )
             ->getAggregations();
+        die();
 
         $aggregation = $aggregations->getAggregation('color');
         $this->assertCount(4, $aggregation->getCounters());
@@ -71,8 +63,7 @@ trait AggregationsTest
      */
     public function testNullAggregation()
     {
-        $repository = static::$repository;
-        $aggregations = $repository->query(
+        $aggregations = $this->query(
             Query::createMatchAll()
                 ->filterBy('nonexistent', 'nonexistent', [])
         )
@@ -89,8 +80,7 @@ trait AggregationsTest
      */
     public function testDisableAggregations()
     {
-        $repository = static::$repository;
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->filterBy('color', 'color', ['1'], FILTER::AT_LEAST_ONE)
@@ -106,8 +96,7 @@ trait AggregationsTest
      */
     public function testEditorialAggregations()
     {
-        $repository = static::$repository;
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->aggregateBy(
@@ -126,8 +115,7 @@ trait AggregationsTest
      */
     public function testSimpleOneToManyAggregations()
     {
-        $repository = static::$repository;
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->aggregateBy(
@@ -146,8 +134,7 @@ trait AggregationsTest
      */
     public function testAuthorAggregations()
     {
-        $repository = static::$repository;
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->aggregateBy(
@@ -166,8 +153,7 @@ trait AggregationsTest
      */
     public function testAggregationWithMetadataFormatConversion()
     {
-        $repository = static::$repository;
-        $repository->addItem(Item::create(
+        $this->addItems([Item::create(
             new ItemUUID('1', 'testing'),
             [],
             [
@@ -179,10 +165,9 @@ trait AggregationsTest
                     ]),
                 ],
             ]
-        ));
+        )]);
 
-        $repository->flush();
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->aggregateBy(
@@ -206,8 +191,7 @@ trait AggregationsTest
      */
     public function testLeveledAggregations()
     {
-        $repository = static::$repository;
-        $aggregation = $repository
+        $aggregation = $this
             ->query(
                 Query::createMatchAll()
                     ->aggregateBy('category', 'category_data', FILTER::MUST_ALL_WITH_LEVELS)
@@ -217,7 +201,7 @@ trait AggregationsTest
         $this->assertTrue(array_key_exists('1', $aggregation->getCounters()));
         $this->assertTrue(array_key_exists('7', $aggregation->getCounters()));
 
-        $aggregation = $repository
+        $aggregation = $this
             ->query(
                 Query::createMatchAll()
                     ->filterBy('category', 'category', ['1'], FILTER::MUST_ALL_WITH_LEVELS)
@@ -228,7 +212,7 @@ trait AggregationsTest
         $this->assertTrue(array_key_exists('2', $aggregation->getCounters()));
         $this->assertTrue(array_key_exists('5', $aggregation->getCounters()));
 
-        $aggregation = $repository
+        $aggregation = $this
             ->query(
                 Query::createMatchAll()
                     ->filterBy('category', 'category', ['2'], FILTER::MUST_ALL_WITH_LEVELS)
@@ -247,7 +231,7 @@ trait AggregationsTest
     {
         $this->assertCount(
             1,
-            static::$repository->query(Query::createMatchAll()
+            $this->query(Query::createMatchAll()
                 ->filterUniverseByDateRange('created_at', ['2020-02-02..2020-04-04'], Filter::AT_LEAST_ONE)
                 ->aggregateByDateRange('created_at', 'created_at', ['2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE)
             )->getAggregation('created_at')
@@ -255,7 +239,7 @@ trait AggregationsTest
 
         $this->assertCount(
             2,
-            static::$repository->query(Query::createMatchAll()
+            $this->query(Query::createMatchAll()
                 ->filterUniverseByDateRange('created_at', ['2020-02-02..2020-04-04'], Filter::AT_LEAST_ONE)
                 ->aggregateByDateRange('created_at', 'created_at', ['2020-02-02..2020-03-03', '2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE)
             )->getAggregation('created_at')
@@ -279,7 +263,7 @@ trait AggregationsTest
             ? $query->aggregateBy('sortable', 'sortable_data', FILTER::AT_LEAST_ONE)
             : $query->aggregateBy('sortable', 'sortable_data', FILTER::AT_LEAST_ONE, $order);
 
-        $counters = static::$repository
+        $counters = $this
             ->query($query)
             ->getAggregation('sortable')
             ->getCounters();
@@ -307,8 +291,7 @@ trait AggregationsTest
      */
     public function testLimit()
     {
-        $repository = static::$repository;
-        $aggregations = $repository
+        $aggregations = $this
             ->query(
                 Query::createMatchAll()
                     ->aggregateBy(

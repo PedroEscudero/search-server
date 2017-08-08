@@ -32,10 +32,8 @@ trait LocationFiltersTest
      */
     public function testLocationFilterCoordinateAndDistance()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),
                     '100km'
@@ -47,7 +45,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),
                     '557km'
@@ -59,7 +57,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),
                     '1180km'
@@ -71,7 +69,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),
                     '1320km'
@@ -83,7 +81,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),
                     '2123km'
@@ -95,7 +93,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),
                     '2350km'
@@ -112,10 +110,8 @@ trait LocationFiltersTest
      */
     public function testLocationFilterSquare()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new Square(
                     new Coordinate(46.0, 44.0),
                     new Coordinate(44.0, 46.0)
@@ -127,7 +123,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new Square(
                     new Coordinate(61.0, 29.0),
                     new Coordinate(29.0, 61.0)
@@ -139,7 +135,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new Square(
                     new Coordinate(61.0, 29.0),
                     new Coordinate(29.0, 71.0)
@@ -156,10 +152,8 @@ trait LocationFiltersTest
      */
     public function testLocationFilterPolygon()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new Polygon(
                     new Coordinate(46.0, 44.0),
                     new Coordinate(44.0, 44.0),
@@ -173,7 +167,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new Polygon(
                     new Coordinate(61.0, 29.0),
                     new Coordinate(29.0, 29.0),
@@ -187,7 +181,7 @@ trait LocationFiltersTest
         );
 
         $this->assertResults(
-            $repository->query($this->createLocatedQuery()->filterByLocation(
+            $this->query($this->createLocatedQuery()->filterByLocation(
                 new Polygon(
                     new Coordinate(61.0, 29.0),
                     new Coordinate(29.0, 29.0),

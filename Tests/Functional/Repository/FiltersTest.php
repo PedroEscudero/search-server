@@ -30,20 +30,18 @@ trait FiltersTest
      */
     public function testFilterBySimpleFields()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByIds(['1'])),
+            $this->query(Query::createMatchAll()->filterByIds(['1'])),
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByIds(['1', '2'])),
+            $this->query(Query::createMatchAll()->filterByIds(['1', '2'])),
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('id', 'id', ['1', '2'])),
+            $this->query(Query::createMatchAll()->filterBy('id', 'id', ['1', '2'])),
             ['?1', '?2', '!3', '!4', '!5']
         );
     }
@@ -53,40 +51,38 @@ trait FiltersTest
      */
     public function testFilterBydataFields()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('i', 'field_integer', ['10'], Filter::MUST_ALL)),
+            $this->query(Query::createMatchAll()->filterBy('i', 'field_integer', ['10'], Filter::MUST_ALL)),
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('b', 'field_boolean', ['true'], Filter::MUST_ALL)),
+            $this->query(Query::createMatchAll()->filterBy('b', 'field_boolean', ['true'], Filter::MUST_ALL)),
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('k', 'field_keyword', ['my_keyword'], Filter::MUST_ALL)),
+            $this->query(Query::createMatchAll()->filterBy('k', 'field_keyword', ['my_keyword'], Filter::MUST_ALL)),
             ['?1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow'], Filter::AT_LEAST_ONE)),
+            $this->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow'], Filter::AT_LEAST_ONE)),
             ['!1', '!2', '?3', '!4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow', 'red'], Filter::MUST_ALL)),
+            $this->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow', 'red'], Filter::MUST_ALL)),
             ['!1', '!2', '!3', '!4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow', 'nonexistent'], Filter::MUST_ALL)),
+            $this->query(Query::createMatchAll()->filterBy('color', 'color', ['yellow', 'nonexistent'], Filter::MUST_ALL)),
             ['!1', '!2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('color', 'color', ['nonexistent'], Filter::AT_LEAST_ONE)),
+            $this->query(Query::createMatchAll()->filterBy('color', 'color', ['nonexistent'], Filter::AT_LEAST_ONE)),
             ['!1', '!2', '!3', '!4', '!5']
         );
     }
@@ -96,35 +92,35 @@ trait FiltersTest
      */
     public function testTypeFilter()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes(['product'])),
+            $this->query(Query::createMatchAll()->filterByTypes(['product'])),
             ['?1', '?2', '!3', '!4', '!5', '!800']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterBy('type', 'type', ['product'])),
+            $this->query(Query::createMatchAll()->filterBy('type', 'type', ['product'])),
             ['?1', '?2', '!3', '!4', '!5', '!800']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes(['product', 'book'])),
+            $this->query(Query::createMatchAll()->filterByTypes(['product', 'book'])),
             ['?1', '?2', '?3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByTypes(['book'])),
+            $this->query(Query::createMatchAll()->filterByTypes(['book'])),
             ['!1', '!2', '?3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes(['_nonexistent']))->getItems()
+            $this->query(Query::createMatchAll()->filterByTypes(['_nonexistent']))->getItems()
         );
 
-        $repository->setKey(self::$anotherKey);
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByTypes(['product']))->getItems()
+            $this->query(
+                Query::createMatchAll()->filterByTypes(['product']),
+                self::$anotherKey
+            )->getItems()
         );
     }
 
@@ -133,49 +129,49 @@ trait FiltersTest
      */
     public function testPriceRangeFilter()
     {
-        $repository = static::$repository;
-
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1000..2000'])),
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1000..2000'])),
             ['!1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1000..2001'])->filterByTypes(['book'])),
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1000..2001'])->filterByTypes(['book'])),
             ['!1', '!2', '?3', '!4', '!5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['900..1900'])),
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['900..1900'])),
             ['?1', '?2', '!3', '!4', '!5']
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['100..200']))->getItems()
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['100..200']))->getItems()
         );
 
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..1']))->getItems()
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..1']))->getItems()
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1'])),
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1'])),
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1..-1'])),
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['1..-1'])),
             ['?1', '?2', '?3', '?4', '?5']
         );
 
         $this->assertResults(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..0'])->filterByRange('price', 'price', [], ['0..-1'])),
+            $this->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..0'])->filterByRange('price', 'price', [], ['0..-1'])),
             ['?1', '?2', '?3', '?4', '?5']
         );
 
-        $repository->setKey(self::$anotherKey);
         $this->assertEmpty(
-            $repository->query(Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1']))->getItems()
+            $this->query(
+                Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1']),
+                self::$anotherKey
+            )->getItems()
         );
     }
 
@@ -234,7 +230,7 @@ trait FiltersTest
      */
     private function buildCreatedAtFilteredResult(string $filter) : Result
     {
-        return static::$repository->query(Query::createMatchAll()->filterByDateRange('created_at', 'created_at', [], [$filter], Filter::AT_LEAST_ONE, false));
+        return $this->query(Query::createMatchAll()->filterByDateRange('created_at', 'created_at', [], [$filter], Filter::AT_LEAST_ONE, false));
     }
 
     /**
@@ -284,7 +280,7 @@ trait FiltersTest
 
         $this->assertCount(
             1,
-            static::$repository->query(Query::createMatchAll()
+            $this->query(Query::createMatchAll()
                 ->filterUniverseByDateRange('created_at', ['2020-02-02..2020-04-04'], Filter::AT_LEAST_ONE)
                 ->filterByDateRange('created_at', 'created_at', [], ['2020-03-03..2020-04-04'], Filter::AT_LEAST_ONE, false)
             )->getItems()
@@ -300,6 +296,6 @@ trait FiltersTest
      */
     private function buildCreatedAtUniverseFilteredResult(string $filter) : Result
     {
-        return static::$repository->query(Query::createMatchAll()->filterUniverseByDateRange('created_at', [$filter], Filter::AT_LEAST_ONE));
+        return $this->query(Query::createMatchAll()->filterUniverseByDateRange('created_at', [$filter], Filter::AT_LEAST_ONE));
     }
 }

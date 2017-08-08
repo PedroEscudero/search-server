@@ -28,26 +28,25 @@ trait ExactMatchingMetadataTest
      */
     public function testSpecialWords()
     {
-        $repository = static::$repository;
-        $item = $repository->query(Query::create('Vinci'))->getItems()[0];
+        $item = $this->query(Query::create('Vinci'))->getItems()[0];
         $this->assertSame(
             '5',
             $item->getUUID()->getId()
         );
 
-        $item = $repository->query(Query::create('vinci'))->getItems()[0];
+        $item = $this->query(Query::create('vinci'))->getItems()[0];
         $this->assertSame(
             '5',
             $item->getUUID()->getId()
         );
 
-        $item = $repository->query(Query::create('vinc'))->getItems()[0];
+        $item = $this->query(Query::create('vinc'))->getItems()[0];
         $this->assertSame(
             '3',
             $item->getUUID()->getId()
         );
 
-        $item = $repository->query(Query::create('engonga'))->getItems()[0];
+        $item = $this->query(Query::create('engonga'))->getItems()[0];
         $this->assertSame(
             '3',
             $item->getUUID()->getId()

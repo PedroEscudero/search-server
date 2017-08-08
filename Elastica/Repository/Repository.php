@@ -14,21 +14,18 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Repository;
+namespace Puntmig\Search\Server\Elastica\Repository;
 
 use Puntmig\Search\Model\Item;
 use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Query;
-use Puntmig\Search\Repository\Repository;
+use Puntmig\Search\Repository\Repository as BaseRepository;
 use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Core\DeleteRepository;
-use Puntmig\Search\Server\Core\IndexRepository;
-use Puntmig\Search\Server\Core\QueryRepository;
 
 /**
- * Class ServiceRepository.
+ * Class Repository.
  */
-class ServiceRepository extends Repository
+class Repository extends BaseRepository
 {
     /**
      * @var QueryRepository

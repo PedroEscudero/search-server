@@ -30,8 +30,7 @@ trait SortTest
      */
     public function testSortByIndexableMetadataIntegerAsc()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_int' => 'asc']));
+        $result = $this->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_int' => 'asc']));
         $this->assertResults(
             $result,
             ['5', '3', '2', '1', '4']
@@ -43,8 +42,7 @@ trait SortTest
      */
     public function testSortByIndexableMetadataIntegerDesc()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_int' => 'desc']));
+        $result = $this->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_int' => 'desc']));
         $this->assertResults(
             $result,
             ['4', '1', '2', '3', '5']
@@ -56,8 +54,7 @@ trait SortTest
      */
     public function testSortByIndexableMetadataStringAsc()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_string' => 'asc']));
+        $result = $this->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_string' => 'asc']));
         $this->assertResults(
             $result,
             ['5', '2', '3', '4', '1']
@@ -69,8 +66,7 @@ trait SortTest
      */
     public function testSortByIndexableMetadataStringDesc()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_string' => 'desc']));
+        $result = $this->query(Query::createMatchAll()->sortBy(['indexed_metadata.simple_string' => 'desc']));
         $this->assertResults(
             $result,
             ['1', '4', '3', '2', '5']
@@ -82,8 +78,7 @@ trait SortTest
      */
     public function testSortByLocationKmAsc()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createLocated(new Coordinate(45.0, 45.0), '')->sortBy(SortBy::LOCATION_KM_ASC));
+        $result = $this->query(Query::createLocated(new Coordinate(45.0, 45.0), '')->sortBy(SortBy::LOCATION_KM_ASC));
         $this->assertResults(
             $result,
             ['3', '4', '2', '1', '5']
@@ -99,8 +94,7 @@ trait SortTest
      */
     public function testSortByLocationKmDesc()
     {
-        $repository = static::$repository;
-        $result = $repository->query(Query::createLocated(new Coordinate(45.0, 45.0), '')->sortBy(SortBy::LOCATION_MI_ASC));
+        $result = $this->query(Query::createLocated(new Coordinate(45.0, 45.0), '')->sortBy(SortBy::LOCATION_MI_ASC));
         $this->assertResults(
             $result,
             ['3', '4', '2', '1', '5']
@@ -135,6 +129,6 @@ trait SortTest
      */
     private function generateFirstResultRandomSort()
     {
-        return self::$repository->query(Query::createMatchAll()->sortBy(SortBy::RANDOM))->getFirstItem()->getId();
+        return $this->query(Query::createMatchAll()->sortBy(SortBy::RANDOM))->getFirstItem()->getId();
     }
 }

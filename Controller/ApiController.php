@@ -16,18 +16,20 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Controller;
 
+use League\Tactician\CommandBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
-use Puntmig\Search\Model\HttpTransportable;
 use Puntmig\Search\Model\Item;
 use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Query;
-use Puntmig\Search\Server\Core\DeleteRepository;
-use Puntmig\Search\Server\Core\IndexRepository;
-use Puntmig\Search\Server\Core\QueryRepository;
+use Puntmig\Search\Server\Domain\Command\DeleteCommand;
+use Puntmig\Search\Server\Domain\Command\IndexCommand;
+use Puntmig\Search\Server\Domain\Command\QueryCommand;
+use Puntmig\Search\Server\Domain\Command\ResetCommand;
+use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
+use Puntmig\Search\Server\Domain\Exception\InvalidQueryException;
+use Puntmig\Search\Server\Domain\Repository\QueryRepository;
 
 /**
  * Class ApiController.
@@ -35,61 +37,31 @@ use Puntmig\Search\Server\Core\QueryRepository;
 class ApiController
 {
     /**
+     * @var CommandBus
+     *
+     * Message bus
+     */
+    private $commandBus;
+
+    /**
      * @var QueryRepository
      *
-     * Query repository
+     * Query Repository
      */
     private $queryRepository;
 
     /**
-     * @var IndexRepository
+     * ApiController constructor.
      *
-     * Index repository
-     */
-    private $indexRepository;
-
-    /**
-     * @var DeleteRepository
-     *
-     * Delete repository
-     */
-    private $deleteRepository;
-
-    /**
-     * @var string
-     *
-     * Key
-     */
-    private $key;
-
-    /**
-     * ServiceRepository constructor.
-     *
-     * @param QueryRepository  $queryRepository
-     * @param IndexRepository  $indexRepository
-     * @param DeleteRepository $deleteRepository
+     * @param CommandBus      $commandBus
+     * @param QueryRepository $queryRepository
      */
     public function __construct(
-        QueryRepository $queryRepository,
-        IndexRepository $indexRepository,
-        DeleteRepository $deleteRepository
+        CommandBus $commandBus,
+        QueryRepository $queryRepository
     ) {
+        $this->commandBus = $commandBus;
         $this->queryRepository = $queryRepository;
-        $this->indexRepository = $indexRepository;
-        $this->deleteRepository = $deleteRepository;
-    }
-
-    /**
-     * Set key.
-     *
-     * @param string $key
-     */
-    public function setKey(string $key)
-    {
-        $this->key = $key;
-        $this->queryRepository->setKey($key);
-        $this->indexRepository->setKey($key);
-        $this->deleteRepository->setKey($key);
     }
 
     /**
@@ -101,21 +73,26 @@ class ApiController
      */
     public function query(Request $request)
     {
-        $query = $this->checkRequestQuality(
-            $request,
-            'query',
-            'query'
-        );
+        $query = $request->query;
 
-        if ($query instanceof Response) {
-            return $query;
-        }
+        return $this->generateResponse(
+            function () use ($query) {
+                $plainQuery = $query->get('query', null);
+                if (!is_string($plainQuery)) {
+                    throw new InvalidQueryException();
+                }
 
-        return new JsonResponse(
-            $this
-                ->queryRepository
-                ->query(Query::createFromArray($query))
-                ->toArray()
+                return new JsonResponse(
+                    $this
+                    ->commandBus
+                    ->handle(new QueryCommand(
+                        $query->get('key', ''),
+                        Query::createFromArray(json_decode($plainQuery, true))
+                    ))
+                    ->toArray(),
+                    200
+                );
+            }
         );
     }
 
@@ -128,28 +105,27 @@ class ApiController
      */
     public function index(Request $request)
     {
-        $objects = $this->checkRequestQuality(
-            $request,
-            'request',
-            'items'
+        $request = $request->request;
+
+        return $this->generateResponse(
+            function () use ($request) {
+                $items = $request->get('items', null);
+                if (!is_string($items)) {
+                    throw new InvalidQueryException();
+                }
+
+                $this
+                    ->commandBus
+                    ->handle(new IndexCommand(
+                        $request->get('key', ''),
+                        array_map(function (array $object) {
+                            return Item::createFromArray($object);
+                        }, json_decode($items, true))
+                    ));
+
+                return new JsonResponse('Items indexed', 200);
+            }
         );
-
-        if ($objects instanceof Response) {
-            return $objects;
-        }
-
-        /**
-         * @var HttpTransportable $objectNamespace
-         */
-        $this
-            ->indexRepository
-            ->addItems(
-                array_map(function (array $object) {
-                    return Item::createFromArray($object);
-                }, $objects)
-            );
-
-        return new JsonResponse('Items indexed', 200);
     }
 
     /**
@@ -161,28 +137,27 @@ class ApiController
      */
     public function delete(Request $request)
     {
-        $objects = $this->checkRequestQuality(
-            $request,
-            'request',
-            'items'
+        $request = $request->request;
+
+        return $this->generateResponse(
+            function () use ($request) {
+                $items = $request->get('items', null);
+                if (!is_string($items)) {
+                    throw new InvalidQueryException();
+                }
+
+                $this
+                    ->commandBus
+                    ->handle(new DeleteCommand(
+                        $request->get('key', ''),
+                        array_map(function (array $object) {
+                            return ItemUUID::createFromArray($object);
+                        }, json_decode($items, true))
+                    ));
+
+                return new JsonResponse('Items deleted', 200);
+            }
         );
-
-        if ($objects instanceof Response) {
-            return $objects;
-        }
-
-        /**
-         * @var HttpTransportable $objectNamespace
-         */
-        $this
-            ->deleteRepository
-            ->deleteItems(
-                array_map(function (array $object) {
-                    return ItemUUID::createFromArray($object);
-                }, $objects)
-            );
-
-        return new JsonResponse('Items deleted', 200);
     }
 
     /**
@@ -194,66 +169,44 @@ class ApiController
      */
     public function reset(Request $request)
     {
-        $query = $this->checkRequestQuality(
-            $request,
-            'request'
+        $request = $request->request;
+
+        return $this->generateResponse(
+            function () use ($request) {
+                $this
+                    ->commandBus
+                    ->handle(new ResetCommand(
+                        $request->get('key', ''),
+                        $request->get('language', null)
+                    ));
+
+                return new JsonResponse('Items created', 200);
+            }
         );
-
-        if ($query instanceof Response) {
-            return $query;
-        }
-
-        $language = $request
-            ->request
-            ->get('language', null);
-
-        $this
-            ->indexRepository
-            ->createIndex($language);
-
-        return new JsonResponse('Index created', 200);
     }
 
     /**
-     * Check query quality.
+     * Generate response.
      *
-     * @param Request $request
-     * @param string  $bagName
-     * @param string  $parameterName
+     * @param callable $callable
      *
-     * @return array|JsonResponse
+     * @return JsonResponse
      */
-    private function checkRequestQuality(
-        Request $request,
-        string $bagName,
-        string $parameterName = null
-    ) {
-        /**
-         * @var ParameterBag $bag
-         */
-        $bag = $request->$bagName;
-        $key = $bag->get('key', null);
-
-        if (is_null($key)) {
+    private function generateResponse(callable $callable) : JsonResponse
+    {
+        try {
+            $response = $callable();
+        } catch (InvalidKeyException $e) {
             return new JsonResponse([
                 'message' => 'Invalid key',
             ], 401);
-        }
-
-        $this->setKey($key);
-
-        if (is_null($parameterName)) {
-            return [];
-        }
-
-        $parameter = $bag->get($parameterName, null);
-
-        if (is_null($parameter)) {
+        } catch (InvalidQueryException $e) {
             return new JsonResponse([
                 'message' => 'Invalid query',
+                'trace' => $e->getMessage(),
             ], 400);
         }
 
-        return json_decode($parameter, true);
+        return $response;
     }
 }

@@ -30,21 +30,20 @@ trait DeletionTest
      */
     public function testItemDeletions()
     {
-        static::$repository->deleteItem(new ItemUUID('1', 'product'));
-        self::$repository->flush();
-        $this->assertSame(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
-        static::$repository->deleteItem(new ItemUUID('1', 'product'));
-        self::$repository->flush();
-        $this->assertSame(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
-        static::$repository->deleteItem(new ItemUUID('75894379573', 'product'));
-        self::$repository->flush();
-        $this->assertSame(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
-        static::$repository->deleteItem(new ItemUUID('5', 'product'));
-        self::$repository->flush();
-        $this->assertSame(4, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
-        static::$repository->deleteItem(new ItemUUID('5', 'gum'));
-        self::$repository->flush();
-        $this->assertSame(3, $this->get('search_bundle.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
+        $this->deleteItems([new ItemUUID('1', 'product')]);
+        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
+
+        $this->deleteItems([new ItemUUID('1', 'product')]);
+        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
+
+        $this->deleteItems([new ItemUUID('75894379573', 'product')]);
+        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
+
+        $this->deleteItems([new ItemUUID('5', 'product')]);
+        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
+
+        $this->deleteItems([new ItemUUID('5', 'gum')]);
+        $this->assertSame(3, $this->get('search_server.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
 
         /**
          * Reseting scenario for next calls.

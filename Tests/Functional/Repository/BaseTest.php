@@ -57,9 +57,9 @@ abstract class BaseTest
      */
     public static function resetScenario()
     {
-        self::get('search_bundle.elastica_wrapper')->deleteIndex(self::$key);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1, 1, null);
-        self::get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1, 1, null);
+        self::get('search_server.elastica_wrapper')->deleteIndex(self::$key);
+        self::get('search_server.elastica_wrapper')->createIndexMapping(self::$key, 1, 1, null);
+        self::get('search_server.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1, 1, null);
 
         self::$repository = self::get(static::getRepositoryServiceName());
         self::$repository->setKey(self::$key);

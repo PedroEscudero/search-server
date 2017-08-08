@@ -1,26 +1,26 @@
 #
 # API
 #
-search_bundle_api_query:
+search_server_api_query:
     path: /
     methods: ["GET"]
     defaults:
-        _controller: search_bundle.api_controller:query
+        _controller: search_server.api_controller:query
 
-search_bundle_api_reset:
+search_server_api_reset:
     path: /
     methods: ["DELETE"]
     defaults:
-        _controller: search_bundle.api_controller:reset
+        _controller: search_server.api_controller:reset
 
-search_bundle_api_index:
+search_server_api_index:
     path: /items
     methods: ["POST"]
     defaults:
-        _controller: search_bundle.api_controller:index
+        _controller: search_server.api_controller:index
 
-search_bundle_api_delete:
+search_server_api_delete:
     path: /items
     methods: ["DELETE"]
     defaults:
-        _controller: search_bundle.api_controller:delete
+        _controller: search_server.api_controller:delete

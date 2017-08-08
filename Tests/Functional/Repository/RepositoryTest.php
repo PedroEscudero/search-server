@@ -19,8 +19,14 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 use Symfony\Component\Yaml\Yaml;
 
 use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Query\Query;
 use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Result\Result;
+use Puntmig\Search\Server\Domain\Command\DeleteCommand;
+use Puntmig\Search\Server\Domain\Command\IndexCommand;
+use Puntmig\Search\Server\Domain\Command\QueryCommand;
+use Puntmig\Search\Server\Domain\Command\ResetCommand;
 use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
 
 /**
@@ -39,6 +45,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     use SuggestTest;
     use SearchTest;
     use StopwordsSteemerTest;
+    use EventPersistenceTest;
 
     /**
      * @var Repository
@@ -78,41 +85,19 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
      */
     public static function resetScenario(? string $language = null)
     {
-        self::$container->get('search_bundle.elastica_wrapper')->deleteIndex(self::$key);
-        self::$container->get('search_bundle.elastica_wrapper')->createIndexMapping(self::$key, 1, 1, $language);
-        self::$container->get('search_bundle.elastica_wrapper')->createIndexMapping(self::$anotherKey, 1, 1, $language);
-
-        self::$repository = self::$container->get(static::getRepositoryServiceName());
-        self::$repository->setKey(self::$key);
+        self::reset($language, self::$key);
+        //self::$container->get('search_server.event_store')->reset();
         $items = Yaml::parse(file_get_contents(__DIR__ . '/../../items.yml'));
+        self::$repository = self::$container->get(static::getRepositoryServiceName());
+        $itemsInstances = [];
         foreach ($items['items'] as $item) {
             if (isset($item['indexed_metadata']['created_at'])) {
                 $date = new \DateTime($item['indexed_metadata']['created_at']);
                 $item['indexed_metadata']['created_at'] = $date->format(DATE_ATOM);
             }
-
-            self::$repository->addItem(
-                Item::createFromArray($item)
-            );
+            $itemsInstances[] = Item::createFromArray($item);
         }
-
-        self::$repository->flush(500);
-    }
-
-    /**
-     * get repository service name.
-     *
-     * @return string
-     */
-    abstract protected static function getRepositoryServiceName() : string;
-
-    /**
-     * Sets up the fixture, for example, open a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp()
-    {
-        self::$repository->setKey(self::$key);
+        self::addItems($itemsInstances, self::$key);
     }
 
     /**
@@ -267,5 +252,83 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
         }
 
         return $found;
+    }
+
+    /**
+     * Bus methods.
+     */
+
+    /**
+     * Query using the bus.
+     *
+     * @param Query  $query
+     * @param string $key
+     *
+     * @return Result
+     */
+    protected function query(
+        Query $query,
+        string $key = null
+    ) {
+        return self::$container
+            ->get('tactician.commandbus')
+            ->handle(new QueryCommand(
+                $key ?? self::$key,
+                $query
+            ));
+    }
+
+    /**
+     * Delete using the bus.
+     *
+     * @param ItemUUID[] $itemsUUID
+     * @param string     $key
+     */
+    protected function deleteItems(
+        array $itemsUUID,
+        string $key = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new DeleteCommand(
+                $key ?? self::$key,
+                $itemsUUID
+            ));
+    }
+
+    /**
+     * Add items using the bus.
+     *
+     * @param Item[] $items
+     * @param string $key
+     */
+    protected function addItems(
+        array $items,
+        string $key = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new IndexCommand(
+                $key ?? self::$key,
+                $items
+            ));
+    }
+
+    /**
+     * Reset repository using the bus.
+     *
+     * @param string $language
+     * @param string $key
+     */
+    protected function reset(
+        string $language = null,
+        string $key = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new ResetCommand(
+                $key ?? self::$key,
+                $language
+            ));
     }
 }

@@ -1,0 +1,82 @@
+<?php
+
+/*
+ * This file is part of the Search Server Bundle.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
+ */
+
+declare(strict_types=1);
+
+namespace Puntmig\Search\Server\Domain\CommandHandler;
+
+use Puntmig\Search\Server\Domain\Command\ResetCommand;
+use Puntmig\Search\Server\Domain\Event\EventPublisher;
+use Puntmig\Search\Server\Domain\Event\IndexWasReset;
+use Puntmig\Search\Server\Domain\Repository\IndexRepository;
+
+/**
+ * Class ResetHandler.
+ */
+class ResetHandler
+{
+    /**
+     * @var IndexRepository
+     *
+     * Index repository
+     */
+    private $indexRepository;
+
+    /**
+     * @var EventPublisher
+     *
+     * Event publisher
+     */
+    private $eventPublisher;
+
+    /**
+     * ResetHandler constructor.
+     *
+     * @param IndexRepository $indexRepository
+     * @param EventPublisher  $eventPublisher
+     */
+    public function __construct(
+        IndexRepository $indexRepository,
+        EventPublisher $eventPublisher
+    ) {
+        $this->indexRepository = $indexRepository;
+        $this->eventPublisher = $eventPublisher;
+    }
+
+    /**
+     * Reset the index.
+     *
+     * @param ResetCommand $resetCommand
+     */
+    public function handle(ResetCommand $resetCommand)
+    {
+        $key = $resetCommand->getKey();
+        $language = $resetCommand->getLanguage();
+
+        $this
+            ->indexRepository
+            ->setKey($key);
+
+        $this
+            ->indexRepository
+            ->createIndex($language);
+
+        $this
+            ->eventPublisher
+            ->publish(new IndexWasReset(
+                $key,
+                $language
+            ));
+    }
+}

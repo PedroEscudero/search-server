@@ -3,5 +3,37 @@ services:
     #
     # Elastica related services
     #
-    search_bundle.elastica_wrapper:
+    search_server.elastica_wrapper:
         class: Puntmig\Search\Server\Elastica\ElasticaWrapper
+
+    #
+    # Elastica repositories
+    #
+    search_server.elastica_with_key_wrapper:
+        class: Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper
+        abstract: true
+        public: false
+        arguments:
+            - "@search_server.elastica_wrapper"
+
+    search_server.elastica_query_repository:
+        class: Puntmig\Search\Server\Elastica\Repository\QueryRepository
+        parent: search_server.elastica_with_key_wrapper
+
+    search_server.elastica_index_repository:
+        class: Puntmig\Search\Server\Elastica\Repository\IndexRepository
+        parent: search_server.elastica_with_key_wrapper
+
+    search_server.elastica_delete_repository:
+        class: Puntmig\Search\Server\Elastica\Repository\DeleteRepository
+        parent: search_server.elastica_with_key_wrapper
+
+    #
+    # Adapters
+    #
+    search_server.elastica_repository:
+        class: Puntmig\Search\Server\Elastica\Repository\Repository
+        arguments:
+            - "@search_server.elastica_query_repository"
+            - "@search_server.elastica_index_repository"
+            - "@search_server.elastica_delete_repository"

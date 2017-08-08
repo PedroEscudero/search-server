@@ -28,8 +28,7 @@ trait SuggestTest
      */
     public function testBasicSuggest()
     {
-        $repository = static::$repository;
-        $results = $repository->query(
+        $results = $this->query(
             Query::create('barc')
                 ->enableSuggestions()
                 ->disableAggregations()

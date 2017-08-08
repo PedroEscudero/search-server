@@ -32,6 +32,6 @@ class AServiceRepositoryTest extends RepositoryTest
      */
     protected static function getRepositoryServiceName() : string
     {
-        return 'search_bundle.service_repository';
+        return 'search_server.elastica_repository';
     }
 }

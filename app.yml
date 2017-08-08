@@ -2,8 +2,17 @@ bundles: Puntmig\Search\Server\PuntmigSearchServerBundle
 routes:
     - "@PuntmigSearchServerBundle/Resources/config/routing.yml"
 config:
+    imports:
+        - "@PuntmigSearchServerBundle/Resources/config/tactician.yml"
     parameters:
-        kernel.secret: jhaksjal
+        kernel.secret: nsdjkfhdsupoifjñksd
+        database_driver: pdo_mysql
+        database_host: 127.0.0.1
+        database_port: ~
+        database_name: search_server
+        database_user: root
+        database_password: root
+
     framework:
         form: false
         assets: false
@@ -15,3 +24,26 @@ config:
                 level:    debug
                 channels: ['!event']
                 # formatter: search_bundle.log_formatter
+
+    doctrine:
+        dbal:
+            connections:
+                default:
+                    driver:   "%database_driver%"
+                    host:     "%database_host%"
+                    port:     "%database_port%"
+                    dbname:   "%database_name%"
+                    user:     "%database_user%"
+                    password: "%database_password%"
+                    charset:  UTF8
+        orm:
+            auto_generate_proxy_classes: "%kernel.debug%"
+            entity_managers:
+                default:
+                    connection: default
+                    auto_mapping: false
+                    metadata_cache_driver: array
+                    query_cache_driver: array
+                    result_cache_driver: array
+
+

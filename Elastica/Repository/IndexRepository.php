@@ -14,19 +14,21 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Core;
+namespace Puntmig\Search\Server\Elastica\Repository;
 
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
 
 use Puntmig\Search\Model\Coordinate;
 use Puntmig\Search\Model\Item;
+use Puntmig\Search\Server\Domain\Repository\IndexRepository as BaseIndexRepository;
+use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
 use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class IndexRepository.
  */
-class IndexRepository extends ElasticaWithKeyWrapper
+class IndexRepository extends ElasticaWithKeyWrapper implements BaseIndexRepository
 {
     /**
      * Create the index.

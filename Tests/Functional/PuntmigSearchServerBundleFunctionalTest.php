@@ -16,11 +16,11 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional;
 
+use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-use Puntmig\Search\PuntmigSearchBundle;
 use Puntmig\Search\Server\PuntmigSearchServerBundle;
 
 /**
@@ -35,7 +35,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      */
     protected static function loadSchema() : bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -47,9 +47,15 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     {
         return new BaseKernel(
             [
+                BaseBundle::class,
                 PuntmigSearchServerBundle::class,
-                PuntmigSearchBundle::class,
             ], [
+                'imports' => [
+                    ['resource' => '@BaseBundle/Resources/config/providers.yml'],
+                    ['resource' => '@PuntmigSearchServerBundle/Resources/config/doctrine.test.yml'],
+                    ['resource' => '@PuntmigSearchServerBundle/Resources/config/tactician.yml'],
+                    ['resource' => '@PuntmigSearchServerBundle/Resources/config/test.yml'],
+                ],
                 'framework' => [
                     'test' => true,
                 ],
@@ -58,10 +64,12 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                         'search' => [
                             'endpoint' => 'xxx',
                             'secret' => 'hjk45hj4k4',
+                            'repository_service' => static::getRepositoryServiceName(),
                             'test' => true,
                         ],
                     ],
                 ],
+
             ],
             [
                 '@PuntmigSearchServerBundle/Resources/config/routing.yml',
@@ -69,4 +77,11 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
             'test', true
         );
     }
+
+    /**
+     * get repository service name.
+     *
+     * @return string
+     */
+    abstract protected static function getRepositoryServiceName() : string;
 }

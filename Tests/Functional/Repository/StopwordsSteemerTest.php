@@ -30,14 +30,14 @@ trait StopwordsSteemerTest
     {
         $repository = static::$repository;
         $this->assertEmpty(
-            $repository->query(
+            $this->query(
                 Query::create('alamo', 1, 1)
                     ->disableAggregations()
             )->getItems()
         );
 
         $this->assertNotEmpty(
-            $repository->query(
+            $this->query(
                 Query::create('de', 1, 1)
                     ->disableAggregations()
             )->getItems()
@@ -53,16 +53,15 @@ trait StopwordsSteemerTest
          * Reseting scenario for next calls.
          */
         self::resetScenario('es');
-        $repository = static::$repository;
         $this->assertNotEmpty(
-            $repository->query(
+            $this->query(
                 Query::create('alamo', 1, 1)
                     ->disableAggregations()
             )->getItems()
         );
 
         $this->assertEmpty(
-            $repository->query(
+            $this->query(
                 Query::create('de', 1, 1)
                     ->disableAggregations()
             )->getItems()

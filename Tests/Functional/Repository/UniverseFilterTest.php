@@ -31,8 +31,7 @@ trait UniverseFilterTest
      */
     public function testFilterUniverseByType()
     {
-        $repository = static::$repository;
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseByTypes(['product'])
                 ->aggregateBy('category', 'category_data', Filter::AT_LEAST_ONE)
@@ -46,8 +45,7 @@ trait UniverseFilterTest
      */
     public function testFilterUniverseById()
     {
-        $repository = static::$repository;
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseByIds(['2', '3'])
                 ->aggregateBy('category', 'category_data', Filter::AT_LEAST_ONE)
@@ -61,8 +59,7 @@ trait UniverseFilterTest
      */
     public function testFilterUniverse()
     {
-        $repository = static::$repository;
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseBy('color', ['yellow'], Filter::AT_LEAST_ONE)
                 ->aggregateBy('stores', 'stores', Filter::AT_LEAST_ONE)
@@ -78,20 +75,19 @@ trait UniverseFilterTest
      */
     public function testFilterUniverserByRange()
     {
-        $repository = static::$repository;
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseByRange('price', ['10..1000'], Filter::AT_LEAST_ONE)
         );
         $this->assertCount(2, $result->getItems());
 
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseByRange('price', ['5..15', '1000..2001'], Filter::AT_LEAST_ONE)
         );
         $this->assertCount(3, $result->getItems());
 
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseByRange('price', ['5..', '..20000'], Filter::AT_LEAST_ONE)
         );
@@ -103,8 +99,7 @@ trait UniverseFilterTest
      */
     public function testFilterUniverseByLocation()
     {
-        $repository = static::$repository;
-        $result = $repository->query(
+        $result = $this->query(
             Query::createMatchAll()
                 ->filterUniverseByLocation(new CoordinateAndDistance(
                     new Coordinate(45.0, 45.0),

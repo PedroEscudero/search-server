@@ -3,9 +3,8 @@ services:
     #
     # Controllers
     #
-    search_bundle.api_controller:
+    search_server.api_controller:
         class: Puntmig\Search\Server\Controller\ApiController
         arguments:
-            - "@search_bundle.query_repository"
-            - "@search_bundle.index_repository"
-            - "@search_bundle.delete_repository"
+            - "@tactician.commandbus"
+            - "@search_server.repository.query"
