@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
 use Puntmig\Search\Model\Item;
 use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Query;
+use Puntmig\Search\Query\User;
 
 /**
  * Class SearchTest.
@@ -89,5 +90,30 @@ trait SearchTest
         ]));
         $this->assertCount(1, $result->getItems());
         $this->assertSame('5', $result->getItems()[0]->getUUID()->getId());
+    }
+
+    /**
+     * Test query user.
+     */
+    public function testQueryUser()
+    {
+        $result = $this->query(Query::createByUUIDs([
+            new ItemUUID('5', 'gum'),
+            new ItemUUID('3', 'book'),
+        ])->byUser(new User('123')));
+        $this->assertCount(2, $result->getItems());
+        $this->assertEquals(
+            '123',
+            $result->getQuery()->getUser()->getId()
+        );
+
+        $result = $this->query(Query::createByUUIDs([
+            new ItemUUID('5', 'gum'),
+            new ItemUUID('3', 'book'),
+        ])->byUser(new User('123'))->anonymously());
+        $this->assertCount(2, $result->getItems());
+        $this->assertNull(
+            $result->getQuery()->getUser()
+        );
     }
 }
