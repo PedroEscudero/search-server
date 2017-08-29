@@ -16,41 +16,41 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\Command;
 
-use Puntmig\Search\Model\Item;
+use Puntmig\Search\Server\Domain\WithKey;
 
 /**
- * Class IndexCommand.
+ * Class Reset.
  */
-class IndexCommand extends WithKeyCommand
+class Reset extends WithKey
 {
     /**
-     * @var Item[]
+     * @var null|string
      *
-     * Items
+     * Language
      */
-    private $items;
+    private $language;
 
     /**
-     * IndexCommand constructor.
+     * ResetCommand constructor.
      *
-     * @param string $key
-     * @param Item[] $items
+     * @param             $key
+     * @param null|string $language
      */
     public function __construct(
         string $key,
-        array $items
+        ? string $language
     ) {
         $this->key = $key;
-        $this->items = $items;
+        $this->language = $language;
     }
 
     /**
-     * Get Items.
+     * Get Language.
      *
-     * @return Item[]
+     * @return null|string
      */
-    public function getItems(): array
+    public function getLanguage(): ? string
     {
-        return $this->items;
+        return $this->language;
     }
 }

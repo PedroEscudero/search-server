@@ -180,7 +180,7 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
     protected function idFoundInResults(
         Result $result,
         string $id
-    ) : bool {
+    ): bool {
         $found = false;
         foreach ($result->getItems() as $element) {
             if ($element->getUUID()->getId() === $id) {

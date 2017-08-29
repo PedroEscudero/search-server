@@ -101,7 +101,7 @@ class QueryWasMade extends DomainEvent
      *
      * @return array
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return array_filter([
             'q' => $this->queryText,
@@ -130,7 +130,7 @@ class QueryWasMade extends DomainEvent
      *
      * @return array
      */
-    public static function fromPayload(string $payload) : array
+    public static function fromPayload(string $payload): array
     {
         $payload = json_decode($payload, true);
 

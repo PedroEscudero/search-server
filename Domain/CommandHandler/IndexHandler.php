@@ -16,44 +16,15 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\CommandHandler;
 
-use Puntmig\Search\Server\Domain\Command\IndexCommand;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
+use Puntmig\Search\Server\Domain\Command\Index as IndexCommand;
 use Puntmig\Search\Server\Domain\Event\ItemsWereIndexed;
-use Puntmig\Search\Server\Domain\Repository\IndexRepository;
+use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class IndexHandler.
  */
-class IndexHandler
+class IndexHandler extends WithRepositoryAndEventPublisher
 {
-    /**
-     * @var IndexRepository
-     *
-     * Index repository
-     */
-    private $indexRepository;
-
-    /**
-     * @var EventPublisher
-     *
-     * Event publisher
-     */
-    private $eventPublisher;
-
-    /**
-     * IndexHandler constructor.
-     *
-     * @param IndexRepository $indexRepository
-     * @param EventPublisher  $eventPublisher
-     */
-    public function __construct(
-        IndexRepository $indexRepository,
-        EventPublisher $eventPublisher
-    ) {
-        $this->indexRepository = $indexRepository;
-        $this->eventPublisher = $eventPublisher;
-    }
-
     /**
      * Reset the index.
      *
@@ -65,11 +36,11 @@ class IndexHandler
         $items = $indexCommand->getItems();
 
         $this
-            ->indexRepository
+            ->repository
             ->setKey($key);
 
         $this
-            ->indexRepository
+            ->repository
             ->addItems($items);
 
         $this

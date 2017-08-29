@@ -29,14 +29,14 @@ class MappingBagProvider implements BaseMappingBagProvider
      *
      * @return MappingBagCollection
      */
-    public function getMappingBagCollection() : MappingBagCollection
+    public function getMappingBagCollection(): MappingBagCollection
     {
         return MappingBagCollection::create(
             [
                 'event' => 'Event',
             ],
             '@PuntmigSearchServerBundle',
-            'Puntmig\Search\Server\Domain\Event',
+            'Puntmig\Search\Event',
             '',
             'default',
             'object_manager',

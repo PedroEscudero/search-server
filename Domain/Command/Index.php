@@ -16,41 +16,42 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\Command;
 
-use Puntmig\Search\Query\Query;
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Server\Domain\WithKey;
 
 /**
- * Class QueryCommand.
+ * Class Index.
  */
-class QueryCommand extends WithKeyCommand
+class Index extends WithKey
 {
     /**
-     * @var Query
+     * @var Item[]
      *
-     * Query
+     * Items
      */
-    private $query;
+    private $items;
 
     /**
-     * DeleteCommand constructor.
+     * IndexCommand constructor.
      *
      * @param string $key
-     * @param Query  $query
+     * @param Item[] $items
      */
     public function __construct(
         string $key,
-        Query $query
+        array $items
     ) {
         $this->key = $key;
-        $this->query = $query;
+        $this->items = $items;
     }
 
     /**
-     * Get Query.
+     * Get Items.
      *
-     * @return Query
+     * @return Item[]
      */
-    public function getQuery(): Query
+    public function getItems(): array
     {
-        return $this->query;
+        return $this->items;
     }
 }

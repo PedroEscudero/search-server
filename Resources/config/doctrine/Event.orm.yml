@@ -1,4 +1,4 @@
-Puntmig\Search\Server\Domain\Event\Event:
+Puntmig\Search\Event\Event:
     type: entity
     repositoryClass: Puntmig\Search\Server\Doctrine\DoctrineEventRepository
     table: event
@@ -20,7 +20,7 @@ Puntmig\Search\Server\Domain\Event\Event:
             length: 255
             nullable: false
         key:
-            column: engonga
+            column: engonga_key
             type: string
             length: 255
             nullable: false

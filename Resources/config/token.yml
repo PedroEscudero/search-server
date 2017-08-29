@@ -1,0 +1,10 @@
+services:
+
+    #
+    # Middlewares
+    #
+    search_server.middleware.key_check:
+        class: Puntmig\Search\Server\Token\Middleware\CheckKeyMiddleware
+        public: false
+        arguments:
+            - "@request_stack"

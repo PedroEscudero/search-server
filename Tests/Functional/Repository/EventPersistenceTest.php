@@ -30,7 +30,7 @@ class EventPersistenceTest extends PuntmigSearchServerBundleFunctionalTest
      *
      * @return bool
      */
-    protected static function loadSchema() : bool
+    protected static function loadSchema(): bool
     {
         return true;
     }
@@ -40,36 +40,26 @@ class EventPersistenceTest extends PuntmigSearchServerBundleFunctionalTest
      */
     public function testEventPersistence()
     {
-        $eventStore = $this->get('search_server.event_store');
+        $eventRepository = $this->get('puntmig_search.event_repository_search');
         $this->assertCount(
             2,
-            $eventStore->all()
+            $eventRepository->all()
         );
         $this->deleteItems([new ItemUUID('1', 'product')]);
         $this->assertCount(
             3,
-            $eventStore->all()
+            $eventRepository->all()
         );
         $this->deleteItems([new ItemUUID('2', 'product')]);
         $this->assertCount(
             4,
-            $eventStore->all()
+            $eventRepository->all()
         );
         $this->query(Query::createMatchAll());
         $this->assertCount(
             5,
-            $eventStore->all()
+            $eventRepository->all()
         );
-    }
-
-    /**
-     * Use in memory event store.
-     *
-     * @return bool
-     */
-    protected static function useInMemoryEventStore() : bool
-    {
-        return false;
     }
 
     /**
@@ -77,7 +67,7 @@ class EventPersistenceTest extends PuntmigSearchServerBundleFunctionalTest
      *
      * @return string
      */
-    protected static function getRepositoryServiceName() : string
+    protected static function getRepositoryServiceName(): string
     {
         return 'puntmig_search.repository_search';
     }

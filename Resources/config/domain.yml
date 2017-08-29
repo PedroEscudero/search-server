@@ -1,27 +1,12 @@
 services:
 
     #
-    # Core services
-    #
-    search_server.repository.delete:
-        class: Puntmig\Search\Server\Domain\Repository\DeleteRepository
-        alias: search_server.elastica_delete_repository
-
-
-    search_server.repository.index:
-        class: Puntmig\Search\Server\Domain\Repository\DeleteRepository
-        alias: search_server.elastica_index_repository
-
-    search_server.repository.query:
-        class: Puntmig\Search\Server\Domain\Repository\DeleteRepository
-        alias: search_server.elastica_query_repository
-
-
-    #
     # Events
     #
     search_server.event_store:
-        alias: object_repository.event
+        class: Puntmig\Search\Server\Domain\Event\EventStore
+        arguments:
+            - "@puntmig_search.event_repository_search"
 
     search_server.event_publisher:
         class: Puntmig\Search\Server\Domain\Event\EventPublisher
@@ -33,42 +18,49 @@ services:
     search_server.comand_handler.delete:
         class: Puntmig\Search\Server\Domain\CommandHandler\DeleteHandler
         arguments:
-            - "@search_server.repository.delete"
+            - "@puntmig_search.repository_search"
             - "@search_server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\DeleteCommand }
+            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Delete }
 
     search_server.comand_handler.index:
         class: Puntmig\Search\Server\Domain\CommandHandler\IndexHandler
         arguments:
-            - "@search_server.repository.index"
+            - "@puntmig_search.repository_search"
             - "@search_server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\IndexCommand }
+            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Index }
 
     search_server.comand_handler.reset:
         class: Puntmig\Search\Server\Domain\CommandHandler\ResetHandler
         arguments:
-            - "@search_server.repository.index"
+            - "@puntmig_search.repository_search"
             - "@search_server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\ResetCommand }
+            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Reset }
 
-    search_server.comand_handler.query:
-        class: Puntmig\Search\Server\Domain\CommandHandler\QueryHandler
+
+    #
+    # Query handlers
+    #
+    search_server.query_handler.query:
+        class: Puntmig\Search\Server\Domain\QueryHandler\QueryHandler
         arguments:
-            - "@search_server.repository.query"
+            - "@puntmig_search.repository_search"
             - "@search_server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\QueryCommand }
+            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\Query }
+
+    search_server.query_handler.list_events:
+        class: Puntmig\Search\Server\Domain\QueryHandler\ListEventsHandler
+        arguments:
+            - "@puntmig_search.event_repository_search"
+        tags:
+            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\ListEvents }
 
     #
     # Middlewares
     #
-    search_server.middleware.key_check:
-        class: Puntmig\Search\Server\Domain\Middleware\CheckKeyMiddleware
-        public: false
-
     search_server.middleware.domain_events:
         class: Puntmig\Search\Server\Domain\Middleware\DomainEventsMiddleware
         arguments:

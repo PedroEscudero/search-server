@@ -14,26 +14,27 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Repository;
-
-use Puntmig\Search\Model\Item;
+namespace Puntmig\Search\Server\Domain;
 
 /**
- * Interface IndexRepository.
+ * Abstract class WithKey.
  */
-interface IndexRepository extends RepositoryWithKey
+abstract class WithKey
 {
     /**
-     * Create the index.
+     * @var string
      *
-     * @param null|string $language
+     * Key
      */
-    public function createIndex(? string $language);
+    protected $key;
 
     /**
-     * Generate items documents.
+     * Get Key.
      *
-     * @param Item[] $items
+     * @return string
      */
-    public function addItems(array $items);
+    public function getKey(): string
+    {
+        return $this->key;
+    }
 }

@@ -14,19 +14,13 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Repository;
+namespace Puntmig\Search\Server\Domain\Exception;
 
-use Puntmig\Search\Model\ItemUUID;
+use Exception;
 
 /**
- * Interface DeleteRepository.
+ * Class InvalidFormatException.
  */
-interface DeleteRepository extends RepositoryWithKey
+class InvalidFormatException extends Exception
 {
-    /**
-     * Delete items.
-     *
-     * @param ItemUUID[] $itemUUIDs
-     */
-    public function deleteItems(array $itemUUIDs);
 }

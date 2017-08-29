@@ -16,44 +16,15 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\CommandHandler;
 
-use Puntmig\Search\Server\Domain\Command\ResetCommand;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
+use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
 use Puntmig\Search\Server\Domain\Event\IndexWasReset;
-use Puntmig\Search\Server\Domain\Repository\IndexRepository;
+use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class ResetHandler.
  */
-class ResetHandler
+class ResetHandler extends WithRepositoryAndEventPublisher
 {
-    /**
-     * @var IndexRepository
-     *
-     * Index repository
-     */
-    private $indexRepository;
-
-    /**
-     * @var EventPublisher
-     *
-     * Event publisher
-     */
-    private $eventPublisher;
-
-    /**
-     * ResetHandler constructor.
-     *
-     * @param IndexRepository $indexRepository
-     * @param EventPublisher  $eventPublisher
-     */
-    public function __construct(
-        IndexRepository $indexRepository,
-        EventPublisher $eventPublisher
-    ) {
-        $this->indexRepository = $indexRepository;
-        $this->eventPublisher = $eventPublisher;
-    }
-
     /**
      * Reset the index.
      *
@@ -65,12 +36,12 @@ class ResetHandler
         $language = $resetCommand->getLanguage();
 
         $this
-            ->indexRepository
+            ->repository
             ->setKey($key);
 
         $this
-            ->indexRepository
-            ->createIndex($language);
+            ->repository
+            ->reset($language);
 
         $this
             ->eventPublisher

@@ -48,7 +48,7 @@ trait StopwordsSteemerTest
      */
     public function testSearchWithtopwords()
     {
-        /**
+        /*
          * Reseting scenario for next calls.
          */
         self::resetScenario('es');

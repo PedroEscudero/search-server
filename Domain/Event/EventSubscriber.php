@@ -28,7 +28,7 @@ interface EventSubscriber
      *
      * @return bool
      */
-    public function shouldHandleEvent(DomainEvent $event) : bool;
+    public function shouldHandleEvent(DomainEvent $event): bool;
 
     /**
      * Handle event.

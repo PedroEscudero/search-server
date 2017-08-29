@@ -48,4 +48,13 @@ config:
                     query_cache_driver: array
                     result_cache_driver: array
 
-
+    puntmig_search:
+        repositories:
+            search:
+                http: false
+                search:
+                    repository_service: "search_server.elastica_repository"
+                    in_memory: false
+                event:
+                    repository_service: "object_repository.event"
+                    in_memory: false

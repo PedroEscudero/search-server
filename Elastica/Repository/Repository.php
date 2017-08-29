@@ -111,7 +111,7 @@ class Repository extends BaseRepository
      *
      * @return Result
      */
-    public function query(Query $query) : Result
+    public function query(Query $query): Result
     {
         return $this
             ->queryRepository
@@ -121,12 +121,22 @@ class Repository extends BaseRepository
     /**
      * Reset the index.
      *
-     * @var null|string $language
+     * @var null|string
      */
     public function reset(? string $language)
     {
         $this
             ->indexRepository
             ->createIndex($language);
+    }
+
+    /**
+     * Create the index.
+     *
+     * @param null|string $language
+     */
+    public function createIndex(? string $language)
+    {
+        $this->reset($language);
     }
 }

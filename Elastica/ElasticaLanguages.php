@@ -28,7 +28,7 @@ class ElasticaLanguages
      *
      * @return string
      */
-    public static function getStopwordsLanguageByIso(? string $iso) : string
+    public static function getStopwordsLanguageByIso(? string $iso): string
     {
         return [
             '_' => '_arabic_',
@@ -72,7 +72,7 @@ class ElasticaLanguages
      *
      * @return null|string
      */
-    public static function getStemmerLanguageByIso(? string $iso) : ? string
+    public static function getStemmerLanguageByIso(? string $iso): ? string
     {
         return [
             '_' => 'arabic',

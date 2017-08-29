@@ -14,41 +14,44 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Command;
+namespace Puntmig\Search\Server\Domain\Query;
+
+use Puntmig\Search\Query\Query as SearchQuery;
+use Puntmig\Search\Server\Domain\WithKey;
 
 /**
- * Class ResetCommand.
+ * Class Query.
  */
-class ResetCommand extends WithKeyCommand
+class Query extends WithKey
 {
     /**
-     * @var null|string
+     * @var SearchQuery
      *
-     * Language
+     * Query
      */
-    private $language;
+    private $query;
 
     /**
-     * ResetCommand constructor.
+     * DeleteCommand constructor.
      *
-     * @param             $key
-     * @param null|string $language
+     * @param string      $key
+     * @param SearchQuery $query
      */
     public function __construct(
         string $key,
-        ? string $language
+        SearchQuery $query
     ) {
         $this->key = $key;
-        $this->language = $language;
+        $this->query = $query;
     }
 
     /**
-     * Get Language.
+     * Get Query.
      *
-     * @return null|string
+     * @return SearchQuery
      */
-    public function getLanguage() : ? string
+    public function getQuery(): SearchQuery
     {
-        return $this->language;
+        return $this->query;
     }
 }

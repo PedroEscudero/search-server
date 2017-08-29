@@ -16,44 +16,15 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\CommandHandler;
 
-use Puntmig\Search\Server\Domain\Command\DeleteCommand;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
+use Puntmig\Search\Server\Domain\Command\Delete as DeleteCommand;
 use Puntmig\Search\Server\Domain\Event\ItemsWereDeleted;
-use Puntmig\Search\Server\Domain\Repository\DeleteRepository;
+use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class DeleteHandler.
  */
-class DeleteHandler
+class DeleteHandler extends WithRepositoryAndEventPublisher
 {
-    /**
-     * @var DeleteRepository
-     *
-     * Delete repository
-     */
-    private $deleteRepository;
-
-    /**
-     * @var EventPublisher
-     *
-     * Event publisher
-     */
-    private $eventPublisher;
-
-    /**
-     * DeleteHandler constructor.
-     *
-     * @param DeleteRepository $deleteRepository
-     * @param EventPublisher   $eventPublisher
-     */
-    public function __construct(
-        DeleteRepository $deleteRepository,
-        EventPublisher $eventPublisher
-    ) {
-        $this->deleteRepository = $deleteRepository;
-        $this->eventPublisher = $eventPublisher;
-    }
-
     /**
      * Reset the delete.
      *
@@ -65,11 +36,11 @@ class DeleteHandler
         $itemsUUID = $deleteCommand->getItemsUUID();
 
         $this
-            ->deleteRepository
+            ->repository
             ->setKey($key);
 
         $this
-            ->deleteRepository
+            ->repository
             ->deleteItems($itemsUUID);
 
         $this

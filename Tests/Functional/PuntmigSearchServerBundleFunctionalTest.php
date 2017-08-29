@@ -23,12 +23,13 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 
 use Puntmig\Search\Model\Item;
-use Puntmig\Search\Query\Query;
+use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Query\Query as QueryModel;
 use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Domain\Command\DeleteCommand;
-use Puntmig\Search\Server\Domain\Command\IndexCommand;
-use Puntmig\Search\Server\Domain\Command\QueryCommand;
-use Puntmig\Search\Server\Domain\Command\ResetCommand;
+use Puntmig\Search\Server\Domain\Command\Delete as DeleteCommand;
+use Puntmig\Search\Server\Domain\Command\Index as IndexCommand;
+use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
+use Puntmig\Search\Server\Domain\Query\Query;
 use Puntmig\Search\Server\PuntmigSearchServerBundle;
 
 /**
@@ -41,17 +42,13 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * @return KernelInterface
      */
-    protected static function getKernel() : KernelInterface
+    protected static function getKernel(): KernelInterface
     {
         $imports = [
             ['resource' => '@BaseBundle/Resources/config/providers.yml'],
             ['resource' => '@BaseBundle/Resources/test/doctrine.test.yml'],
             ['resource' => '@PuntmigSearchServerBundle/Resources/config/tactician.yml'],
         ];
-
-        if (static::useInMemoryEventStore()) {
-            $imports[] = ['resource' => '@PuntmigSearchServerBundle/Resources/test/eventStore.yml'];
-        }
 
         if (!static::logDomainEvents()) {
             $imports[] = ['resource' => '@PuntmigSearchServerBundle/Resources/test/logDomainEventsMiddleware.yml'];
@@ -71,12 +68,18 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                         'search' => [
                             'endpoint' => 'xxx',
                             'secret' => 'hjk45hj4k4',
-                            'repository_service' => static::getRepositoryServiceName(),
                             'test' => true,
+                            'search' => [
+                                'repository_service' => 'search_server.elastica_repository',
+                                'in_memory' => false,
+                            ],
+                            'event' => [
+                                'repository_service' => 'puntmig_search.event_repository_search',
+                                'in_memory' => true,
+                            ],
                         ],
                     ],
                 ],
-
             ],
             [
                 '@PuntmigSearchServerBundle/Resources/config/routing.yml',
@@ -86,28 +89,11 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     }
 
     /**
-     * get repository service name.
-     *
-     * @return string
-     */
-    abstract protected static function getRepositoryServiceName() : string;
-
-    /**
-     * Use in memory event store.
-     *
-     * @return bool
-     */
-    protected static function useInMemoryEventStore() : bool
-    {
-        return true;
-    }
-
-    /**
      * Log domain events.
      *
      * @return bool
      */
-    protected static function logDomainEvents() : bool
+    protected static function logDomainEvents(): bool
     {
         return true;
     }
@@ -144,7 +130,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     public static function resetScenario(? string $language = null)
     {
         self::reset($language, self::$key);
-        $items = Yaml::parse(file_get_contents(__DIR__ . '/../items.yml'));
+        $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
         foreach ($items['items'] as $item) {
             if (isset($item['indexed_metadata']['created_at'])) {
@@ -159,18 +145,18 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     /**
      * Query using the bus.
      *
-     * @param Query  $query
-     * @param string $key
+     * @param QueryModel $query
+     * @param string     $key
      *
      * @return Result
      */
     public function query(
-        Query $query,
+        QueryModel $query,
         string $key = null
     ) {
         return self::$container
             ->get('tactician.commandbus')
-            ->handle(new QueryCommand(
+            ->handle(new Query(
                 $key ?? self::$key,
                 $query
             ));

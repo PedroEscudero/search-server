@@ -16,18 +16,82 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
+use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Query\Query as QueryModel;
+use Puntmig\Search\Result\Result;
+
 /**
  * Class HttpRepositoryTest.
  */
 class HttpRepositoryTest extends RepositoryTest
 {
     /**
-     * get repository service name.
+     * Query using the bus.
      *
-     * @return string
+     * @param QueryModel $query
+     * @param string     $key
+     *
+     * @return Result
      */
-    protected static function getRepositoryServiceName() : string
-    {
-        return 'puntmig_search.repository_search';
+    public function query(
+        QueryModel $query,
+        string $key = null
+    ) {
+        $repository = $this->get('puntmig_search.repository_search');
+        $repository->setKey($key ?? self::$key);
+
+        return $repository->query($query);
+    }
+
+    /**
+     * Delete using the bus.
+     *
+     * @param ItemUUID[] $itemsUUID
+     * @param string     $key
+     */
+    public function deleteItems(
+        array $itemsUUID,
+        string $key = null
+    ) {
+        $repository = $this->get('puntmig_search.repository_search');
+        $repository->setKey($key ?? self::$key);
+        foreach ($itemsUUID as $itemUUID) {
+            $repository->deleteItem($itemUUID);
+        }
+        $repository->flush();
+    }
+
+    /**
+     * Add items using the bus.
+     *
+     * @param Item[] $items
+     * @param string $key
+     */
+    public function addItems(
+        array $items,
+        string $key = null
+    ) {
+        $repository = $this->get('puntmig_search.repository_search');
+        $repository->setKey($key ?? self::$key);
+        foreach ($items as $item) {
+            $repository->addItem($item);
+        }
+        $repository->flush();
+    }
+
+    /**
+     * Reset repository using the bus.
+     *
+     * @param string $language
+     * @param string $key
+     */
+    public function reset(
+        string $language = null,
+        string $key = null
+    ) {
+        $repository = $this->get('puntmig_search.repository_search');
+        $repository->setKey($key ?? self::$key);
+        $repository->reset($language);
     }
 }

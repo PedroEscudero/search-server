@@ -14,27 +14,29 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Command;
+namespace Puntmig\Search\Server\Domain;
+
+use League\Tactician\CommandBus;
 
 /**
- * Abstract class WithKeyCommand.
+ * Abstract class WithCommandBus.
  */
-abstract class WithKeyCommand
+abstract class WithCommandBus
 {
     /**
-     * @var string
+     * @var CommandBus
      *
-     * Key
+     * Message bus
      */
-    protected $key;
+    protected $commandBus;
 
     /**
-     * Get Key.
+     * ApiController constructor.
      *
-     * @return string
+     * @param CommandBus $commandBus
      */
-    public function getKey() : string
+    public function __construct(CommandBus $commandBus)
     {
-        return $this->key;
+        $this->commandBus = $commandBus;
     }
 }

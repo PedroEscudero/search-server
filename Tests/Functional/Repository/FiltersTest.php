@@ -228,7 +228,7 @@ trait FiltersTest
      *
      * @return Result
      */
-    private function buildCreatedAtFilteredResult(string $filter) : Result
+    private function buildCreatedAtFilteredResult(string $filter): Result
     {
         return $this->query(Query::createMatchAll()->filterByDateRange('created_at', 'created_at', [], [$filter], Filter::AT_LEAST_ONE, false));
     }
@@ -294,7 +294,7 @@ trait FiltersTest
      *
      * @return Result
      */
-    private function buildCreatedAtUniverseFilteredResult(string $filter) : Result
+    private function buildCreatedAtUniverseFilteredResult(string $filter): Result
     {
         return $this->query(Query::createMatchAll()->filterUniverseByDateRange('created_at', [$filter], Filter::AT_LEAST_ONE));
     }

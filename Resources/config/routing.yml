@@ -5,22 +5,28 @@ search_server_api_query:
     path: /
     methods: ["GET"]
     defaults:
-        _controller: search_server.api_controller:query
+        _controller: search_server.query_controller:query
 
 search_server_api_reset:
     path: /
     methods: ["DELETE"]
     defaults:
-        _controller: search_server.api_controller:reset
+        _controller: search_server.reset_controller:reset
 
 search_server_api_index:
     path: /items
     methods: ["POST"]
     defaults:
-        _controller: search_server.api_controller:index
+        _controller: search_server.index_controller:index
 
 search_server_api_delete:
     path: /items
     methods: ["DELETE"]
     defaults:
-        _controller: search_server.api_controller:delete
+        _controller: search_server.delete_controller:delete
+
+search_server_api_events:
+    path: /events
+    methods: ["GET"]
+    defaults:
+        _controller: search_server.events_controller:list

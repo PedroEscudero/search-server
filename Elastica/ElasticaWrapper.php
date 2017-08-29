@@ -59,7 +59,7 @@ class ElasticaWrapper
      *
      * @return Index
      */
-    public function getSearchIndex(string $key) : Index
+    public function getSearchIndex(string $key): Index
     {
         return $this
             ->client
@@ -74,7 +74,6 @@ class ElasticaWrapper
         try {
             $this->getSearchIndex($key)->delete();
         } catch (Exception $e) {
-
             // Silent pass
         }
     }

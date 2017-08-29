@@ -21,14 +21,13 @@ use Elastica\Document as ElasticaDocument;
 
 use Puntmig\Search\Model\Coordinate;
 use Puntmig\Search\Model\Item;
-use Puntmig\Search\Server\Domain\Repository\IndexRepository as BaseIndexRepository;
 use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
 use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class IndexRepository.
  */
-class IndexRepository extends ElasticaWithKeyWrapper implements BaseIndexRepository
+class IndexRepository extends ElasticaWithKeyWrapper
 {
     /**
      * Create the index.
@@ -78,7 +77,7 @@ class IndexRepository extends ElasticaWithKeyWrapper implements BaseIndexReposit
      *
      * @return Document
      */
-    private function createItemDocument(Item $item) : Document
+    private function createItemDocument(Item $item): Document
     {
         $uuid = $item->getUUID();
         $itemDocument = [

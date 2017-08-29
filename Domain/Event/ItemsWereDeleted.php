@@ -50,7 +50,7 @@ class ItemsWereDeleted extends DomainEvent
      *
      * @return array
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return [
             'items' => array_values(
@@ -68,7 +68,7 @@ class ItemsWereDeleted extends DomainEvent
      *
      * @return array
      */
-    public static function fromPayload(string $payload) : array
+    public static function fromPayload(string $payload): array
     {
         return [
             array_map(function (array $itemUUID) {

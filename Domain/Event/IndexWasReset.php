@@ -48,7 +48,7 @@ class IndexWasReset extends DomainEvent
      *
      * @return array
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return [
             'language' => $this->language,
@@ -62,7 +62,7 @@ class IndexWasReset extends DomainEvent
      *
      * @return array
      */
-    public static function fromPayload(string $payload) : array
+    public static function fromPayload(string $payload): array
     {
         return [json_decode($payload, true)['language']];
     }

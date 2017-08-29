@@ -179,7 +179,7 @@ trait AggregationsTest
 
         $this->assertCount(4, $aggregations->getAggregation('author')->getCounters());
 
-        /**
+        /*
          * Reseting scenario for next calls.
          */
         self::resetScenario();

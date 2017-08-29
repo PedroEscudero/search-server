@@ -45,7 +45,7 @@ trait DeletionTest
         $this->deleteItems([new ItemUUID('5', 'gum')]);
         $this->assertSame(3, $this->get('search_server.elastica_wrapper')->getType(self::$key, ElasticaWrapper::ITEM_TYPE)->count());
 
-        /**
+        /*
          * Reseting scenario for next calls.
          */
         self::resetScenario();

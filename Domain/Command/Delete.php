@@ -17,11 +17,12 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Domain\Command;
 
 use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Server\Domain\WithKey;
 
 /**
- * Class DeleteCommand.
+ * Class Delete.
  */
-class DeleteCommand extends WithKeyCommand
+class Delete extends WithKey
 {
     /**
      * @var ItemUUID[]

@@ -35,7 +35,7 @@ class CollectInMemoryDomainEventSubscriber implements EventSubscriber
      *
      * @return bool
      */
-    public function shouldHandleEvent(DomainEvent $event) : bool
+    public function shouldHandleEvent(DomainEvent $event): bool
     {
         return true;
     }
@@ -55,7 +55,7 @@ class CollectInMemoryDomainEventSubscriber implements EventSubscriber
      *
      * @return DomainEvent[]
      */
-    public function getEvents() : array
+    public function getEvents(): array
     {
         return $this->events;
     }

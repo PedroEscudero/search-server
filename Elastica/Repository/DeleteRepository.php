@@ -17,14 +17,13 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Elastica\Repository;
 
 use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Server\Domain\Repository\DeleteRepository as BaseDeleteRepository;
 use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
 use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class DeleteRepository.
  */
-class DeleteRepository extends ElasticaWithKeyWrapper implements BaseDeleteRepository
+class DeleteRepository extends ElasticaWithKeyWrapper
 {
     /**
      * Delete items.

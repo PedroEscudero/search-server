@@ -34,13 +34,12 @@ use Puntmig\Search\Query\SortBy;
 use Puntmig\Search\Result\Aggregation as ResultAggregation;
 use Puntmig\Search\Result\Aggregations as ResultAggregations;
 use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Domain\Repository\QueryRepository as BaseQueryRepository;
 use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
 
 /**
  * Class QueryRepository.
  */
-class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryRepository
+class QueryRepository extends ElasticaWithKeyWrapper
 {
     /**
      * Search cross the index types.
@@ -49,7 +48,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
      *
      * @return Result
      */
-    public function query(Query $query) : Result
+    public function query(Query $query): Result
     {
         $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
@@ -74,7 +73,6 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
 
         if ($query->getSortBy() !== SortBy::SCORE) {
             if ($query->getSortBy() === SortBy::RANDOM) {
-
                 /**
                  * Random elements in Elasticsearch need a wrapper in order to
                  * apply a random score per each result.
@@ -130,9 +128,8 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
     private function elasticaResultToResult(
         Query $query,
         array $elasticaResults
-    ) : Result {
-
-        /**
+    ): Result {
+        /*
          * @TODO Move this if/else into another place
          */
         if ($query->areAggregationsEnabled()) {
@@ -152,8 +149,8 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
             );
         }
 
-        /**
-         * @var ElasticaResult $elasticaResult
+        /*
+         * @var ElasticaResult
          */
         foreach ($elasticaResults['items'] as $elasticaResult) {
             $source = $elasticaResult->getSource();
@@ -169,7 +166,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
             );
         }
 
-        /**
+        /*
          * @TODO Move this part into another place
          */
         if ($query->areAggregationsEnabled()) {
@@ -211,7 +208,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
                     }
                 }
 
-                /**
+                /*
                  * We should filter the bucket elements with level that are not part
                  * of the result.
                  *
@@ -226,7 +223,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
             $result->setAggregations($aggregations);
         }
 
-        /**
+        /*
          * @TODO Move this part into another place
          */
         if ($query->areSuggestionsEnabled()) {
@@ -389,7 +386,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
             }
         }
 
-        /**
+        /*
          * This is specifically for Tags.
          * Because you can make subgroups of Tags, each aggregation must define
          * its values from this given subgroup.
@@ -424,7 +421,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
     private function createQueryFilter(
         Filter $filter,
         string $value
-    ) : ? ElasticaQuery\AbstractQuery {
+    ): ? ElasticaQuery\AbstractQuery {
         switch ($filter->getFilterType()) {
             case Filter::TYPE_FIELD:
                 return $this->createTermFilter(
@@ -455,7 +452,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
     private function createTermFilter(
         Filter $filter,
         string $value
-    ) : ? ElasticaQuery\AbstractQuery {
+    ): ? ElasticaQuery\AbstractQuery {
         return $this->createMultipleTermFilter($filter->getField(), $value);
     }
 
@@ -470,7 +467,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
     private function createMultipleTermFilter(
         string $field,
         $value
-    ) : ElasticaQuery\AbstractQuery {
+    ): ElasticaQuery\AbstractQuery {
         if (!is_array($value)) {
             return new ElasticaQuery\Term([$field => $value]);
         }
@@ -496,7 +493,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
     private function createRangeFilter(
         Filter $filter,
         string $value
-    ) : ? ElasticaQuery\AbstractQuery {
+    ): ? ElasticaQuery\AbstractQuery {
         list($from, $to) = Range::stringToArray($value);
         $rangeData = [];
         if ($from > Range::ZERO) {
@@ -525,7 +522,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
      *
      * @return ElasticaQuery\AbstractQuery
      */
-    private function createLocationFilter(Filter $filter) : ElasticaQuery\AbstractQuery
+    private function createLocationFilter(Filter $filter): ElasticaQuery\AbstractQuery
     {
         $locationRange = LocationRange::createFromArray($filter->getValues());
         $locationRangeData = $locationRange->toFilterArray();
@@ -622,7 +619,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
      *
      * @return ElasticaAggregation\AbstractAggregation
      */
-    private function createAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
+    private function createAggregation(QueryAggregation $aggregation): ElasticaAggregation\AbstractAggregation
     {
         $termsAggregation = new ElasticaAggregation\Terms($aggregation->getName());
         $aggregationFields = explode('|', $aggregation->getField());
@@ -644,7 +641,7 @@ class QueryRepository extends ElasticaWithKeyWrapper implements BaseQueryReposit
      *
      * @return ElasticaAggregation\AbstractAggregation
      */
-    private function createRangeAggregation(QueryAggregation $aggregation) : ElasticaAggregation\AbstractAggregation
+    private function createRangeAggregation(QueryAggregation $aggregation): ElasticaAggregation\AbstractAggregation
     {
         $rangeClass = $aggregation->getFilterType() === Filter::TYPE_DATE_RANGE
             ? ElasticaAggregation\DateRange::class

@@ -21,13 +21,4 @@ namespace Puntmig\Search\Server\Tests\Functional\Repository;
  */
 class ServiceRepositoryTest extends RepositoryTest
 {
-    /**
-     * get repository service name.
-     *
-     * @return string
-     */
-    protected static function getRepositoryServiceName() : string
-    {
-        return 'search_server.elastica_repository';
-    }
 }

@@ -63,7 +63,7 @@ abstract class BaseTest
 
         self::$repository = self::get(static::getRepositoryServiceName());
         self::$repository->setKey(self::$key);
-        $items = Yaml::parse(file_get_contents(__DIR__ . '/../../items.yml'));
+        $items = Yaml::parse(file_get_contents(__DIR__.'/../../items.yml'));
         foreach ($items['items'] as $item) {
             self::$repository->addItem(
                 Item::createFromArray($item)

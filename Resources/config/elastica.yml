@@ -54,3 +54,8 @@ services:
             - "@search_server.elastica_client"
             - "@search_server.event_publisher"
         public: false
+
+    search_server.middleware.transaction:
+        class: Puntmig\Search\Server\Elastica\Middleware\TransactionElasticaMiddleware
+        arguments:
+            - "@puntmig_search.repository_search"

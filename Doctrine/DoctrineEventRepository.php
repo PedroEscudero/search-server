@@ -18,32 +18,80 @@ namespace Puntmig\Search\Server\Doctrine;
 
 use Doctrine\ORM\EntityRepository;
 
+use Puntmig\Search\Event\Event;
+use Puntmig\Search\Event\EventRepository;
 use Puntmig\Search\Server\Domain\Event\DomainEvent;
-use Puntmig\Search\Server\Domain\Event\Event;
-use Puntmig\Search\Server\Domain\Event\EventStore;
 
 /**
  * Class DoctrineEventRepository.
  */
-class DoctrineEventRepository extends EntityRepository implements EventStore
+class DoctrineEventRepository extends EntityRepository implements EventRepository
 {
     /**
-     * Append event.
+     * Get all events.
      *
-     * @param DomainEvent      $event
-     * @param null|DomainEvent $previousEvent
+     * @param string|null $key
+     * @param string|null $name
+     * @param int|null    $from
+     * @param int|null    $to
+     * @param int|null    $length
+     * @param int|null    $offset
+     *
+     * @return DomainEvent[]
      */
-    public function append(
-        DomainEvent $event,
-        ? DomainEvent $previousEvent = null
-    ) {
-        $this->getEntityManager()->persist(new Event(
-            $previousEvent ?? $this->findLastEvent(),
-            get_class($event),
-            $event->getKey(),
-            $event->toPayload(),
-            $event->occurredOn()
-        ));
+    public function all(
+        string $key = null,
+        string $name = null,
+        ?int $from = null,
+        ?int $to = null,
+        ?int $length = 10,
+        ?int $offset = 0
+    ): array {
+        $queryBuilder = $this
+            ->createQueryBuilder('e')
+            ->orderBy('e.id', 'ASC')
+            ->setMaxResults($length)
+            ->setFirstResult($offset);
+
+        if (!is_null($key)) {
+            $queryBuilder
+                ->andWhere('e.key = :key')
+                ->setParameter('key', $key);
+        }
+
+        if (!is_null($name)) {
+            $queryBuilder
+                ->andWhere('e.name = :name')
+                ->setParameter('name', $name);
+        }
+
+        if (!is_null($from)) {
+            $queryBuilder
+                ->andWhere('e.occurredOn >= :from')
+                ->setParameter('from', $from);
+        }
+
+        if (!is_null($to)) {
+            $queryBuilder
+                ->andWhere('e.occurredOn < :to')
+                ->setParameter('to', $to);
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Save event.
+     *
+     * @param Event $event
+     */
+    public function save(Event $event)
+    {
+        $this
+            ->getEntityManager()
+            ->persist($event);
     }
 
     /**
@@ -51,7 +99,7 @@ class DoctrineEventRepository extends EntityRepository implements EventStore
      *
      * @return Event|null
      */
-    private function findLastEvent() : ? Event
+    public function last(): ? Event
     {
         return $this
             ->createQueryBuilder('e')
@@ -60,36 +108,5 @@ class DoctrineEventRepository extends EntityRepository implements EventStore
             ->setFirstResult(0)
             ->getQuery()
             ->getOneOrNullResult();
-    }
-
-    /**
-     * Get all events.
-     *
-     * @param int $length
-     * @param int $offset
-     *
-     * @return DomainEvent[]
-     */
-    public function all(
-        int $length = 10,
-        int $offset = 0
-    ) : array {
-        $events = $this
-            ->createQueryBuilder('e')
-            ->orderBy('e.id', 'DESC')
-            ->setMaxResults($length)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getResult();
-
-        return array_map(function (Event $event) {
-            $namespace = $event->getName();
-
-            return $namespace::createByPlainValues(
-                $event->getKey(),
-                $event->getOccurredOn(),
-                $event->getPayload()
-            );
-        }, $events);
     }
 }

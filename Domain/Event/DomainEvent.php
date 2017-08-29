@@ -52,7 +52,7 @@ abstract class DomainEvent
      *
      * @return int
      */
-    public function occurredOn() : int
+    public function occurredOn(): int
     {
         return $this->occurredOn;
     }
@@ -62,7 +62,7 @@ abstract class DomainEvent
      *
      * @return string
      */
-    public function getKey() : string
+    public function getKey(): string
     {
         return $this->key;
     }
@@ -100,7 +100,7 @@ abstract class DomainEvent
      *
      * @return string
      */
-    public function toPayload() : string
+    public function toPayload(): string
     {
         return json_encode($this->toArray());
     }
@@ -110,7 +110,7 @@ abstract class DomainEvent
      *
      * @return array
      */
-    abstract public function toArray() : array;
+    abstract public function toArray(): array;
 
     /**
      * To payload.

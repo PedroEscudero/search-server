@@ -39,12 +39,13 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
      *
      * @return array
      */
-    public function getConfigFiles() : array
+    public function getConfigFiles(): array
     {
         return [
             'domain',
             'controllers',
             'elastica',
+            'token',
         ];
     }
 
@@ -55,7 +56,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
      *
      * @return array
      */
-    public static function getBundleDependencies(KernelInterface $kernel) : array
+    public static function getBundleDependencies(KernelInterface $kernel): array
     {
         return [
             PuntmigSearchBundle::class,
@@ -72,7 +73,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
      *
      * @return CompilerPassInterface[]
      */
-    public function getCompilerPasses() : array
+    public function getCompilerPasses(): array
     {
         return [
             new MappingCompilerPass(
