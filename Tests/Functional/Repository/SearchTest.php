@@ -81,8 +81,8 @@ trait SearchTest
             new ItemUUID('3', 'book'),
         ]));
         $this->assertCount(2, $result->getItems());
-        $this->assertSame('3', $result->getItems()[0]->getUUID()->getId());
-        $this->assertSame('5', $result->getItems()[1]->getUUID()->getId());
+        $this->assertSame('5', $result->getItems()[0]->getUUID()->getId());
+        $this->assertSame('3', $result->getItems()[1]->getUUID()->getId());
 
         $result = $this->query(Query::createByUUIDs([
             new ItemUUID('5', 'gum'),

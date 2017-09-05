@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Tests\Functional\Repository;
 
 /**
- * Class ServiceRepositoryTest.
+ * Class AServiceRepositoryTest.
  */
-class ServiceRepositoryTest extends RepositoryTest
+class AServiceRepositoryTest extends RepositoryTest
 {
 }

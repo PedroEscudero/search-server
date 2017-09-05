@@ -29,6 +29,25 @@ use Puntmig\Search\Query\Query;
 trait AggregationsTest
 {
     /**
+     * Test aggregation with several fields.
+     */
+    public function testAuthorMustAllAggregations()
+    {
+        $aggregations = $this
+            ->query(
+                Query::createMatchAll()
+                    ->aggregateBy(
+                        'author',
+                        'author_data',
+                        FILTER::MUST_ALL
+                    )
+            )
+            ->getAggregations();
+
+        $this->assertCount(3, $aggregations->getAggregation('author')->getCounters());
+    }
+
+    /**
      * Test basic aggregations.
      */
     public function testBasicAggregations()

@@ -40,7 +40,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
             ->elasticaWrapper
             ->createIndexMapping(
                 $this->key,
-                4,
+                20,
                 1,
                 $language
             );

@@ -18,7 +18,6 @@ namespace Puntmig\Search\Server\Elastica\Repository;
 
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
-use Elastica\Result as ElasticaResult;
 use Elastica\Suggest;
 
 use Puntmig\Search\Geo\CoordinateAndDistance;
@@ -26,6 +25,7 @@ use Puntmig\Search\Geo\LocationRange;
 use Puntmig\Search\Geo\Polygon;
 use Puntmig\Search\Geo\Square;
 use Puntmig\Search\Model\Item;
+use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Query\Aggregation as QueryAggregation;
 use Puntmig\Search\Query\Filter;
 use Puntmig\Search\Query\Query;
@@ -67,6 +67,11 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $query->getFilterFields(),
             null,
             false
+        );
+
+        $this->promoteUUIDs(
+            $boolQuery,
+            $query->getItemsPromoted()
         );
 
         $mainQuery->setQuery($boolQuery);
@@ -161,9 +166,9 @@ class QueryRepository extends ElasticaWithKeyWrapper
                 $source['distance'] = $elasticaResult->getParam('sort')[0];
             }
 
-            $result->addItem(
-                Item::createFromArray($source)
-            );
+            $item = Item::createFromArray($source);
+            $item->setHighlights($elasticaResult->getHighlights());
+            $result->addItem($item);
         }
 
         /*
@@ -216,7 +221,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
                  * * Elements already filtered
                  * * Elements with level (if exists) than the highest one
                  */
-                if ($queryAggregation->getApplicationType() & Filter::MUST_ALL_WITH_LEVELS) {
+                if ($queryAggregation->getApplicationType() === Filter::MUST_ALL_WITH_LEVELS) {
                     $aggregation->cleanCountersByLevel();
                 }
             }
@@ -676,6 +681,31 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $mainQuery->setSuggest(
                 new Suggest($completitionText)
             );
+        }
+    }
+
+    /**
+     * Promote UUID.
+     *
+     * @param ElasticaQuery\BoolQuery $boolQuery
+     * @param ItemUUID[]              $itemsPriorized
+     */
+    private function promoteUUIDs(
+        ElasticaQuery\BoolQuery $boolQuery,
+        array $itemsPriorized
+    ) {
+        if (empty($itemsPriorized)) {
+            return;
+        }
+
+        $total = count($itemsPriorized) + 1;
+        foreach ($itemsPriorized as $position => $itemUUID) {
+            $boolQuery->addShould(new ElasticaQuery\Term([
+                '_id' => [
+                    'value' => $itemUUID->composeUUID(),
+                    'boost' => ($total - $position),
+                ],
+            ]));
         }
     }
 }
