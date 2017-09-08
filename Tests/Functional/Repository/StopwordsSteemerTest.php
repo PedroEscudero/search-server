@@ -28,13 +28,6 @@ trait StopwordsSteemerTest
      */
     public function testSearchWithoutStopwords()
     {
-        $this->assertEmpty(
-            $this->query(
-                Query::create('alamo', 1, 1)
-                    ->disableAggregations()
-            )->getItems()
-        );
-
         $this->assertNotEmpty(
             $this->query(
                 Query::create('de', 1, 1)
@@ -52,13 +45,6 @@ trait StopwordsSteemerTest
          * Reseting scenario for next calls.
          */
         self::resetScenario('es');
-        $this->assertNotEmpty(
-            $this->query(
-                Query::create('alamo', 1, 1)
-                    ->disableAggregations()
-            )->getItems()
-        );
-
         $this->assertEmpty(
             $this->query(
                 Query::create('de', 1, 1)

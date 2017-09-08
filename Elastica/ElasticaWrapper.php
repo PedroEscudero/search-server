@@ -104,6 +104,7 @@ class ElasticaWrapper
                         'tokenizer' => 'standard',
                         'filter' => [
                             'lowercase',
+                            'asciifolding',
                             'ngram_filter',
                             'stop_words',
                         ],
@@ -113,6 +114,7 @@ class ElasticaWrapper
                         'tokenizer' => 'standard',
                         'filter' => [
                             'lowercase',
+                            'asciifolding',
                             'stop_words',
                         ],
                     ],
@@ -131,6 +133,15 @@ class ElasticaWrapper
                         'stopwords' => ElasticaLanguages::getStopwordsLanguageByIso($language),
                     ],
                 ],
+                'normalizer' => [
+                    'exact_matching_normalizer' => [
+                        'type' => 'custom',
+                        'filter' => [
+                            'lowercase',
+                            'asciifolding',
+                        ]
+                    ]
+                ]
             ],
         ];
 
@@ -281,10 +292,9 @@ class ElasticaWrapper
                 'search_analyzer' => 'search_analyzer',
             ],
             'exact_matching_metadata' => [
-                'type' => 'text',
+                'type' => 'keyword',
                 'include_in_all' => false,
-                'analyzer' => 'standard',
-                'search_analyzer' => 'standard',
+                'normalizer' => 'exact_matching_normalizer',
             ],
             'suggest' => [
                 'type' => 'completion',

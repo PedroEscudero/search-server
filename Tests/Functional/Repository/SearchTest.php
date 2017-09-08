@@ -116,4 +116,26 @@ trait SearchTest
             $result->getQuery()->getUser()
         );
     }
+
+    /**
+     * Test accents
+     */
+    public function testAccents()
+    {
+        $this->assertEquals(
+            3,
+            $this
+                ->query(Query::create('codigo'))
+                ->getFirstItem()
+                ->getId()
+        );
+
+        $this->assertEquals(
+            3,
+            $this
+                ->query(Query::create('código'))
+                ->getFirstItem()
+                ->getId()
+        );
+    }
 }
