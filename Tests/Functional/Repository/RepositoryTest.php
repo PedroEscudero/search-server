@@ -25,6 +25,7 @@ use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTe
  */
 abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
 {
+    use HighlightTest;
     use AggregationsTest;
     use UniverseFilterTest;
     use FiltersTest;

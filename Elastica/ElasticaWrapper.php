@@ -139,9 +139,9 @@ class ElasticaWrapper
                         'filter' => [
                             'lowercase',
                             'asciifolding',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
         ];
 
@@ -259,6 +259,16 @@ class ElasticaWrapper
                     ],
                 ],
             ],
+            [
+                'dynamic_searchable_metadata_as_text' => [
+                    'path_match' => 'searchable_metadata.*',
+                    'mapping' => [
+                        'type' => 'text',
+                        'analyzer' => 'default',
+                        'search_analyzer' => 'search_analyzer',
+                    ],
+                ],
+            ],
         ]);
         $itemMapping->setProperties([
             'uuid' => [
@@ -286,10 +296,9 @@ class ElasticaWrapper
                 'include_in_all' => false,
             ],
             'searchable_metadata' => [
-                'type' => 'text',
+                'type' => 'object',
+                'dynamic' => true,
                 'include_in_all' => false,
-                'analyzer' => 'default',
-                'search_analyzer' => 'search_analyzer',
             ],
             'exact_matching_metadata' => [
                 'type' => 'keyword',

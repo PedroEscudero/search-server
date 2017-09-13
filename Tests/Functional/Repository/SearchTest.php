@@ -118,7 +118,7 @@ trait SearchTest
     }
 
     /**
-     * Test accents
+     * Test accents.
      */
     public function testAccents()
     {

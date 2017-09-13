@@ -74,6 +74,10 @@ class QueryRepository extends ElasticaWithKeyWrapper
             $query->getItemsPromoted()
         );
 
+        if ($query->areHighlightEnabled()) {
+            $this->addHighlights($mainQuery);
+        }
+
         $mainQuery->setQuery($boolQuery);
 
         if ($query->getSortBy() !== SortBy::SCORE) {
@@ -167,7 +171,16 @@ class QueryRepository extends ElasticaWithKeyWrapper
             }
 
             $item = Item::createFromArray($source);
-            $item->setHighlights($elasticaResult->getHighlights());
+
+            if ($query->areHighlightEnabled()) {
+                $formedHighlights = [];
+                foreach ($elasticaResult->getHighlights() as $highlightField => $highlightValue) {
+                    $formedHighlights[str_replace('searchable_metadata.', '', $highlightField)] = $highlightValue[0];
+                }
+
+                $item->setHighlights($formedHighlights);
+            }
+
             $result->addItem($item);
         }
 
@@ -297,8 +310,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
                 $match = new ElasticaQuery\MultiMatch();
                 $filterFields = empty($filterFields)
                     ? [
-                        'indexed_metadata^1',
-                        'searchable_metadata^5',
+                        'searchable_metadata.*^2',
                         'exact_matching_metadata^10',
                     ]
                     : $filterFields;
@@ -707,5 +719,22 @@ class QueryRepository extends ElasticaWithKeyWrapper
                 ],
             ]));
         }
+    }
+
+    /**
+     * Highlight.
+     *
+     * @param ElasticaQuery $query
+     */
+    private function addHighlights(ElasticaQuery $query)
+    {
+        $query->setHighlight([
+            'fields' => [
+                '*' => [
+                    'fragment_size' => 100,
+                    'number_of_fragments' => 3,
+                ],
+            ],
+        ]);
     }
 }

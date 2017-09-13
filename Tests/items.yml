@@ -109,8 +109,8 @@ items:
             stores:
                 - ppal
         searchable_metadata:
-            - Code da vinci
-            - Código de Hernando
+            title: Code da vinci
+            description: Código de Hernando
         exact_matching_metadata:
             - engonga
         suggest:
@@ -141,7 +141,7 @@ items:
                 - "9"
                 - "6"
         searchable_metadata:
-            - álamo
+            title: álamo
         suggest:
             - Eleuterio
 
@@ -176,8 +176,8 @@ items:
                 - "id##8~~name##cat8~~level##2"
                 - "id##9~~name##cat9~~level##3"
         searchable_metadata:
-            - barcelona
-            - badalona
+            title: barcelona
+            description: badalona
         exact_matching_metadata:
             - Vinci
         suggest:
