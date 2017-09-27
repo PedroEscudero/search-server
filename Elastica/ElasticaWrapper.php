@@ -307,6 +307,8 @@ class ElasticaWrapper
             ],
             'suggest' => [
                 'type' => 'completion',
+                'analyzer' => 'search_analyzer',
+                'search_analyzer' => 'search_analyzer',
             ],
         ]);
 
