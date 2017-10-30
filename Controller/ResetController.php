@@ -42,6 +42,7 @@ class ResetController extends WithCommandBus
         $this
             ->commandBus
             ->handle(new ResetCommand(
+                $request->get('app_id', ''),
                 $request->get('key', ''),
                 $request->get('language', null)
             ));

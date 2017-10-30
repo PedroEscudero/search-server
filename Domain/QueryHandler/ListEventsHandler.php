@@ -54,6 +54,7 @@ class ListEventsHandler
         return $this
             ->eventRepository
             ->all(
+                $listEvents->getAppId(),
                 $listEvents->getKey(),
                 $listEvents->getName(),
                 $listEvents->getFrom(),

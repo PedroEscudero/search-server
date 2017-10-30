@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Domain\Command;
 
 use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Server\Domain\WithKey;
+use Puntmig\Search\Server\Domain\WithAppIdAndKey;
 
 /**
  * Class Delete.
  */
-class Delete extends WithKey
+class Delete extends WithAppIdAndKey
 {
     /**
      * @var ItemUUID[]
@@ -34,13 +34,16 @@ class Delete extends WithKey
     /**
      * DeleteCommand constructor.
      *
+     * @param string     $appId
      * @param string     $key
      * @param ItemUUID[] $itemsUUID
      */
     public function __construct(
+        string $appId,
         string $key,
         array $itemsUUID
     ) {
+        $this->appId = $appId;
         $this->key = $key;
         $this->itemsUUID = $itemsUUID;
     }

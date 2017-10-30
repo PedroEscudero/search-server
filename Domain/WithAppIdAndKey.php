@@ -17,16 +17,33 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Domain;
 
 /**
- * Abstract class WithKey.
+ * Abstract class WithAppIdAndKey.
  */
-abstract class WithKey
+abstract class WithAppIdAndKey
 {
+    /**
+     * @var string
+     *
+     * App id
+     */
+    protected $appId;
+
     /**
      * @var string
      *
      * Key
      */
     protected $key;
+
+    /**
+     * Get AppId.
+     *
+     * @return string
+     */
+    public function getAppId(): string
+    {
+        return $this->appId;
+    }
 
     /**
      * Get Key.

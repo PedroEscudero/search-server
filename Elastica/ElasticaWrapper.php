@@ -55,24 +55,26 @@ class ElasticaWrapper
     /**
      * Get search index.
      *
-     * @param string $key
+     * @param string $appId
      *
      * @return Index
      */
-    public function getSearchIndex(string $key): Index
+    public function getSearchIndex(string $appId): Index
     {
         return $this
             ->client
-            ->getIndex("puntmig_$key");
+            ->getIndex("puntmig_$appId");
     }
 
     /**
      * Delete index.
+     *
+     * @param string $appId
      */
-    public function deleteIndex(string $key)
+    public function deleteIndex(string $appId)
     {
         try {
-            $this->getSearchIndex($key)->delete();
+            $this->getSearchIndex($appId)->delete();
         } catch (Exception $e) {
             // Silent pass
         }
@@ -81,19 +83,19 @@ class ElasticaWrapper
     /**
      * Create index.
      *
-     * @param string      $key
+     * @param string      $appId
      * @param int         $shards
      * @param int         $replicas
      * @param null|string $language
      */
     public function createIndex(
-        string $key,
+        string $appId,
         int $shards,
         int $replicas,
         ? string $language
     ) {
-        $this->deleteIndex($key);
-        $searchIndex = $this->getSearchIndex($key);
+        $this->deleteIndex($appId);
+        $searchIndex = $this->getSearchIndex($appId);
         $indexConfiguration = [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
@@ -163,24 +165,24 @@ class ElasticaWrapper
     /**
      * Create index.
      *
-     * @param string $key
+     * @param string $appId
      * @param string $typeName
      *
      * @return Type
      */
     public function getType(
-        string $key,
+        string $appId,
         string $typeName
     ) {
         return $this
-            ->getSearchIndex($key)
+            ->getSearchIndex($appId)
             ->getType($typeName);
     }
 
     /**
      * Search.
      *
-     * @param string $key
+     * @param string $appId
      * @param Query  $query
      * @param int    $from
      * @param int    $size
@@ -188,13 +190,13 @@ class ElasticaWrapper
      * @return mixed
      */
     public function search(
-        string $key,
+        string $appId,
         Query $query,
         int $from,
         int $size
     ) {
         $queryResult = $this
-            ->getSearchIndex($key)
+            ->getSearchIndex($appId)
             ->search($query, [
                 'from' => $from,
                 'size' => $size,
@@ -211,43 +213,43 @@ class ElasticaWrapper
     /**
      * Refresh.
      *
-     * @param string $key
+     * @param string $appId
      */
-    public function refresh(string $key)
+    public function refresh(string $appId)
     {
         $this
-            ->getSearchIndex($key)
+            ->getSearchIndex($appId)
             ->refresh();
     }
 
     /**
      * Create mapping.
      *
-     * @param string      $key
+     * @param string      $appId
      * @param int         $shards
      * @param int         $replicas
      * @param null|string $language
      */
     public function createIndexMapping(
-        string $key,
+        string $appId,
         int $shards,
         int $replicas,
         ? string $language
     ) {
-        $this->createIndex($key, $shards, $replicas, $language);
-        $this->createItemIndexMapping($key);
-        $this->refresh($key);
+        $this->createIndex($appId, $shards, $replicas, $language);
+        $this->createItemIndexMapping($appId);
+        $this->refresh($appId);
     }
 
     /**
      * Create item index mapping.
      *
-     * @param string $key
+     * @param string $appId
      */
-    private function createItemIndexMapping(string $key)
+    private function createItemIndexMapping(string $appId)
     {
         $itemMapping = new Mapping();
-        $itemMapping->setType($this->getType($key, 'item'));
+        $itemMapping->setType($this->getType($appId, 'item'));
         $itemMapping->enableAllField(false);
         $itemMapping->setParam('dynamic_templates', [
             [

@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Elastica;
 
 /**
- * Class ElasticaWithKeyWrapper.
+ * Class ElasticaWithAppIdWrapper.
  */
-abstract class ElasticaWithKeyWrapper
+abstract class ElasticaWithAppIdWrapper
 {
     /**
      * @var ElasticaWrapper
@@ -31,9 +31,9 @@ abstract class ElasticaWithKeyWrapper
     /**
      * @var string
      *
-     * Key
+     * App id
      */
-    protected $key;
+    protected $appId;
 
     /**
      * ElasticaSearchRepository constructor.
@@ -46,13 +46,13 @@ abstract class ElasticaWithKeyWrapper
     }
 
     /**
-     * Set key.
+     * Set app id.
      *
-     * @param string $key
+     * @param string $appId
      */
-    public function setKey(string $key)
+    public function setAppId(string $appId)
     {
-        $this->key = $key;
+        $this->appId = $appId;
     }
 
     /**
@@ -62,6 +62,6 @@ abstract class ElasticaWithKeyWrapper
     {
         $this
             ->elasticaWrapper
-            ->refresh($this->key);
+            ->refresh($this->appId);
     }
 }

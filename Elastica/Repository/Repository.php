@@ -70,15 +70,15 @@ class Repository extends BaseRepository
     /**
      * Set key.
      *
-     * @param string $key
+     * @param string $appId
      */
-    public function setKey(string $key)
+    public function setAppId(string $appId)
     {
-        parent::setKey($key);
+        parent::setAppId($appId);
 
-        $this->queryRepository->setKey($key);
-        $this->indexRepository->setKey($key);
-        $this->deleteRepository->setKey($key);
+        $this->queryRepository->setAppId($appId);
+        $this->indexRepository->setAppId($appId);
+        $this->deleteRepository->setAppId($appId);
     }
 
     /**

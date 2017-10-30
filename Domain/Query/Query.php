@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Domain\Query;
 
 use Puntmig\Search\Query\Query as SearchQuery;
-use Puntmig\Search\Server\Domain\WithKey;
+use Puntmig\Search\Server\Domain\WithAppIdAndKey;
 
 /**
  * Class Query.
  */
-class Query extends WithKey
+class Query extends WithAppIdAndKey
 {
     /**
      * @var SearchQuery
@@ -34,13 +34,16 @@ class Query extends WithKey
     /**
      * DeleteCommand constructor.
      *
+     * @param string      $appId
      * @param string      $key
      * @param SearchQuery $query
      */
     public function __construct(
+        string $appId,
         string $key,
         SearchQuery $query
     ) {
+        $this->appId = $appId;
         $this->key = $key;
         $this->query = $query;
     }

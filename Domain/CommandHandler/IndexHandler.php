@@ -32,8 +32,13 @@ class IndexHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(IndexCommand $indexCommand)
     {
+        $appId = $indexCommand->getAppId();
         $key = $indexCommand->getKey();
         $items = $indexCommand->getItems();
+
+        $this
+            ->repository
+            ->setAppId($appId);
 
         $this
             ->repository
@@ -46,6 +51,7 @@ class IndexHandler extends WithRepositoryAndEventPublisher
         $this
             ->eventPublisher
             ->publish(new ItemsWereIndexed(
+                $appId,
                 $key,
                 $items
             ));

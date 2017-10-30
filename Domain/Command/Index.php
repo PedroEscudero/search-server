@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Domain\Command;
 
 use Puntmig\Search\Model\Item;
-use Puntmig\Search\Server\Domain\WithKey;
+use Puntmig\Search\Server\Domain\WithAppIdAndKey;
 
 /**
  * Class Index.
  */
-class Index extends WithKey
+class Index extends WithAppIdAndKey
 {
     /**
      * @var Item[]
@@ -34,13 +34,16 @@ class Index extends WithKey
     /**
      * IndexCommand constructor.
      *
+     * @param string $appId
      * @param string $key
      * @param Item[] $items
      */
     public function __construct(
+        string $appId,
         string $key,
         array $items
     ) {
+        $this->appId = $appId;
         $this->key = $key;
         $this->items = $items;
     }

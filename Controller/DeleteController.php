@@ -51,6 +51,7 @@ class DeleteController extends WithCommandBus
         $this
             ->commandBus
             ->handle(new DeleteCommand(
+                $request->get('app_id', ''),
                 $request->get('key', ''),
                 array_map(function (array $object) {
                     return ItemUUID::createFromArray($object);

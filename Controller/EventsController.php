@@ -45,6 +45,7 @@ class EventsController extends WithCommandBus
         $events = $this
             ->commandBus
             ->handle(new ListEvents(
+                $request->get('app_id', ''),
                 $query->get('key'),
                 $query->get('name', ''),
                 $this->castToIntIfNotNull($query, 'from'),

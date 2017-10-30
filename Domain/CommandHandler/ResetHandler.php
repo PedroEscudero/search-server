@@ -32,8 +32,13 @@ class ResetHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(ResetCommand $resetCommand)
     {
+        $appId = $resetCommand->getAppId();
         $key = $resetCommand->getKey();
         $language = $resetCommand->getLanguage();
+
+        $this
+            ->repository
+            ->setAppId($appId);
 
         $this
             ->repository
@@ -46,6 +51,7 @@ class ResetHandler extends WithRepositoryAndEventPublisher
         $this
             ->eventPublisher
             ->publish(new IndexWasReset(
+                $appId,
                 $key,
                 $language
             ));

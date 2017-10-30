@@ -34,12 +34,12 @@ use Puntmig\Search\Query\SortBy;
 use Puntmig\Search\Result\Aggregation as ResultAggregation;
 use Puntmig\Search\Result\Aggregations as ResultAggregations;
 use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
+use Puntmig\Search\Server\Elastica\ElasticaWithAppIdWrapper;
 
 /**
  * Class QueryRepository.
  */
-class QueryRepository extends ElasticaWithKeyWrapper
+class QueryRepository extends ElasticaWithAppIdWrapper
 {
     /**
      * Search cross the index types.
@@ -80,8 +80,8 @@ class QueryRepository extends ElasticaWithKeyWrapper
 
         $mainQuery->setQuery($boolQuery);
 
-        if ($query->getSortBy() !== SortBy::SCORE) {
-            if ($query->getSortBy() === SortBy::RANDOM) {
+        if (SortBy::SCORE !== $query->getSortBy()) {
+            if (SortBy::RANDOM === $query->getSortBy()) {
                 /**
                  * Random elements in Elasticsearch need a wrapper in order to
                  * apply a random score per each result.
@@ -114,7 +114,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
         $results = $this
             ->elasticaWrapper
             ->search(
-                $this->key,
+                $this->appId,
                 $mainQuery,
                 $query->getFrom(),
                 $query->getSize()
@@ -234,7 +234,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
                  * * Elements already filtered
                  * * Elements with level (if exists) than the highest one
                  */
-                if ($queryAggregation->getApplicationType() === Filter::MUST_ALL_WITH_LEVELS) {
+                if (Filter::MUST_ALL_WITH_LEVELS === $queryAggregation->getApplicationType()) {
                     $aggregation->cleanCountersByLevel();
                 }
             }
@@ -301,7 +301,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
         bool $onlyAddDefinedTermFilter,
         bool $takeInAccountDefinedTermFilter
     ) {
-        if ($filter->getFilterType() === Filter::TYPE_QUERY) {
+        if (Filter::TYPE_QUERY === $filter->getFilterType()) {
             $queryString = $filter->getValues()[0];
 
             if (empty($queryString)) {
@@ -324,7 +324,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
             return;
         }
 
-        if ($filter->getFilterType() === Filter::TYPE_GEO) {
+        if (Filter::TYPE_GEO === $filter->getFilterType()) {
             $boolQuery->addMust(
                 $this->createLocationFilter($filter)
             );
@@ -519,11 +519,11 @@ class QueryRepository extends ElasticaWithKeyWrapper
             ];
         }
 
-        if ($to !== Range::INFINITE) {
+        if (Range::INFINITE !== $to) {
             $rangeData['lt'] = $to;
         }
 
-        $rangeClass = $filter->getFilterType() === Filter::TYPE_DATE_RANGE
+        $rangeClass = Filter::TYPE_DATE_RANGE === $filter->getFilterType()
             ? ElasticaQuery\Range::class
             : ElasticaQuery\Range::class;
 
@@ -660,7 +660,7 @@ class QueryRepository extends ElasticaWithKeyWrapper
      */
     private function createRangeAggregation(QueryAggregation $aggregation): ElasticaAggregation\AbstractAggregation
     {
-        $rangeClass = $aggregation->getFilterType() === Filter::TYPE_DATE_RANGE
+        $rangeClass = Filter::TYPE_DATE_RANGE === $aggregation->getFilterType()
             ? ElasticaAggregation\DateRange::class
             : ElasticaAggregation\Range::class;
 

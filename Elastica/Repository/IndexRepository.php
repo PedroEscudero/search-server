@@ -21,13 +21,13 @@ use Elastica\Document as ElasticaDocument;
 
 use Puntmig\Search\Model\Coordinate;
 use Puntmig\Search\Model\Item;
-use Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper;
+use Puntmig\Search\Server\Elastica\ElasticaWithAppIdWrapper;
 use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class IndexRepository.
  */
-class IndexRepository extends ElasticaWithKeyWrapper
+class IndexRepository extends ElasticaWithAppIdWrapper
 {
     /**
      * Create the index.
@@ -39,7 +39,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
         $this
             ->elasticaWrapper
             ->createIndexMapping(
-                $this->key,
+                $this->appId,
                 20,
                 1,
                 $language
@@ -64,7 +64,7 @@ class IndexRepository extends ElasticaWithKeyWrapper
 
         $this
             ->elasticaWrapper
-            ->getType($this->key, ElasticaWrapper::ITEM_TYPE)
+            ->getType($this->appId, ElasticaWrapper::ITEM_TYPE)
             ->addDocuments($documents);
 
         $this->refresh();

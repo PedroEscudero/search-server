@@ -67,7 +67,8 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                     'repositories' => [
                         'search' => [
                             'endpoint' => 'xxx',
-                            'secret' => 'hjk45hj4k4',
+                            'app_id' => self::$appId,
+                            'secret' => self::$key,
                             'test' => true,
                             'search' => [
                                 'repository_service' => 'search_server.elastica_repository',
@@ -97,6 +98,13 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     {
         return true;
     }
+
+    /**
+     * @var string
+     *
+     * App id
+     */
+    public static $appId = 'lalala';
 
     /**
      * @var string
@@ -157,6 +165,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
         return self::$container
             ->get('tactician.commandbus')
             ->handle(new Query(
+                self::$appId,
                 $key ?? self::$key,
                 $query
             ));
@@ -175,6 +184,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
         self::$container
             ->get('tactician.commandbus')
             ->handle(new DeleteCommand(
+                self::$appId,
                 $key ?? self::$key,
                 $itemsUUID
             ));
@@ -193,6 +203,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
         self::$container
             ->get('tactician.commandbus')
             ->handle(new IndexCommand(
+                self::$appId,
                 $key ?? self::$key,
                 $items
             ));
@@ -211,6 +222,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
         self::$container
             ->get('tactician.commandbus')
             ->handle(new ResetCommand(
+                self::$appId,
                 $key ?? self::$key,
                 $language
             ));

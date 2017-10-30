@@ -31,13 +31,16 @@ class IndexWasReset extends DomainEvent
     /**
      * ItemsWasIndexed constructor.
      *
+     * @param string      $appId
      * @param string      $key
      * @param null|string $language
      */
     public function __construct(
+        string $appId,
         string $key,
         ? string $language
     ) {
+        $this->appId = $appId;
         $this->key = $key;
         $this->language = $language;
         $this->setNow();

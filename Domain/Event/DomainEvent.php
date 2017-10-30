@@ -28,6 +28,13 @@ abstract class DomainEvent
     /**
      * @var string
      *
+     * App id
+     */
+    protected $appId;
+
+    /**
+     * @var string
+     *
      * Key
      */
     protected $key;
@@ -58,6 +65,16 @@ abstract class DomainEvent
     }
 
     /**
+     * Get App id.
+     *
+     * @return string
+     */
+    public function getAppId(): string
+    {
+        return $this->appId;
+    }
+
+    /**
      * Get Key.
      *
      * @return string
@@ -70,6 +87,7 @@ abstract class DomainEvent
     /**
      * Create by plain values.
      *
+     * @param string $appId
      * @param string $key
      * @param int    $occurredOn
      * @param string $payload
@@ -77,13 +95,14 @@ abstract class DomainEvent
      * @return static
      */
     public static function createByPlainValues(
+        string $appId,
         string $key,
         int $occurredOn,
         string $payload
     ) {
         $reflector = new ReflectionClass(static::class);
         $instance = $reflector->newInstanceArgs(array_merge(
-            [$key],
+            [$appId, $key],
             static::fromPayload($payload)
         ));
         $instance->occurredOn = $occurredOn;

@@ -50,6 +50,7 @@ class IndexController extends WithCommandBus
         $this
             ->commandBus
             ->handle(new IndexCommand(
+                $request->get('app_id', ''),
                 $request->get('key', ''),
                 array_map(function (array $object) {
                     return Item::createFromArray($object);

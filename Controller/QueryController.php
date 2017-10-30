@@ -52,6 +52,7 @@ class QueryController extends WithCommandBus
             $this
             ->commandBus
             ->handle(new Query(
+                $request->get('app_id', ''),
                 $query->get('key', ''),
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))

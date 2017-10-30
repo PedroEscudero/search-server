@@ -32,8 +32,13 @@ class DeleteHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(DeleteCommand $deleteCommand)
     {
+        $appId = $deleteCommand->getAppId();
         $key = $deleteCommand->getKey();
         $itemsUUID = $deleteCommand->getItemsUUID();
+
+        $this
+            ->repository
+            ->setAppId($appId);
 
         $this
             ->repository
@@ -46,6 +51,7 @@ class DeleteHandler extends WithRepositoryAndEventPublisher
         $this
             ->eventPublisher
             ->publish(new ItemsWereDeleted(
+                $appId,
                 $key,
                 $itemsUUID
             ));

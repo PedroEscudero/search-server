@@ -30,6 +30,7 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
     /**
      * Get all events.
      *
+     * @param string|null $appId
      * @param string|null $key
      * @param string|null $name
      * @param int|null    $from
@@ -40,6 +41,7 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
      * @return DomainEvent[]
      */
     public function all(
+        string $appId = null,
         string $key = null,
         string $name = null,
         ?int $from = null,
@@ -52,6 +54,12 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
             ->orderBy('e.id', 'ASC')
             ->setMaxResults($length)
             ->setFirstResult($offset);
+
+        if (!is_null($appId)) {
+            $queryBuilder
+                ->andWhere('e.appId = :app_id')
+                ->setParameter('app_id', $appId);
+        }
 
         if (!is_null($key)) {
             $queryBuilder

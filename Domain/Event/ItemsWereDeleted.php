@@ -33,13 +33,16 @@ class ItemsWereDeleted extends DomainEvent
     /**
      * ItemsWasIndexed constructor.
      *
+     * @param string     $appId
      * @param string     $key
      * @param ItemUUID[] $itemsUUID
      */
     public function __construct(
+        string $appId,
         string $key,
         array $itemsUUID
     ) {
+        $this->appId = $appId;
         $this->key = $key;
         $this->itemsUUID = $itemsUUID;
         $this->setNow();

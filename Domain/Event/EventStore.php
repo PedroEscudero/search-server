@@ -62,6 +62,7 @@ class EventStore
                     '',
                     get_class($event)
                 ),
+                $event->getAppId(),
                 $event->getKey(),
                 $event->toPayload(),
                 $event->occurredOn()
@@ -71,6 +72,7 @@ class EventStore
     /**
      * Get all domain events.
      *
+     * @param string|null $appId
      * @param string|null $key
      * @param int|null    $from
      * @param int|null    $to
@@ -80,6 +82,7 @@ class EventStore
      * @return DomainEvent[]
      */
     public function allDomainEvents(
+        string $appId = null,
         string $key = null,
         ?int $from = null,
         ?int $to = null,
@@ -91,6 +94,7 @@ class EventStore
             $namespace = 'Puntmig\Search\Server\Domain\Event\\'.$className;
 
             return $namespace::createByPlainValues(
+                $event->getAppId(),
                 $event->getKey(),
                 $event->getOccurredOn(),
                 $event->getPayload()
@@ -98,6 +102,7 @@ class EventStore
         }, $this
             ->eventRepository
             ->all(
+                $appId,
                 $key,
                 $from,
                 $to,

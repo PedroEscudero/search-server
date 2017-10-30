@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Domain\WithKey;
+use Puntmig\Search\Server\Domain\WithAppIdAndKey;
 
 /**
  * Class CheckKeyMiddleware.
@@ -60,7 +60,7 @@ class CheckKeyMiddleware implements Middleware
             ->getCurrentRequest();
 
         if (
-            $command instanceof WithKey &&
+            $command instanceof WithAppIdAndKey &&
             $currentRequest instanceof Request
         ) {
             if (
@@ -80,20 +80,21 @@ class CheckKeyMiddleware implements Middleware
     /**
      * Check permission.
      *
-     * @param WithKey $command
-     * @param Request $request
+     * @param WithAppIdAndKey $command
+     * @param Request         $request
      *
      * @return bool
      */
     public function checkPermission(
-        WithKey $command,
+        WithAppIdAndKey $command,
         Request $request
     ): bool {
         try {
-            file_get_contents('http://tokens.dev:5002/permission?'.implode('&', [
+            file_get_contents('http://tokens.dev/permission?'.implode('&', [
                 'project=search',
                 'path='.$request->getPathInfo(),
                 'verb='.$request->getRealMethod(),
+                'app_id='.$command->getAppId(),
                 'token='.$command->getKey(),
             ]));
 

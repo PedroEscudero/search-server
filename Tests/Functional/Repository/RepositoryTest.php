@@ -76,9 +76,9 @@ abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
         $inGroup = false;
         foreach ($ids as $id) {
             $idWithoutGrouping = trim($id, '{}');
-            $mustCheckExistence = strpos($idWithoutGrouping, '*') !== 0;
-            $mustExist = strpos($idWithoutGrouping, '!') !== 0;
-            $mustCheckRelativity = (strpos($idWithoutGrouping, '?') !== 0) && $mustExist;
+            $mustCheckExistence = 0 !== strpos($idWithoutGrouping, '*');
+            $mustExist = 0 !== strpos($idWithoutGrouping, '!');
+            $mustCheckRelativity = (0 !== strpos($idWithoutGrouping, '?')) && $mustExist;
             $cleanId = trim($idWithoutGrouping, '?*!');
 
             if ($mustCheckExistence) {
