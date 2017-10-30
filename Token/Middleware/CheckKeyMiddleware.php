@@ -89,20 +89,14 @@ class CheckKeyMiddleware implements Middleware
         WithAppIdAndKey $command,
         Request $request
     ): bool {
-        try {
-            file_get_contents('http://tokens.dev/permission?'.implode('&', [
-                'project=search',
-                'path='.$request->getPathInfo(),
-                'verb='.$request->getRealMethod(),
-                'app_id='.$command->getAppId(),
-                'token='.$command->getKey(),
-            ]));
+        $value = @file_get_contents('http://tokens.dev/permission?'.implode('&', [
+            'project=search',
+            'path='.$request->getPathInfo(),
+            'verb='.$request->getRealMethod(),
+            'app_id='.$command->getAppId(),
+            'token='.$command->getKey(),
+        ]));
 
-            return true;
-        } catch (\Exception $e) {
-            // Silent pass
-        }
-
-        return false;
+        return false !== $value;
     }
 }
