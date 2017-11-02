@@ -57,7 +57,10 @@ class QueryController extends WithCommandBus
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))
             ->toArray(),
-            200
+            200,
+            [
+                'Access-Control-Allow-Origin' => '*',
+            ]
         );
     }
 }
