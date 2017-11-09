@@ -16,27 +16,25 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain;
 
-use League\Tactician\CommandBus;
-
 /**
- * Abstract class WithCommandBus.
+ * Abstract class WithAppId.
  */
-abstract class WithCommandBus
+abstract class WithAppId
 {
     /**
-     * @var CommandBus
+     * @var string
      *
-     * Message bus
+     * App id
      */
-    protected $commandBus;
+    protected $appId;
 
     /**
-     * ApiController constructor.
+     * Get AppId.
      *
-     * @param CommandBus $commandBus
+     * @return string
      */
-    public function __construct(CommandBus $commandBus)
+    public function getAppId(): string
     {
-        $this->commandBus = $commandBus;
+        return $this->appId;
     }
 }

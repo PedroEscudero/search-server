@@ -23,12 +23,11 @@ use Puntmig\Search\Model\ItemUUID;
 use Puntmig\Search\Server\Domain\Command\Delete as DeleteCommand;
 use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Domain\WithCommandBus;
 
 /**
  * Class DeleteController.
  */
-class DeleteController extends WithCommandBus
+class DeleteController extends Controller
 {
     /**
      * Remove objects.
@@ -42,17 +41,21 @@ class DeleteController extends WithCommandBus
      */
     public function delete(Request $request)
     {
-        $request = $request->request;
         $items = $request->get('items', null);
         if (!is_string($items)) {
             throw new InvalidFormatException();
         }
 
+        $this->checkToken(
+            $request,
+            $request->get('app_id', ''),
+            $request->get('key', '')
+        );
+
         $this
             ->commandBus
             ->handle(new DeleteCommand(
                 $request->get('app_id', ''),
-                $request->get('key', ''),
                 array_map(function (array $object) {
                     return ItemUUID::createFromArray($object);
                 }, json_decode($items, true))

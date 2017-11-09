@@ -69,8 +69,6 @@ class QueryWasMade extends DomainEvent
     /**
      * QueryWasMade constructor.
      *
-     * @param string    $appId
-     * @param string    $key
      * @param string    $queryText
      * @param Filter[]  $appliedFilters
      * @param string    $sortField
@@ -79,8 +77,6 @@ class QueryWasMade extends DomainEvent
      * @param User|null $user
      */
     public function __construct(
-        string $appId,
-        string $key,
         string $queryText,
         array $appliedFilters,
         string $sortField,
@@ -88,8 +84,6 @@ class QueryWasMade extends DomainEvent
         int $size,
         ? User $user
     ) {
-        $this->appId = $appId;
-        $this->key = $key;
         $this->queryText = $queryText;
         $this->appliedFilters = $appliedFilters;
         $this->sortField = $sortField;

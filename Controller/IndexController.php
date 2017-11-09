@@ -23,12 +23,11 @@ use Puntmig\Search\Model\Item;
 use Puntmig\Search\Server\Domain\Command\Index as IndexCommand;
 use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Domain\WithCommandBus;
 
 /**
  * Class IndexController.
  */
-class IndexController extends WithCommandBus
+class IndexController extends Controller
 {
     /**
      * Add objects.
@@ -47,11 +46,16 @@ class IndexController extends WithCommandBus
             throw new InvalidFormatException();
         }
 
+        $this->checkToken(
+            $request,
+            $request->get('app_id', ''),
+            $request->get('key', '')
+        );
+
         $this
             ->commandBus
             ->handle(new IndexCommand(
                 $request->get('app_id', ''),
-                $request->get('key', ''),
                 array_map(function (array $object) {
                     return Item::createFromArray($object);
                 }, json_decode($items, true))

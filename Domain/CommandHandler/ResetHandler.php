@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\CommandHandler;
 
+use Puntmig\Search\Event\EventRepository;
+use Puntmig\Search\Repository\Repository;
 use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
+use Puntmig\Search\Server\Domain\Event\EventPublisher;
 use Puntmig\Search\Server\Domain\Event\IndexWasReset;
 use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
 
@@ -26,6 +29,33 @@ use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
 class ResetHandler extends WithRepositoryAndEventPublisher
 {
     /**
+     * @var EventRepository
+     *
+     * Event repository
+     */
+    private $eventRepository;
+
+    /**
+     * QueryHandler constructor.
+     *
+     * @param Repository      $repository
+     * @param EventPublisher  $eventPublisher
+     * @param EventRepository $eventRepository
+     */
+    public function __construct(
+        Repository $repository,
+        EventPublisher $eventPublisher,
+        EventRepository $eventRepository
+    ) {
+        parent::__construct(
+            $repository,
+            $eventPublisher
+        );
+
+        $this->eventRepository = $eventRepository;
+    }
+
+    /**
      * Reset the index.
      *
      * @param ResetCommand $resetCommand
@@ -33,7 +63,6 @@ class ResetHandler extends WithRepositoryAndEventPublisher
     public function handle(ResetCommand $resetCommand)
     {
         $appId = $resetCommand->getAppId();
-        $key = $resetCommand->getKey();
         $language = $resetCommand->getLanguage();
 
         $this
@@ -42,18 +71,18 @@ class ResetHandler extends WithRepositoryAndEventPublisher
 
         $this
             ->repository
-            ->setKey($key);
-
-        $this
-            ->repository
             ->reset($language);
 
         $this
+            ->eventRepository
+            ->setAppId($appId);
+
+        $this
+            ->eventRepository
+            ->createRepository();
+
+        $this
             ->eventPublisher
-            ->publish(new IndexWasReset(
-                $appId,
-                $key,
-                $language
-            ));
+            ->publish(new IndexWasReset($language));
     }
 }

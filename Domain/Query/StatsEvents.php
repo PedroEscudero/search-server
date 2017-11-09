@@ -16,42 +16,61 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\Query;
 
-use Puntmig\Search\Query\Query as SearchQuery;
 use Puntmig\Search\Server\Domain\WithAppId;
 
 /**
- * Class Query.
+ * Class StatsEvents.
  */
-class Query extends WithAppId
+class StatsEvents extends WithAppId
 {
     /**
-     * @var SearchQuery
+     * @var int|null
      *
-     * Query
+     * From
      */
-    private $query;
+    private $from;
+
+    /**
+     * @var int|null
+     *
+     * To
+     */
+    private $to;
 
     /**
      * DeleteCommand constructor.
      *
-     * @param string      $appId
-     * @param SearchQuery $query
+     * @param string   $appId
+     * @param int|null $from
+     * @param int|null $to
      */
     public function __construct(
         string $appId,
-        SearchQuery $query
+        ?int $from,
+        ?int $to
     ) {
         $this->appId = $appId;
-        $this->query = $query;
+        $this->from = $from;
+        $this->to = $to;
     }
 
     /**
-     * Get Query.
+     * Get From.
      *
-     * @return SearchQuery
+     * @return int|null
      */
-    public function getQuery(): SearchQuery
+    public function getFrom(): ? int
     {
-        return $this->query;
+        return $this->from;
+    }
+
+    /**
+     * Get To.
+     *
+     * @return int|null
+     */
+    public function getTo(): ? int
+    {
+        return $this->to;
     }
 }

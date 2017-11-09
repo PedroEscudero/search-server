@@ -3,10 +3,13 @@ services:
     #
     # Events
     #
+    search_server.event_repository:
+        alias: "search_server.elastica_event_repository"
+
     search_server.event_store:
         class: Puntmig\Search\Server\Domain\Event\EventStore
         arguments:
-            - "@puntmig_search.event_repository_search"
+            - "@search_server.event_repository"
 
     search_server.event_publisher:
         class: Puntmig\Search\Server\Domain\Event\EventPublisher
@@ -36,9 +39,9 @@ services:
         arguments:
             - "@puntmig_search.repository_search"
             - "@search_server.event_publisher"
+            - "@search_server.event_repository"
         tags:
             - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Reset }
-
 
     #
     # Query handlers
@@ -57,6 +60,13 @@ services:
             - "@puntmig_search.event_repository_search"
         tags:
             - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\ListEvents }
+
+    search_server.query_handler.stats_events:
+        class: Puntmig\Search\Server\Domain\QueryHandler\StatsEventsHandler
+        arguments:
+            - "@puntmig_search.event_repository_search"
+        tags:
+            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\StatsEvents }
 
     #
     # Middlewares

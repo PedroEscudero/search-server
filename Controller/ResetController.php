@@ -21,12 +21,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Domain\WithCommandBus;
 
 /**
  * Class ResetController.
  */
-class ResetController extends WithCommandBus
+class ResetController extends Controller
 {
     /**
      * Reset the index.
@@ -39,14 +38,19 @@ class ResetController extends WithCommandBus
      */
     public function reset(Request $request)
     {
+        $this->checkToken(
+            $request,
+            $request->get('app_id', ''),
+            $request->get('key', '')
+        );
+
         $this
             ->commandBus
             ->handle(new ResetCommand(
                 $request->get('app_id', ''),
-                $request->get('key', ''),
                 $request->get('language', null)
             ));
 
-        return new JsonResponse('Items created', 200);
+        return new JsonResponse('Index created', 200);
     }
 }

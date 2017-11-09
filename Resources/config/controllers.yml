@@ -7,23 +7,33 @@ services:
         class: Puntmig\Search\Server\Controller\QueryController
         arguments:
             - "@tactician.commandbus.query"
+            - "@search_server.middleware.token_checker"
+            - "@search_server.event_repository"
 
     search_server.index_controller:
         class: Puntmig\Search\Server\Controller\IndexController
         arguments:
             - "@tactician.commandbus.command"
+            - "@search_server.middleware.token_checker"
+            - "@search_server.event_repository"
 
     search_server.delete_controller:
         class: Puntmig\Search\Server\Controller\DeleteController
         arguments:
             - "@tactician.commandbus.command"
+            - "@search_server.middleware.token_checker"
+            - "@search_server.event_repository"
 
     search_server.reset_controller:
         class: Puntmig\Search\Server\Controller\ResetController
         arguments:
             - "@tactician.commandbus.command"
+            - "@search_server.middleware.token_checker"
+            - "@search_server.event_repository"
 
     search_server.events_controller:
         class: Puntmig\Search\Server\Controller\EventsController
         arguments:
             - "@tactician.commandbus.query"
+            - "@search_server.middleware.token_checker"
+            - "@search_server.event_repository"

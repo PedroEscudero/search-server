@@ -23,12 +23,11 @@ use Puntmig\Search\Query\Query as QueryModel;
 use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Domain\Query\Query;
-use Puntmig\Search\Server\Domain\WithCommandBus;
 
 /**
  * Class QueryController.
  */
-class QueryController extends WithCommandBus
+class QueryController extends Controller
 {
     /**
      * Make a query.
@@ -42,18 +41,22 @@ class QueryController extends WithCommandBus
      */
     public function query(Request $request)
     {
-        $query = $request->query;
-        $plainQuery = $query->get('query', null);
+        $plainQuery = $request->get('query', null);
         if (!is_string($plainQuery)) {
             throw new InvalidFormatException();
         }
+
+        $this->checkToken(
+            $request,
+            $request->get('app_id', ''),
+            $request->get('key', '')
+        );
 
         return new JsonResponse(
             $this
             ->commandBus
             ->handle(new Query(
                 $request->get('app_id', ''),
-                $query->get('key', ''),
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))
             ->toArray(),

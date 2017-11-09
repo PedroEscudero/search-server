@@ -30,16 +30,16 @@ class HttpRepositoryTest extends RepositoryTest
      * Query using the bus.
      *
      * @param QueryModel $query
-     * @param string     $key
+     * @param string     $appId
      *
      * @return Result
      */
     public function query(
         QueryModel $query,
-        string $key = null
+        string $appId = null
     ) {
         $repository = $this->get('puntmig_search.repository_search');
-        $repository->setKey($key ?? self::$key);
+        $repository->setCredentials($appId ?? self::$appId, 'xxx');
 
         return $repository->query($query);
     }
@@ -48,14 +48,14 @@ class HttpRepositoryTest extends RepositoryTest
      * Delete using the bus.
      *
      * @param ItemUUID[] $itemsUUID
-     * @param string     $key
+     * @param string     $appId
      */
     public function deleteItems(
         array $itemsUUID,
-        string $key = null
+        string $appId = null
     ) {
         $repository = $this->get('puntmig_search.repository_search');
-        $repository->setKey($key ?? self::$key);
+        $repository->setCredentials($appId ?? self::$appId, 'xxx');
         foreach ($itemsUUID as $itemUUID) {
             $repository->deleteItem($itemUUID);
         }
@@ -66,14 +66,14 @@ class HttpRepositoryTest extends RepositoryTest
      * Add items using the bus.
      *
      * @param Item[] $items
-     * @param string $key
+     * @param string $appId
      */
     public function addItems(
         array $items,
-        string $key = null
+        string $appId = null
     ) {
         $repository = $this->get('puntmig_search.repository_search');
-        $repository->setKey($key ?? self::$key);
+        $repository->setCredentials($appId ?? self::$appId, 'xxx');
         foreach ($items as $item) {
             $repository->addItem($item);
         }
@@ -84,14 +84,14 @@ class HttpRepositoryTest extends RepositoryTest
      * Reset repository using the bus.
      *
      * @param string $language
-     * @param string $key
+     * @param string $appId
      */
     public function reset(
         string $language = null,
-        string $key = null
+        string $appId = null
     ) {
         $repository = $this->get('puntmig_search.repository_search');
-        $repository->setKey($key ?? self::$key);
+        $repository->setCredentials($appId ?? self::$appId, 'xxx');
         $repository->reset($language);
     }
 }

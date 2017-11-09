@@ -3,8 +3,8 @@ services:
     #
     # Middlewares
     #
-    search_server.middleware.key_check:
-        class: Puntmig\Search\Server\Token\Middleware\CheckKeyMiddleware
+    search_server.middleware.token_checker:
+        class: Puntmig\Search\Server\Token\TokenChecker
         public: false
         arguments:
-            - "@request_stack"
+            - "%token_server_endpoint%"

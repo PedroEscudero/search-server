@@ -116,8 +116,12 @@ class QueryRepository extends ElasticaWithAppIdWrapper
             ->search(
                 $this->appId,
                 $mainQuery,
-                $query->getFrom(),
-                $query->getSize()
+                $query->areResultsEnabled()
+                    ? $query->getFrom()
+                    : 0,
+                $query->areResultsEnabled()
+                    ? $query->getSize()
+                    : 0
             );
 
         return $this->elasticaResultToResult(
@@ -244,7 +248,7 @@ class QueryRepository extends ElasticaWithAppIdWrapper
         /*
          * @TODO Move this part into another place
          */
-        if ($query->areSuggestionsEnabled()) {
+        if (isset($elasticaResults['suggests']['completion']) && $query->areSuggestionsEnabled()) {
             foreach ($elasticaResults['suggests']['completion'][0]['options'] as $suggest) {
                 $result->addSuggest($suggest['text']);
             }
@@ -646,6 +650,7 @@ class QueryRepository extends ElasticaWithAppIdWrapper
                 ? $aggregation->getLimit()
                 : 1000
         );
+        var_dump($aggregation->getSort()[0], $aggregation->getSort()[1]);
         $termsAggregation->setOrder($aggregation->getSort()[0], $aggregation->getSort()[1]);
 
         return $termsAggregation;

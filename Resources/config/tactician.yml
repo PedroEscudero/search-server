@@ -4,18 +4,15 @@ tactician:
         command:
             middleware:
                 - tactician.middleware.locking
-                - search_server.middleware.key_check
-                - tactician.middleware.doctrine
                 - search_server.middleware.transaction
-                #- search_server.middleware.log_all_domain_events_to_elastica
+                # - search_server.middleware.log_all_domain_events_to_elastica
                 - search_server.middleware.domain_events
                 - tactician.middleware.command_handler
 
         query:
             middleware:
                 - tactician.middleware.locking
-                - search_server.middleware.key_check
-                - tactician.middleware.doctrine
-                #- search_server.middleware.log_all_domain_events_to_elastica
+                - search_server.middleware.transaction
+                # - search_server.middleware.log_all_domain_events_to_elastica
                 - search_server.middleware.domain_events
                 - tactician.middleware.command_handler

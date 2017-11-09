@@ -21,55 +21,33 @@ use Puntmig\Search\Query\Query;
 use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
 
 /**
- * Class EventPersistenceTest.
+ * Class EventStatsTest.
  */
-class EventPersistenceTest extends PuntmigSearchServerBundleFunctionalTest
+class EventStatsTest extends PuntmigSearchServerBundleFunctionalTest
 {
     /**
      * Test something.
      */
-    public function testEventPersistence()
+    public function testEventStats()
     {
         $eventRepository = self::get('search_server.event_repository');
         $eventRepository->setAppId(self::$appId);
         $eventRepository->createRepository(true);
 
         $this->reset();
-        $this->assertCount(
-            1,
-            $eventRepository->all()
-        );
         $this->deleteItems([new ItemUUID('1', 'product')]);
-        $this->assertCount(
-            2,
-            $eventRepository->all()
-        );
-        $this->deleteItems([new ItemUUID('2', 'product')]);
-        $this->assertCount(
-            3,
-            $eventRepository->all()
-        );
+        $this->deleteItems([new ItemUUID('1', 'product')]);
         $this->query(Query::createMatchAll());
-        $this->assertCount(
-            4,
-            $eventRepository->all()
-        );
+        $this->deleteItems([new ItemUUID('2', 'product')]);
+        $this->deleteItems([new ItemUUID('1', 'product')]);
+        $this->query(Query::createMatchAll());
         $this->reset();
-        $this->assertCount(
-            5,
-            $eventRepository->all()
-        );
         $this->reset();
-        $this->assertCount(
-            6,
-            $eventRepository->all()
-        );
 
-        $eventRepository->setAppId(self::$anotherAppId);
-        $eventRepository->createRepository(true);
-        $this->assertCount(
-            0,
-            $eventRepository->all()
-        );
+        $stats = $eventRepository->stats();
+        $this->assertEquals(3, $stats->getEventCounter()['IndexWasReset']);
+        $this->assertEquals(4, $stats->getEventCounter()['ItemsWereDeleted']);
+        $this->assertEquals(0, $stats->getEventCounter()['ItemsWereIndexed']);
+        $this->assertEquals(2, $stats->getEventCounter()['QueryWasMade']);
     }
 }

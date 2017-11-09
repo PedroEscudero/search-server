@@ -30,3 +30,9 @@ search_server_api_events:
     methods: ["GET"]
     defaults:
         _controller: search_server.events_controller:list
+
+search_server_api_event_stats:
+    path: /events/stats
+    methods: ["GET"]
+    defaults:
+        _controller: search_server.events_controller:stats

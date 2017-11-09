@@ -119,7 +119,7 @@ trait FiltersTest
         $this->assertEmpty(
             $this->query(
                 Query::createMatchAll()->filterByTypes(['product']),
-                self::$anotherKey
+                self::$anotherAppId
             )->getItems()
         );
     }
@@ -170,7 +170,7 @@ trait FiltersTest
         $this->assertEmpty(
             $this->query(
                 Query::createMatchAll()->filterByRange('price', 'price', [], ['0..-1']),
-                self::$anotherKey
+                self::$anotherAppId
             )->getItems()
         );
     }

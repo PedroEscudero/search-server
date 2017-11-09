@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Controller;
 
+use Puntmig\Search\Server\Domain\Query\StatsEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,12 +24,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Puntmig\Search\Event\Event;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Domain\Query\ListEvents;
-use Puntmig\Search\Server\Domain\WithCommandBus;
 
 /**
  * Class EventsController.
  */
-class EventsController extends WithCommandBus
+class EventsController extends Controller
 {
     /**
      * List events.
@@ -41,17 +41,23 @@ class EventsController extends WithCommandBus
      */
     public function list(Request $request)
     {
-        $query = $request->query;
+        $queryBag = $request->query;
+
+        $this->checkToken(
+            $request,
+            $queryBag->get('app_id', ''),
+            $queryBag->get('key', '')
+        );
+
         $events = $this
             ->commandBus
             ->handle(new ListEvents(
                 $request->get('app_id', ''),
-                $query->get('key'),
-                $query->get('name', ''),
-                $this->castToIntIfNotNull($query, 'from'),
-                $this->castToIntIfNotNull($query, 'to'),
-                $this->castToIntIfNotNull($query, 'length'),
-                $this->castToIntIfNotNull($query, 'offset')
+                $queryBag->get('name', ''),
+                $this->castToIntIfNotNull($queryBag, 'from'),
+                $this->castToIntIfNotNull($queryBag, 'to'),
+                $this->castToIntIfNotNull($queryBag, 'length'),
+                $this->castToIntIfNotNull($queryBag, 'offset')
             ));
 
         $events = array_map(function (Event $event) {
@@ -60,7 +66,46 @@ class EventsController extends WithCommandBus
 
         return new JsonResponse(
             $events,
-            200
+            200,
+            [
+                'Access-Control-Allow-Origin' => '*',
+            ]
+        );
+    }
+
+    /**
+     * Stats events.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
+     * @throws InvalidKeyException
+     */
+    public function stats(Request $request)
+    {
+        $queryBag = $request->query;
+
+        $this->checkToken(
+            $request,
+            $queryBag->get('app_id', ''),
+            $queryBag->get('key', '')
+        );
+
+        $stats = $this
+            ->commandBus
+            ->handle(new StatsEvents(
+                $request->get('app_id', ''),
+                $this->castToIntIfNotNull($queryBag, 'from'),
+                $this->castToIntIfNotNull($queryBag, 'to')
+            ));
+
+        return new JsonResponse(
+            $stats->toArray(),
+            200,
+            [
+                'Access-Control-Allow-Origin' => '*',
+            ]
         );
     }
 
@@ -74,7 +119,7 @@ class EventsController extends WithCommandBus
      */
     private function castToIntIfNotNull(
         ParameterBag $parameters,
-        $paramName
+        string $paramName
     ): ? int {
         $param = $parameters->get($paramName, null);
         if (!is_null($param)) {

@@ -16,14 +16,14 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\QueryHandler;
 
-use Puntmig\Search\Event\Event;
 use Puntmig\Search\Event\EventRepository;
-use Puntmig\Search\Server\Domain\Query\ListEvents;
+use Puntmig\Search\Event\Stats;
+use Puntmig\Search\Server\Domain\Query\StatsEvents;
 
 /**
- * Class ListEventsHandler.
+ * Class StatsEventsHandler.
  */
-class ListEventsHandler
+class StatsEventsHandler
 {
     /**
      * @var EventRepository
@@ -45,24 +45,21 @@ class ListEventsHandler
     /**
      * Reset the query.
      *
-     * @param ListEvents $listEvents
+     * @param StatsEvents $statsEvents
      *
-     * @return Event[]
+     * @return Stats
      */
-    public function handle(ListEvents $listEvents)
+    public function handle(StatsEvents $statsEvents)
     {
         $this
             ->eventRepository
-            ->setAppId($listEvents->getAppId());
+            ->setAppId($statsEvents->getAppId());
 
         return $this
             ->eventRepository
-            ->all(
-                $listEvents->getName(),
-                $listEvents->getFrom(),
-                $listEvents->getTo(),
-                $listEvents->getLength(),
-                $listEvents->getOffset()
+            ->stats(
+                $statsEvents->getFrom(),
+                $statsEvents->getTo()
             );
     }
 }

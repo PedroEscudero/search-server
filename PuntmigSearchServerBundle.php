@@ -16,18 +16,14 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server;
 
-use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
-use Mmoreram\BaseBundle\CompilerPass\MappingCompilerPass;
 use Mmoreram\BaseBundle\SimpleBaseBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\MonologBundle\MonologBundle;
-use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 use Puntmig\Search\PuntmigSearchBundle;
-use Puntmig\Search\Server\Doctrine\MappingBagProvider;
 
 /**
  * Class PuntmigSearchServerBundle.
@@ -64,21 +60,6 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
             MonologBundle::class,
             BaseBundle::class,
             TacticianBundle::class,
-            DoctrineBundle::class,
-        ];
-    }
-
-    /**
-     * Return a CompilerPass instance array.
-     *
-     * @return CompilerPassInterface[]
-     */
-    public function getCompilerPasses(): array
-    {
-        return [
-            new MappingCompilerPass(
-                new MappingBagProvider()
-            ),
         ];
     }
 }

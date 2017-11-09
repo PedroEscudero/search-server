@@ -26,20 +26,6 @@ use ReflectionClass;
 abstract class DomainEvent
 {
     /**
-     * @var string
-     *
-     * App id
-     */
-    protected $appId;
-
-    /**
-     * @var string
-     *
-     * Key
-     */
-    protected $key;
-
-    /**
      * @var int
      *
      * Occurred on
@@ -51,7 +37,8 @@ abstract class DomainEvent
      */
     protected function setNow()
     {
-        $this->occurredOn = Carbon::now('UTC')->getTimestamp();
+        $now = Carbon::now('UTC');
+        $this->occurredOn = ($now->timestamp * 1000000) + ((int) ($now->micro / 1000) * 1000);
     }
 
     /**
@@ -65,46 +52,19 @@ abstract class DomainEvent
     }
 
     /**
-     * Get App id.
-     *
-     * @return string
-     */
-    public function getAppId(): string
-    {
-        return $this->appId;
-    }
-
-    /**
-     * Get Key.
-     *
-     * @return string
-     */
-    public function getKey(): string
-    {
-        return $this->key;
-    }
-
-    /**
      * Create by plain values.
      *
-     * @param string $appId
-     * @param string $key
-     * @param int    $occurredOn
+     * @param string $occurredOn
      * @param string $payload
      *
      * @return static
      */
     public static function createByPlainValues(
-        string $appId,
-        string $key,
-        int $occurredOn,
+        string $occurredOn,
         string $payload
     ) {
         $reflector = new ReflectionClass(static::class);
-        $instance = $reflector->newInstanceArgs(array_merge(
-            [$appId, $key],
-            static::fromPayload($payload)
-        ));
+        $instance = $reflector->newInstanceArgs(static::fromPayload($payload));
         $instance->occurredOn = $occurredOn;
 
         return $instance;

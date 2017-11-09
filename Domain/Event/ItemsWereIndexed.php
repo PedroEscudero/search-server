@@ -33,17 +33,10 @@ class ItemsWereIndexed extends DomainEvent
     /**
      * ItemsWasIndexed constructor.
      *
-     * @param string $appId
-     * @param string $key
      * @param Item[] $items
      */
-    public function __construct(
-        string $appId,
-        string $key,
-        array $items
-    ) {
-        $this->appId = $appId;
-        $this->key = $key;
+    public function __construct(array $items)
+    {
         $this->items = $items;
         $this->setNow();
     }

@@ -31,7 +31,6 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
      * Get all events.
      *
      * @param string|null $appId
-     * @param string|null $key
      * @param string|null $name
      * @param int|null    $from
      * @param int|null    $to
@@ -42,7 +41,6 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
      */
     public function all(
         string $appId = null,
-        string $key = null,
         string $name = null,
         ?int $from = null,
         ?int $to = null,
@@ -59,12 +57,6 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
             $queryBuilder
                 ->andWhere('e.appId = :app_id')
                 ->setParameter('app_id', $appId);
-        }
-
-        if (!is_null($key)) {
-            $queryBuilder
-                ->andWhere('e.key = :key')
-                ->setParameter('key', $key);
         }
 
         if (!is_null($name)) {
@@ -93,10 +85,13 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
     /**
      * Save event.
      *
-     * @param Event $event
+     * @param string $appId
+     * @param Event  $event
      */
-    public function save(Event $event)
-    {
+    public function save(
+        string $appId,
+        Event $event
+    ) {
         $this
             ->getEntityManager()
             ->persist($event);
@@ -105,9 +100,11 @@ class DoctrineEventRepository extends EntityRepository implements EventRepositor
     /**
      * Get last event.
      *
+     * @param string $appId
+     *
      * @return Event|null
      */
-    public function last(): ? Event
+    public function last(string $appId): ? Event
     {
         return $this
             ->createQueryBuilder('e')

@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\Query;
 
-use Puntmig\Search\Server\Domain\WithAppIdAndKey;
+use Puntmig\Search\Server\Domain\WithAppId;
 
 /**
  * Class ListEvents.
  */
-class ListEvents extends WithAppIdAndKey
+class ListEvents extends WithAppId
 {
     /**
      * @var string|null
@@ -62,7 +62,6 @@ class ListEvents extends WithAppIdAndKey
      * DeleteCommand constructor.
      *
      * @param string      $appId
-     * @param string      $key
      * @param string|null $name
      * @param int|null    $from
      * @param int|null    $to
@@ -71,7 +70,6 @@ class ListEvents extends WithAppIdAndKey
      */
     public function __construct(
         string $appId,
-        string $key,
         ?string $name,
         ?int $from,
         ?int $to,
@@ -79,7 +77,6 @@ class ListEvents extends WithAppIdAndKey
         ?int $offset
     ) {
         $this->appId = $appId;
-        $this->key = $key;
         $this->name = $name;
         $this->from = $from;
         $this->to = $to;

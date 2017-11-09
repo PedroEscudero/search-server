@@ -34,7 +34,7 @@ trait SearchTest
         $result = $this->query(Query::createMatchAll());
         $this->assertSame(
             count($result->getItems()),
-            $this->get('search_server.elastica_wrapper')->getType(self::$key, 'item')->count()
+            $this->get('search_server.elastica_wrapper')->getType(self::$appId, 'item')->count()
         );
     }
 

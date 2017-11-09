@@ -16,8 +16,8 @@ services:
     #
     # Elastica repositories
     #
-    search_server.elastica_with_key_wrapper:
-        class: Puntmig\Search\Server\Elastica\ElasticaWithKeyWrapper
+    search_server.elastica_with_app_id_wrapper:
+        class: Puntmig\Search\Server\Elastica\ElasticaWithAppIdWrapper
         abstract: true
         public: false
         arguments:
@@ -25,15 +25,21 @@ services:
 
     search_server.elastica_query_repository:
         class: Puntmig\Search\Server\Elastica\Repository\QueryRepository
-        parent: search_server.elastica_with_key_wrapper
+        parent: search_server.elastica_with_app_id_wrapper
 
     search_server.elastica_index_repository:
         class: Puntmig\Search\Server\Elastica\Repository\IndexRepository
-        parent: search_server.elastica_with_key_wrapper
+        parent: search_server.elastica_with_app_id_wrapper
 
     search_server.elastica_delete_repository:
         class: Puntmig\Search\Server\Elastica\Repository\DeleteRepository
-        parent: search_server.elastica_with_key_wrapper
+        parent: search_server.elastica_with_app_id_wrapper
+
+    search_server.elastica_event_repository:
+        class: Puntmig\Search\Server\Elastica\Repository\EventRepository
+        arguments:
+            - "@search_server.elastica_client"
+
 
     #
     # Adapters

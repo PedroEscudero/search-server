@@ -45,8 +45,6 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     protected static function getKernel(): KernelInterface
     {
         $imports = [
-            ['resource' => '@BaseBundle/Resources/config/providers.yml'],
-            ['resource' => '@BaseBundle/Resources/test/doctrine.test.yml'],
             ['resource' => '@PuntmigSearchServerBundle/Resources/config/tactician.yml'],
         ];
 
@@ -60,6 +58,10 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                 PuntmigSearchServerBundle::class,
             ], [
                 'imports' => $imports,
+                'parameters' => [
+                    'token_server_endpoint' => '//',
+                    'kernel.secret' => 'sdhjshjkds',
+                ],
                 'framework' => [
                     'test' => true,
                 ],
@@ -68,7 +70,7 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                         'search' => [
                             'endpoint' => 'xxx',
                             'app_id' => self::$appId,
-                            'secret' => self::$key,
+                            'secret' => 'xxx',
                             'test' => true,
                             'search' => [
                                 'repository_service' => 'search_server.elastica_repository',
@@ -79,6 +81,10 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                                 'in_memory' => true,
                             ],
                         ],
+                    ],
+                ],
+                [
+                    'services' => [
                     ],
                 ],
             ],
@@ -104,21 +110,14 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * App id
      */
-    public static $appId = 'lalala';
+    public static $appId = 'test';
 
     /**
      * @var string
      *
-     * Used api key
+     * App id
      */
-    public static $key = 'hjk45hj4k4';
-
-    /**
-     * @var string
-     *
-     * Another used api key
-     */
-    public static $anotherKey = '5h43jk5h43';
+    public static $anotherAppId = 'another_test';
 
     /**
      * Sets up the fixture, for example, open a network connection.
@@ -137,7 +136,9 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      */
     public static function resetScenario(? string $language = null)
     {
-        self::reset($language, self::$key);
+        self::reset($language, self::$appId);
+        self::reset($language, self::$anotherAppId);
+
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
         foreach ($items['items'] as $item) {
@@ -147,26 +148,25 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
             }
             $itemsInstances[] = Item::createFromArray($item);
         }
-        self::addItems($itemsInstances, self::$key);
+        self::addItems($itemsInstances, self::$appId);
     }
 
     /**
      * Query using the bus.
      *
      * @param QueryModel $query
-     * @param string     $key
+     * @param string     $appId
      *
      * @return Result
      */
     public function query(
         QueryModel $query,
-        string $key = null
+        string $appId = null
     ) {
         return self::$container
             ->get('tactician.commandbus')
             ->handle(new Query(
-                self::$appId,
-                $key ?? self::$key,
+                $appId ?? self::$appId,
                 $query
             ));
     }
@@ -175,17 +175,16 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      * Delete using the bus.
      *
      * @param ItemUUID[] $itemsUUID
-     * @param string     $key
+     * @param string     $appId
      */
     public function deleteItems(
         array $itemsUUID,
-        string $key = null
+        string $appId = null
     ) {
         self::$container
             ->get('tactician.commandbus')
             ->handle(new DeleteCommand(
-                self::$appId,
-                $key ?? self::$key,
+                $appId ?? self::$appId,
                 $itemsUUID
             ));
     }
@@ -194,17 +193,16 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      * Add items using the bus.
      *
      * @param Item[] $items
-     * @param string $key
+     * @param string $appId
      */
     public function addItems(
         array $items,
-        string $key = null
+        string $appId = null
     ) {
         self::$container
             ->get('tactician.commandbus')
             ->handle(new IndexCommand(
-                self::$appId,
-                $key ?? self::$key,
+                $appId ?? self::$appId,
                 $items
             ));
     }
@@ -213,17 +211,16 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      * Reset repository using the bus.
      *
      * @param string $language
-     * @param string $key
+     * @param string $appId
      */
     public function reset(
         string $language = null,
-        string $key = null
+        string $appId = null
     ) {
         self::$container
             ->get('tactician.commandbus')
             ->handle(new ResetCommand(
-                self::$appId,
-                $key ?? self::$key,
+                $appId ?? self::$appId,
                 $language
             ));
     }

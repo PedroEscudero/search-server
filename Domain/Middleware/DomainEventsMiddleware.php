@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server\Domain\Middleware;
 use League\Tactician\Middleware;
 
 use Puntmig\Search\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
+use Puntmig\Search\Server\Domain\Event\DomainEvent;
 use Puntmig\Search\Server\Domain\Event\EventPublisher;
 use Puntmig\Search\Server\Domain\Event\EventStore;
 

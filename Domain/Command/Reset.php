@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Domain\Command;
 
-use Puntmig\Search\Server\Domain\WithAppIdAndKey;
+use Puntmig\Search\Server\Domain\WithAppId;
 
 /**
  * Class Reset.
  */
-class Reset extends WithAppIdAndKey
+class Reset extends WithAppId
 {
     /**
      * @var null|string
@@ -34,16 +34,13 @@ class Reset extends WithAppIdAndKey
      * ResetCommand constructor.
      *
      * @param string      $appId
-     * @param string      $key
      * @param null|string $language
      */
     public function __construct(
         string $appId,
-        string $key,
         ? string $language
     ) {
         $this->appId = $appId;
-        $this->key = $key;
         $this->language = $language;
     }
 

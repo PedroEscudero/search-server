@@ -53,37 +53,33 @@ class EventStore
     ) {
         $this
             ->eventRepository
-            ->save(Event::createByPreviousEvent(
-                $previousEvent ?? $this
-                    ->eventRepository
-                    ->last(),
-                str_replace(
-                    'Puntmig\Search\Server\Domain\Event\\',
-                    '',
-                    get_class($event)
-                ),
-                $event->getAppId(),
-                $event->getKey(),
-                $event->toPayload(),
-                $event->occurredOn()
-            ));
+            ->save(
+                Event::createByPreviousEvent(
+                    $previousEvent ?? $this
+                        ->eventRepository
+                        ->last(),
+                    str_replace(
+                        'Puntmig\Search\Server\Domain\Event\\',
+                        '',
+                        get_class($event)
+                    ),
+                    $event->toPayload(),
+                    $event->occurredOn()
+                )
+            );
     }
 
     /**
      * Get all domain events.
      *
-     * @param string|null $appId
-     * @param string|null $key
-     * @param int|null    $from
-     * @param int|null    $to
-     * @param int|null    $length
-     * @param int|null    $offset
+     * @param int|null $from
+     * @param int|null $to
+     * @param int|null $length
+     * @param int|null $offset
      *
      * @return DomainEvent[]
      */
     public function allDomainEvents(
-        string $appId = null,
-        string $key = null,
         ?int $from = null,
         ?int $to = null,
         ?int $length = 10,
@@ -94,16 +90,13 @@ class EventStore
             $namespace = 'Puntmig\Search\Server\Domain\Event\\'.$className;
 
             return $namespace::createByPlainValues(
-                $event->getAppId(),
-                $event->getKey(),
                 $event->getOccurredOn(),
                 $event->getPayload()
             );
         }, $this
             ->eventRepository
             ->all(
-                $appId,
-                $key,
+                null,
                 $from,
                 $to,
                 $length,

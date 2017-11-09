@@ -37,16 +37,11 @@ class QueryHandler extends WithRepositoryAndEventPublisher
     public function handle(Query $query)
     {
         $appId = $query->getAppId();
-        $key = $query->getKey();
         $searchQuery = $query->getQuery();
 
         $this
             ->repository
             ->setAppId($appId);
-
-        $this
-            ->repository
-            ->setKey($key);
 
         $result = $this
             ->repository
@@ -55,8 +50,6 @@ class QueryHandler extends WithRepositoryAndEventPublisher
         $this
             ->eventPublisher
             ->publish(new QueryWasMade(
-                $appId,
-                $key,
                 $searchQuery->getQueryText(),
                 $this->filterFiltersByType($searchQuery->getFilters(), Filter::TYPE_FIELD),
                 array_keys($searchQuery->getSortBy())[0],

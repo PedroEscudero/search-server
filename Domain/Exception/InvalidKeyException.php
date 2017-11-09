@@ -23,4 +23,13 @@ use Exception;
  */
 class InvalidKeyException extends Exception
 {
+    /**
+     * Throw an invalid key exception
+     *
+     * @return InvalidKeyException
+     */
+    public static function create() : InvalidKeyException
+    {
+        return new InvalidKeyException('Wrong API key provided');
+    }
 }

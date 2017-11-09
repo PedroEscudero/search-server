@@ -4,7 +4,6 @@ routes:
 config:
     imports:
         - { resource: "@PuntmigSearchServerBundle/Resources/config/tactician.yml"}
-        - { resource: "@BaseBundle/Resources/config/providers.yml"}
 
     parameters:
         kernel.secret: nsdjkfhdsupoifjñksd
@@ -14,6 +13,7 @@ config:
         database_name: search_server
         database_user: root
         database_password: root
+        token_server_endpoint: http://localhost:8120
 
     framework:
         form: false
@@ -27,27 +27,6 @@ config:
                 channels: ['!event']
                 # formatter: search_bundle.log_formatter
 
-    doctrine:
-        dbal:
-            connections:
-                default:
-                    driver:   "%database_driver%"
-                    host:     "%database_host%"
-                    port:     "%database_port%"
-                    dbname:   "%database_name%"
-                    user:     "%database_user%"
-                    password: "%database_password%"
-                    charset:  UTF8
-        orm:
-            auto_generate_proxy_classes: "%kernel.debug%"
-            entity_managers:
-                default:
-                    connection: default
-                    auto_mapping: false
-                    metadata_cache_driver: array
-                    query_cache_driver: array
-                    result_cache_driver: array
-
     puntmig_search:
         repositories:
             search:
@@ -56,5 +35,5 @@ config:
                     repository_service: "search_server.elastica_repository"
                     in_memory: false
                 event:
-                    repository_service: "object_repository.event"
+                    repository_service: "search_server.elastica_event_repository"
                     in_memory: false
