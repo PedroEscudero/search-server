@@ -650,7 +650,6 @@ class QueryRepository extends ElasticaWithAppIdWrapper
                 ? $aggregation->getLimit()
                 : 1000
         );
-        var_dump($aggregation->getSort()[0], $aggregation->getSort()[1]);
         $termsAggregation->setOrder($aggregation->getSort()[0], $aggregation->getSort()[1]);
 
         return $termsAggregation;
