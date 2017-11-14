@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Controller;
 
-use Puntmig\Search\Server\Domain\Query\StatsEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Puntmig\Search\Event\Event;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Domain\Query\ListEvents;
+use Puntmig\Search\Server\Domain\Query\StatsEvents;
 
 /**
  * Class EventsController.

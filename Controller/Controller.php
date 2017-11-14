@@ -17,10 +17,10 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Controller;
 
 use League\Tactician\CommandBus;
-use Puntmig\Search\Server\Elastica\Repository\EventRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
+use Puntmig\Search\Server\Elastica\Repository\EventRepository;
 use Puntmig\Search\Server\Token\TokenChecker;
 
 /**
@@ -52,8 +52,8 @@ abstract class Controller
     /**
      * Controller constructor.
      *
-     * @param CommandBus   $commandBus
-     * @param TokenChecker $tokenChecker
+     * @param CommandBus      $commandBus
+     * @param TokenChecker    $tokenChecker
      * @param EventRepository $eventRepository
      */
     public function __construct(

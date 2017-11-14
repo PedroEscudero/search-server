@@ -224,7 +224,7 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
             'IndexWasReset' => 0,
             'ItemsWereDeleted' => 0,
             'ItemsWereIndexed' => 0,
-            'QueryWasMade' => 0
+            'QueryWasMade' => 0,
         ];
 
         array_walk($nameAggregationResults['buckets'], function (array $item) use (&$names) {
@@ -382,16 +382,16 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
 
     /**
      * Format date from epoch_time with microseconds to elasticsearch
-     * basic_date_time
+     * basic_date_time.
      *
      * @param int $time
      *
      * @return string
      */
-    private function formatTimeFromMillisecondsToBasicDateTime(int $time) : string
+    private function formatTimeFromMillisecondsToBasicDateTime(int $time): string
     {
         $formattedDatetime = (string) ($time / 1000000);
-        if (strlen($formattedDatetime) === 10) {
+        if (10 === strlen($formattedDatetime)) {
             $formattedDatetime .= '.';
         }
 
