@@ -59,7 +59,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
             FrameworkBundle::class,
             MonologBundle::class,
             BaseBundle::class,
-            TacticianBundle::class,
+            new TacticianBundle(),
         ];
     }
 }
