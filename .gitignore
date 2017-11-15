@@ -1,4 +1,5 @@
 vendor
 /var
-/web
+/web/*
+!/web/server.php
 /bin
