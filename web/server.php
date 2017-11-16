@@ -69,7 +69,7 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
         openlog("search-server", LOG_PID, LOG_LOCAL0);
         syslog(LOG_INFO, sprintf("[%s] ::: [%s]",
             $symfonyRequest->getClientIp(),
-            $symfonyRequest->getPathInfo()
+            $symfonyRequest->getUri()
         ));
         closelog();
 
