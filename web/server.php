@@ -35,7 +35,7 @@ $kernel = new \Mmoreram\BaseBundle\Kernel\BaseKernel(
  */
 $loop = \React\EventLoop\Factory::create();
 $socket = new \React\Socket\Server($argv[1], $loop);
-$limitedServer = new LimitingServer($socket, 10);
+$limitedServer = new LimitingServer($socket, $argv[2]);
 $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterface $request) use ($kernel) {
 
     try {
@@ -52,18 +52,26 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
         $symfonyRequest = new \Symfony\Component\HttpFoundation\Request(
             $query,
             $post,
-            array(),
-            array(), // To get the cookies, we'll need to parse the headers
+            $request->getAttributes(),
+            $request->getCookieParams(),
             $request->getUploadedFiles(),
             array(), // Server is partially filled a few lines below
             $content
         );
+
         $symfonyRequest->setMethod($method);
         $symfonyRequest->headers->replace($headers);
         $symfonyRequest->server->set('REQUEST_URI', $request->getUri());
         if (isset($headers['Host'])) {
             $symfonyRequest->server->set('SERVER_NAME', explode(':', $headers['Host'][0]));
         }
+
+        openlog("search-server", LOG_PID, LOG_LOCAL0);
+        syslog(LOG_INFO, sprintf("[%s] ::: [%s]",
+            $symfonyRequest->getClientIp(),
+            $symfonyRequest->getPathInfo()
+        ));
+        closelog();
 
         $symfonyResponse = $kernel->handle($symfonyRequest);
         $httpResponse = new \React\Http\Response(
@@ -77,7 +85,7 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
      * Catching errors and sending to syslog
      */
     } catch (\Exception $e) {
-        openlog("search-server", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+        openlog("search-server", LOG_PID, LOG_LOCAL0);
         syslog(LOG_ALERT, "[{$e->getFile()}] [{$e->getCode()}] ::: [{$e->getMessage()}]");
         closelog();
 
