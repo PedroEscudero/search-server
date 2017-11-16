@@ -21,11 +21,14 @@ config:
     monolog:
         handlers:
             main:
-                type:     stream
-                path:     '%kernel.logs_dir%/%kernel.environment%.log'
-                level:    debug
+                type: rotating_file
+                path: '%kernel.logs_dir%/%kernel.environment%.log'
+                level: debug
                 channels: ['!event']
                 # formatter: search_bundle.log_formatter
+            syslog:
+                type: syslog
+                level: error
 
     puntmig_search:
         repositories:
