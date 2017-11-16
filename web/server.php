@@ -35,7 +35,7 @@ $kernel = new \Mmoreram\BaseBundle\Kernel\BaseKernel(
  */
 $loop = \React\EventLoop\Factory::create();
 $socket = new \React\Socket\Server($argv[1], $loop);
-$limitedServer = new LimitingServer($socket);
+$limitedServer = new LimitingServer($socket, 10);
 $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterface $request) use ($kernel) {
 
     try {
