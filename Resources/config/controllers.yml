@@ -37,3 +37,11 @@ services:
             - "@tactician.commandbus.query"
             - "@search_server.middleware.token_checker"
             - "@search_server.event_repository"
+
+    #
+    # Controller listener
+    #
+    search_server.php_exception_to_json_response_listener:
+        class: Puntmig\Search\Server\Controller\Listener\PHPExceptionToJsonResponse
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }

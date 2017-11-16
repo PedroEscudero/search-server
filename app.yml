@@ -7,28 +7,20 @@ config:
 
     parameters:
         kernel.secret: nsdjkfhdsupoifjñksd
-        database_driver: pdo_mysql
-        database_host: 127.0.0.1
-        database_port: ~
-        database_name: search_server
-        database_user: root
-        database_password: root
         token_server_endpoint: http://localhost:8120
 
     framework:
         form: false
         assets: false
+        php_errors:
+            log: true
+
     monolog:
         handlers:
             main:
-                type: rotating_file
+                type: stream
                 path: '%kernel.logs_dir%/%kernel.environment%.log'
                 level: debug
-                channels: ['!event']
-                # formatter: search_bundle.log_formatter
-            syslog:
-                type: syslog
-                level: error
 
     puntmig_search:
         repositories:
