@@ -1,0 +1,12 @@
+services:
+
+    #
+    # Console commands
+    #
+    search_server.event_store_consumer:
+        class: Puntmig\Search\Server\Console\EventStoreConsumer
+        arguments:
+            - "@rs_queue.consumer"
+            - "@search_server.event_store"
+        tags:
+            -  { name: console.command }

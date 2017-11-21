@@ -42,11 +42,11 @@ class ItemsWereIndexed extends DomainEvent
     }
 
     /**
-     * To array.
+     * Payload to array.
      *
      * @return array
      */
-    public function toArray(): array
+    public function payloadToArray(): array
     {
         return [
             'items' => array_values(
@@ -60,16 +60,16 @@ class ItemsWereIndexed extends DomainEvent
     /**
      * To payload.
      *
-     * @param string $payload
+     * @param string $data
      *
      * @return array
      */
-    public static function fromPayload(string $payload): array
+    public static function stringToPayload(string $data): array
     {
         return [
             array_map(function (array $item) {
                 return Item::createFromArray($item);
-            }, json_decode($payload, true)['items']),
+            }, json_decode($data, true)['items']),
         ];
     }
 }

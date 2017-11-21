@@ -17,23 +17,16 @@ declare(strict_types=1);
 namespace Puntmig\Search\Server\Domain\Middleware;
 
 use League\Tactician\Middleware;
+use RSQueue\Services\Producer as QueueProducer;
 
 use Puntmig\Search\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
 use Puntmig\Search\Server\Domain\Event\EventPublisher;
-use Puntmig\Search\Server\Domain\Event\EventStore;
 
 /**
  * Class DomainEventsMiddleware.
  */
 class DomainEventsMiddleware implements Middleware
 {
-    /**
-     * @var EventStore
-     *
-     * Event Store
-     */
-    private $eventStore;
-
     /**
      * @var EventPublisher
      *
@@ -42,17 +35,24 @@ class DomainEventsMiddleware implements Middleware
     private $eventPublisher;
 
     /**
+     * @var QueueProducer
+     *
+     * Queue producer
+     */
+    private $queueProducer;
+
+    /**
      * DomainEventsMiddleware constructor.
      *
-     * @param EventStore     $eventStore
      * @param EventPublisher $eventPublisher
+     * @param QueueProducer  $queueProducer
      */
     public function __construct(
-        EventStore $eventStore,
-        EventPublisher $eventPublisher
+        EventPublisher $eventPublisher,
+        QueueProducer $queueProducer
     ) {
-        $this->eventStore = $eventStore;
         $this->eventPublisher = $eventPublisher;
+        $this->queueProducer = $queueProducer;
     }
 
     /**
@@ -70,10 +70,16 @@ class DomainEventsMiddleware implements Middleware
 
         $result = $next($command);
 
-        $previousEvent = null;
         foreach ($eventSubscriber->getEvents() as $event) {
-            $this->eventStore->append($event, $previousEvent);
-            $previousEvent = $event;
+            $this
+                ->queueProducer
+                ->produce(
+                    'search-server:domain-events',
+                    [
+                        'app_id' => $command->getAppId(),
+                        'event' => $event->toArray(),
+                    ]
+                );
         }
 
         return $result;

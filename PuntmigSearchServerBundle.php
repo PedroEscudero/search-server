@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\SimpleBaseBundle;
+use RSQueueBundle\RSQueueBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -40,6 +41,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
         return [
             'domain',
             'controllers',
+            'console',
             'elastica',
             'token',
         ];
@@ -59,6 +61,7 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
             FrameworkBundle::class,
             MonologBundle::class,
             BaseBundle::class,
+            RSQueueBundle::class,
             new TacticianBundle(),
         ];
     }

@@ -15,15 +15,15 @@
         "symfony/monolog-bundle" : "^2.8",
         "ruflin/elastica": "^5.0",
         "league/tactician-bundle": "@RC",
-        "league/tactician-doctrine": "^1.1",
         "nesbot/carbon": "^1.22",
 
         "mmoreram/base-bundle": "*",
         "mmoreram/symfony-bundle-dependencies": "*",
-        "mmoreram/simple-doctrine-mapping": "*",
         "puntmig/php-search": "dev-master",
         "one-bundle-app/one-bundle-app": "dev-master",
-        "react/http": "dev-master"
+        "react/http": "dev-master",
+        "rsqueue/rsqueue": "dev-master",
+        "rsqueue/rsqueue-bundle": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.6.5",

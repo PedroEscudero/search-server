@@ -40,11 +40,11 @@ class IndexWasReset extends DomainEvent
     }
 
     /**
-     * To array.
+     * Payload to array.
      *
      * @return array
      */
-    public function toArray(): array
+    public function payloadToArray(): array
     {
         return [
             'language' => $this->language,
@@ -54,12 +54,14 @@ class IndexWasReset extends DomainEvent
     /**
      * To payload.
      *
-     * @param string $payload
+     * @param string $data
      *
      * @return array
      */
-    public static function fromPayload(string $payload): array
+    public static function stringToPayload(string $data): array
     {
-        return [json_decode($payload, true)['language']];
+        return [
+            json_decode($data, true)['language'],
+        ];
     }
 }

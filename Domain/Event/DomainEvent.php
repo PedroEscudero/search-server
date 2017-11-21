@@ -54,17 +54,17 @@ abstract class DomainEvent
     /**
      * Create by plain values.
      *
-     * @param string $occurredOn
+     * @param int    $occurredOn
      * @param string $payload
      *
      * @return static
      */
     public static function createByPlainValues(
-        string $occurredOn,
+        int $occurredOn,
         string $payload
     ) {
         $reflector = new ReflectionClass(static::class);
-        $instance = $reflector->newInstanceArgs(static::fromPayload($payload));
+        $instance = $reflector->newInstanceArgs(static::stringToPayload($payload));
         $instance->occurredOn = $occurredOn;
 
         return $instance;
@@ -75,33 +75,54 @@ abstract class DomainEvent
      */
 
     /**
-     * To payload.
-     *
-     * @return string
-     */
-    public function toPayload(): string
-    {
-        return json_encode($this->toArray());
-    }
-
-    /**
-     * To payload.
+     * Payload to array.
      *
      * @return array
      */
-    abstract public function toArray(): array;
+    abstract public function payloadToArray(): array;
 
     /**
      * To payload.
      *
-     * @param string $payload
+     * @param string $data
      *
-     * @return mixed
+     * @return array
      *
      * @throws Exception
      */
-    public static function fromPayload(string $payload)
+    public static function stringToPayload(string $data): array
     {
         throw new Exception('Your domain event MUST implement the method fromJson');
+    }
+
+    /**
+     * From array.
+     *
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public static function fromArray(array $data)
+    {
+        $namespace = 'Puntmig\Search\Server\Domain\Event\\'.$data['type'];
+
+        return $namespace::createByPlainValues(
+            $data['occurred_on'],
+            $data['payload']
+        );
+    }
+
+    /**
+     * To plan values.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'type' => str_replace('Puntmig\Search\Server\Domain\Event\\', '', get_class($this)),
+            'occurred_on' => $this->occurredOn(),
+            'payload' => json_encode($this->payloadToArray()),
+        ];
     }
 }

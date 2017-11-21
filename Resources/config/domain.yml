@@ -74,6 +74,6 @@ services:
     search_server.middleware.domain_events:
         class: Puntmig\Search\Server\Domain\Middleware\DomainEventsMiddleware
         arguments:
-            - "@search_server.event_store"
             - "@search_server.event_publisher"
+            - "@rs_queue.producer"
         public: false

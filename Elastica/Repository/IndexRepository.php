@@ -40,7 +40,7 @@ class IndexRepository extends ElasticaWithAppIdWrapper
             ->elasticaWrapper
             ->createIndexMapping(
                 $this->appId,
-                20,
+                1,
                 1,
                 $language
             );

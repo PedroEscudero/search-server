@@ -38,6 +38,9 @@ services:
             - "@search_server.middleware.token_checker"
             - "@search_server.event_repository"
 
+    search_server.ping_controller:
+        class: Puntmig\Search\Server\Controller\PingController
+
     #
     # Controller listener
     #

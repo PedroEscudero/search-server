@@ -14,22 +14,25 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Exception;
+namespace Puntmig\Search\Server\Controller;
 
-use Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class InvalidKeyException.
+ * Class PingController.
  */
-class InvalidKeyException extends Exception
+class PingController
 {
     /**
-     * Throw an invalid key exception.
+     * Reset the index.
      *
-     * @return InvalidKeyException
+     * @param Request $request
+     *
+     * @return Response
      */
-    public static function create(): self
+    public function ping(Request $request)
     {
-        return new self('Wrong API key provided');
+        return new Response();
     }
 }

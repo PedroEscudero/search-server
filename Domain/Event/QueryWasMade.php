@@ -94,11 +94,11 @@ class QueryWasMade extends DomainEvent
     }
 
     /**
-     * To array.
+     * Payload to array.
      *
      * @return array
      */
-    public function toArray(): array
+    public function payloadToArray(): array
     {
         return array_filter([
             'q' => $this->queryText,
@@ -123,13 +123,13 @@ class QueryWasMade extends DomainEvent
     /**
      * To payload.
      *
-     * @param string $payload
+     * @param string $data
      *
      * @return array
      */
-    public static function fromPayload(string $payload): array
+    public static function stringToPayload(string $data): array
     {
-        $payload = json_decode($payload, true);
+        $payload = json_decode($data, true);
 
         return [
             $payload['q'],

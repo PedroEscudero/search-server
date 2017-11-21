@@ -250,7 +250,6 @@ class ElasticaWrapper
     {
         $itemMapping = new Mapping();
         $itemMapping->setType($this->getType($appId, 'item'));
-        $itemMapping->enableAllField(false);
         $itemMapping->setParam('dynamic_templates', [
             [
                 'dynamic_metadata_as_keywords' => [
@@ -276,7 +275,6 @@ class ElasticaWrapper
             'uuid' => [
                 'type' => 'object',
                 'dynamic' => 'strict',
-                'include_in_all' => false,
                 'properties' => [
                     'id' => [
                         'type' => 'keyword',
@@ -295,16 +293,13 @@ class ElasticaWrapper
             'indexed_metadata' => [
                 'type' => 'object',
                 'dynamic' => true,
-                'include_in_all' => false,
             ],
             'searchable_metadata' => [
                 'type' => 'object',
                 'dynamic' => true,
-                'include_in_all' => false,
             ],
             'exact_matching_metadata' => [
                 'type' => 'keyword',
-                'include_in_all' => false,
                 'normalizer' => 'exact_matching_normalizer',
             ],
             'suggest' => [

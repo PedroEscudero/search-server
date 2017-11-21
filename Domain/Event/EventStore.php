@@ -42,6 +42,18 @@ class EventStore
     }
 
     /**
+     * Set app id.
+     *
+     * @param string $appId
+     */
+    public function setAppId(string $appId)
+    {
+        $this
+            ->eventRepository
+            ->setAppId($appId);
+    }
+
+    /**
      * Append event.
      *
      * @param DomainEvent      $event
@@ -63,7 +75,7 @@ class EventStore
                         '',
                         get_class($event)
                     ),
-                    $event->toPayload(),
+                    json_encode($event->payloadToArray()),
                     $event->occurredOn()
                 )
             );
@@ -86,13 +98,11 @@ class EventStore
         ?int $offset = 0
     ): array {
         return array_map(function (Event $event) {
-            $className = $event->getName();
-            $namespace = 'Puntmig\Search\Server\Domain\Event\\'.$className;
-
-            return $namespace::createByPlainValues(
-                $event->getOccurredOn(),
-                $event->getPayload()
-            );
+            return DomainEvent::fromArray([
+                'type' => $event->getName(),
+                'occurred_on' => $event->getOccurredOn(),
+                'payload' => $event->getPayload(),
+            ]);
         }, $this
             ->eventRepository
             ->all(

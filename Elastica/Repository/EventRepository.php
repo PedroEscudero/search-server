@@ -295,8 +295,6 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
             $searchIndex->refresh();
         } catch (ResponseException $exception) {
             // Silent pass.
-            echo $exception->getMessage();
-            die();
         }
     }
 
@@ -307,7 +305,6 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
     {
         $itemMapping = new Mapping();
         $itemMapping->setType($this->getType(self::EVENT_TYPE));
-        $itemMapping->enableAllField(false);
         $itemMapping->setProperties([
             'name' => [
                 'type' => 'keyword',
