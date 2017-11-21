@@ -68,11 +68,14 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
             $symfonyRequest->server->set('SERVER_NAME', explode(':', $headers['Host'][0]));
         }
 
-        openlog("search-server", LOG_PID, LOG_LOCAL0);
-        syslog(LOG_INFO, sprintf("::: [%s]",
-            urldecode($symfonyRequest->getRequestUri())
-        ));
-        closelog();
+        $decodedUrl = urldecode($symfonyRequest->getRequestUri());
+        if ($decodedUrl != '/v1/ping') {
+            openlog("search-server", LOG_PID, LOG_LOCAL0);
+            syslog(LOG_INFO, sprintf("::: [%s]",
+                $decodedUrl
+            ));
+            closelog();
+        }
 
         $symfonyResponse = $kernel->handle($symfonyRequest);
         $httpResponse = new \React\Http\Response(
