@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 use Puntmig\Search\Query\Query as QueryModel;
+use Puntmig\Search\Repository\HttpRepository;
 use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Domain\Query\Query;
@@ -29,6 +30,13 @@ use Puntmig\Search\Server\Domain\Query\Query;
  */
 class QueryController extends Controller
 {
+    /**
+     * @var string
+     *
+     * Purge Query object from response
+     */
+    const PURGE_QUERY_FROM_RESPONSE_FIELD = 'incl_query';
+
     /**
      * Make a query.
      *
@@ -41,29 +49,36 @@ class QueryController extends Controller
      */
     public function query(Request $request)
     {
-        $plainQuery = $request->get('query', null);
+        $this->checkToken($request);
+        $query = $request->query;
+
+        $plainQuery = $query->get(HttpRepository::QUERY_FIELD, null);
         if (!is_string($plainQuery)) {
             throw new InvalidFormatException();
         }
 
-        $this->checkToken(
-            $request,
-            $request->get('app_id', ''),
-            $request->get('key', '')
-        );
-
-        return new JsonResponse(
-            $this
+        $responseAsArray = $this
             ->commandBus
             ->handle(new Query(
-                $request->get('app_id', ''),
+                $query->get(HttpRepository::APP_ID_FIELD, ''),
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))
-            ->toArray(),
+            ->toArray();
+
+        if ($query->has(self::PURGE_QUERY_FROM_RESPONSE_FIELD)) {
+            unset($responseAsArray['query']);
+        }
+
+        $response = new JsonResponse(
+            $responseAsArray,
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
+                //'Access-Control-Max-Age' => '10',
             ]
         );
+
+        // $response->setSharedMaxAge(10);
+        return $response;
     }
 }

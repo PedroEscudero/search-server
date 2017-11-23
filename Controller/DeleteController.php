@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 use Puntmig\Search\Model\ItemUUID;
+use Puntmig\Search\Repository\HttpRepository;
 use Puntmig\Search\Server\Domain\Command\Delete as DeleteCommand;
 use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
@@ -41,21 +42,19 @@ class DeleteController extends Controller
      */
     public function delete(Request $request)
     {
-        $items = $request->get('items', null);
+        $this->checkToken($request);
+        $query = $request->query;
+        $requestBody = $request->request;
+
+        $items = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
         if (!is_string($items)) {
             throw new InvalidFormatException();
         }
 
-        $this->checkToken(
-            $request,
-            $request->get('app_id', ''),
-            $request->get('key', '')
-        );
-
         $this
             ->commandBus
             ->handle(new DeleteCommand(
-                $request->get('app_id', ''),
+                $query->get(HttpRepository::APP_ID_FIELD, ''),
                 array_map(function (array $object) {
                     return ItemUUID::createFromArray($object);
                 }, json_decode($items, true))

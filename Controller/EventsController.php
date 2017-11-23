@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 use Puntmig\Search\Event\Event;
+use Puntmig\Search\Repository\HttpRepository;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Domain\Query\ListEvents;
 use Puntmig\Search\Server\Domain\Query\StatsEvents;
@@ -41,23 +42,18 @@ class EventsController extends Controller
      */
     public function list(Request $request)
     {
-        $queryBag = $request->query;
-
-        $this->checkToken(
-            $request,
-            $queryBag->get('app_id', ''),
-            $queryBag->get('key', '')
-        );
+        $this->checkToken($request);
+        $query = $request->query;
 
         $events = $this
             ->commandBus
             ->handle(new ListEvents(
-                $request->get('app_id', ''),
-                $queryBag->get('name', ''),
-                $this->castToIntIfNotNull($queryBag, 'from'),
-                $this->castToIntIfNotNull($queryBag, 'to'),
-                $this->castToIntIfNotNull($queryBag, 'length'),
-                $this->castToIntIfNotNull($queryBag, 'offset')
+                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                $query->get('name', ''),
+                $this->castToIntIfNotNull($query, 'from'),
+                $this->castToIntIfNotNull($query, 'to'),
+                $this->castToIntIfNotNull($query, 'length'),
+                $this->castToIntIfNotNull($query, 'offset')
             ));
 
         $events = array_map(function (Event $event) {
@@ -84,20 +80,15 @@ class EventsController extends Controller
      */
     public function stats(Request $request)
     {
-        $queryBag = $request->query;
-
-        $this->checkToken(
-            $request,
-            $queryBag->get('app_id', ''),
-            $queryBag->get('key', '')
-        );
+        $this->checkToken($request);
+        $query = $request->query;
 
         $stats = $this
             ->commandBus
             ->handle(new StatsEvents(
-                $request->get('app_id', ''),
-                $this->castToIntIfNotNull($queryBag, 'from'),
-                $this->castToIntIfNotNull($queryBag, 'to')
+                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                $this->castToIntIfNotNull($query, 'from'),
+                $this->castToIntIfNotNull($query, 'to')
             ));
 
         return new JsonResponse(

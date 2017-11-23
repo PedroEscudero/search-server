@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Puntmig\Search\Server\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,13 +24,11 @@ use Symfony\Component\HttpFoundation\Response;
 class PingController
 {
     /**
-     * Reset the index.
-     *
-     * @param Request $request
+     * Ping.
      *
      * @return Response
      */
-    public function ping(Request $request)
+    public function ping()
     {
         return new Response();
     }

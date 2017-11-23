@@ -321,7 +321,8 @@ class QueryRepository extends ElasticaWithAppIdWrapper
 
                 $match
                     ->setFields($filterFields)
-                    ->setQuery($queryString);
+                    ->setQuery($queryString)
+                    ->setType('phrase');
             }
             $boolQuery->addMust($match);
 

@@ -1671,12 +1671,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/php-search.git",
-                "reference": "7fbd6d47dde7dacef63e10f5973909aabcb9254f"
+                "reference": "900e61fd885ac14d82929d86ce76a37490a2c8c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/7fbd6d47dde7dacef63e10f5973909aabcb9254f",
-                "reference": "7fbd6d47dde7dacef63e10f5973909aabcb9254f",
+                "url": "https://api.github.com/repos/puntmig/php-search/zipball/900e61fd885ac14d82929d86ce76a37490a2c8c3",
+                "reference": "900e61fd885ac14d82929d86ce76a37490a2c8c3",
                 "shasum": ""
             },
             "require": {
@@ -1706,7 +1706,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-11-14T18:26:42+00:00"
+            "time": "2017-11-21T19:47:00+00:00"
         },
         {
             "name": "react/cache",
@@ -1836,12 +1836,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/http.git",
-                "reference": "1d5bd0ba0ec5f97c00798c02e599e5dcb6c7bad2"
+                "reference": "1d80e401334cf6170e603332add42a1f6c457b1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/http/zipball/1d5bd0ba0ec5f97c00798c02e599e5dcb6c7bad2",
-                "reference": "1d5bd0ba0ec5f97c00798c02e599e5dcb6c7bad2",
+                "url": "https://api.github.com/repos/reactphp/http/zipball/1d80e401334cf6170e603332add42a1f6c457b1c",
+                "reference": "1d80e401334cf6170e603332add42a1f6c457b1c",
                 "shasum": ""
             },
             "require": {
@@ -1876,7 +1876,7 @@
                 "server",
                 "streaming"
             ],
-            "time": "2017-11-20T19:04:01+00:00"
+            "time": "2017-11-21T19:42:29+00:00"
         },
         {
             "name": "react/promise",
@@ -3918,12 +3918,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/puntmig/search-bundle.git",
-                "reference": "b64203d64f3e53ed48e9bbac6b90d68cf257f281"
+                "reference": "bd77625ee5a045bd1d9f57132202a2f18cba41d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/b64203d64f3e53ed48e9bbac6b90d68cf257f281",
-                "reference": "b64203d64f3e53ed48e9bbac6b90d68cf257f281",
+                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/bd77625ee5a045bd1d9f57132202a2f18cba41d6",
+                "reference": "bd77625ee5a045bd1d9f57132202a2f18cba41d6",
                 "shasum": ""
             },
             "require": {
@@ -3956,7 +3956,7 @@
                     "email": "yuhu@mmoreram.com"
                 }
             ],
-            "time": "2017-11-14T17:49:55+00:00"
+            "time": "2017-11-21T19:47:47+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+use Puntmig\Search\Repository\HttpRepository;
 use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 
@@ -38,17 +39,15 @@ class ResetController extends Controller
      */
     public function reset(Request $request)
     {
-        $this->checkToken(
-            $request,
-            $request->get('app_id', ''),
-            $request->get('key', '')
-        );
+        $this->checkToken($request);
+        $query = $request->query;
+        $requestBody = $request->request;
 
         $this
             ->commandBus
             ->handle(new ResetCommand(
-                $request->get('app_id', ''),
-                $request->get('language', null)
+                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                $requestBody->get(HttpRepository::LANGUAGE_FIELD, null)
             ));
 
         return new JsonResponse('Index created', 200);

@@ -7,7 +7,7 @@ config:
 
     parameters:
         kernel.secret: nsdjkfhdsupoifjñksd
-        token_server_endpoint: http://localhost:8120
+        token_server_endpoint: http://tokens.dev
 
     framework:
         form: false
@@ -32,3 +32,11 @@ config:
                 event:
                     repository_service: "search_server.elastica_event_repository"
                     in_memory: false
+            music_prod:
+                endpoint: http://puntmig.net:8900
+                app_id: music
+                secret: 1cc7a3e0-bda5-11e7-abc4-cec278b6b50a
+            music:
+                endpoint: http://localhost:8999
+                app_id: music
+                secret: 5fadd8c4-c966-11e7-abc4-cec278b6b50a

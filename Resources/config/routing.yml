@@ -9,7 +9,7 @@ search_server_api_query:
 
 search_server_api_reset:
     path: /v1
-    methods: ["DELETE"]
+    methods: ["POST"]
     defaults:
         _controller: search_server.reset_controller:reset
 

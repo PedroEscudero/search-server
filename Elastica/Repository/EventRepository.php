@@ -232,7 +232,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
         });
 
         return Stats::createByPlainData(
-            $names
+            array_filter($names, function (int $elements) {
+                return $elements > 0;
+            })
         );
     }
 

@@ -47,7 +47,7 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
         $content = $request->getBody();
         $post = array();
         if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'PATCH')) &&
-            isset($headers['Content-Type']) && (0 === strpos($headers['Content-Type'], 'application/x-www-form-urlencoded'))
+            isset($headers['Content-Type']) && ($headers['Content-Type'][0] === 'application/x-www-form-urlencoded')
         ) {
             parse_str($content, $post);
         }
@@ -78,12 +78,12 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
         }
 
         $symfonyResponse = $kernel->handle($symfonyRequest);
+        $kernel->terminate($symfonyRequest, $symfonyResponse);
         $httpResponse = new \React\Http\Response(
             $symfonyResponse->getStatusCode(),
             $symfonyResponse->headers->all(),
             $symfonyResponse->getContent()
         );
-        $kernel->terminate($symfonyRequest, $symfonyResponse);
 
     /**
      * Catching errors and sending to syslog

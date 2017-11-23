@@ -19,6 +19,7 @@ namespace Puntmig\Search\Server\Controller;
 use League\Tactician\CommandBus;
 use Symfony\Component\HttpFoundation\Request;
 
+use Puntmig\Search\Repository\HttpRepository;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Elastica\Repository\EventRepository;
 use Puntmig\Search\Server\Token\TokenChecker;
@@ -70,26 +71,22 @@ abstract class Controller
      * Check tocket validity.
      *
      * @param Request $request
-     * @param string  $appId
-     * @param string  $token
      *
      * @throws InvalidKeyException
      */
-    public function checkToken(
-        Request $request,
-        string $appId,
-        string $token
-    ) {
+    public function checkToken(Request $request)
+    {
+        $query = $request->query;
         $this
             ->tokenChecker
             ->checkToken(
                 $request,
-                $appId,
-                $token
+                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                $query->get(HttpRepository::KEY_FIELD, '')
             );
 
         $this
             ->eventRepository
-            ->setAppId($appId);
+            ->setAppId($query->get(HttpRepository::APP_ID_FIELD, ''));
     }
 }
