@@ -42,7 +42,7 @@ class DeleteController extends Controller
      */
     public function delete(Request $request)
     {
-        $this->checkToken($request);
+        $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
 

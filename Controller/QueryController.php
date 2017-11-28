@@ -49,7 +49,7 @@ class QueryController extends Controller
      */
     public function query(Request $request)
     {
-        $this->checkToken($request);
+        $this->configureEventRepository($request);
         $query = $request->query;
 
         $plainQuery = $query->get(HttpRepository::QUERY_FIELD, null);
@@ -74,11 +74,9 @@ class QueryController extends Controller
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
-                //'Access-Control-Max-Age' => '10',
             ]
         );
 
-        // $response->setSharedMaxAge(10);
         return $response;
     }
 }

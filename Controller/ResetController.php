@@ -39,7 +39,7 @@ class ResetController extends Controller
      */
     public function reset(Request $request)
     {
-        $this->checkToken($request);
+        $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
 

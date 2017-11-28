@@ -42,7 +42,7 @@ class EventsController extends Controller
      */
     public function list(Request $request)
     {
-        $this->checkToken($request);
+        $this->configureEventRepository($request);
         $query = $request->query;
 
         $events = $this
@@ -80,7 +80,7 @@ class EventsController extends Controller
      */
     public function stats(Request $request)
     {
-        $this->checkToken($request);
+        $this->configureEventRepository($request);
         $query = $request->query;
 
         $stats = $this

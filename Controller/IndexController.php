@@ -42,7 +42,7 @@ class IndexController extends Controller
      */
     public function index(Request $request)
     {
-        $this->checkToken($request);
+        $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
 

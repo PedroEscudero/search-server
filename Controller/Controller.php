@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Puntmig\Search\Repository\HttpRepository;
 use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 use Puntmig\Search\Server\Elastica\Repository\EventRepository;
-use Puntmig\Search\Server\Token\TokenChecker;
 
 /**
  * Class Controller.
@@ -37,13 +36,6 @@ abstract class Controller
     protected $commandBus;
 
     /**
-     * @var TokenChecker
-     *
-     * Token checker
-     */
-    protected $tokenChecker;
-
-    /**
      * @var EventRepository
      *
      * Event repository
@@ -54,39 +46,28 @@ abstract class Controller
      * Controller constructor.
      *
      * @param CommandBus      $commandBus
-     * @param TokenChecker    $tokenChecker
      * @param EventRepository $eventRepository
      */
     public function __construct(
         CommandBus $commandBus,
-        TokenChecker $tokenChecker,
         EventRepository $eventRepository
     ) {
         $this->commandBus = $commandBus;
-        $this->tokenChecker = $tokenChecker;
         $this->eventRepository = $eventRepository;
     }
 
     /**
-     * Check tocket validity.
+     * Configure Event Repository.
      *
      * @param Request $request
      *
      * @throws InvalidKeyException
      */
-    public function checkToken(Request $request)
+    public function configureEventRepository(Request $request)
     {
         $query = $request->query;
         $this
-            ->tokenChecker
-            ->checkToken(
-                $request,
-                $query->get(HttpRepository::APP_ID_FIELD, ''),
-                $query->get(HttpRepository::KEY_FIELD, '')
-            );
-
-        $this
             ->eventRepository
-            ->setAppId($query->get(HttpRepository::APP_ID_FIELD, ''));
+            ->setAppId($query->get(HttpRepository::APP_ID_FIELD));
     }
 }

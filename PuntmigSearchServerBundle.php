@@ -43,7 +43,6 @@ class PuntmigSearchServerBundle extends SimpleBaseBundle
             'controllers',
             'console',
             'elastica',
-            'token',
         ];
     }
 

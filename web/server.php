@@ -39,65 +39,122 @@ $limitedServer = new LimitingServer($socket, $argv[2]);
 
 
 $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterface $request) use ($kernel) {
+    return new \React\Promise\Promise(function ($resolve, $reject) use ($request, $kernel) {
 
-    try {
-        $method = $request->getMethod();
-        $headers = $request->getHeaders();
-        $query = $request->getQueryParams();
-        $content = $request->getBody();
-        $post = array();
-        if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'PATCH')) &&
-            isset($headers['Content-Type']) && ($headers['Content-Type'][0] === 'application/x-www-form-urlencoded')
-        ) {
-            parse_str($content, $post);
-        }
-        $symfonyRequest = new \Symfony\Component\HttpFoundation\Request(
-            $query,
-            $post,
-            $request->getAttributes(),
-            $request->getCookieParams(),
-            $request->getUploadedFiles(),
-            array(), // Server is partially filled a few lines below
-            $content
-        );
+        $body = '';
+        $request->getBody()->on('data', function ($data) use (&$body) {
+            $body .= $data;
+        });
 
-        $symfonyRequest->setMethod($method);
-        $symfonyRequest->headers->replace($headers);
-        $symfonyRequest->server->set('REQUEST_URI', $request->getUri());
-        if (isset($headers['Host'])) {
-            $symfonyRequest->server->set('SERVER_NAME', explode(':', $headers['Host'][0]));
-        }
+        $request->getBody()->on('end', function () use ($resolve, &$body, $request, $kernel){
 
-        $decodedUrl = urldecode($symfonyRequest->getRequestUri());
-        if ($decodedUrl != '/v1/ping') {
-            openlog("search-server", LOG_PID, LOG_LOCAL0);
-            syslog(LOG_INFO, sprintf("::: [%s]",
-                $decodedUrl
-            ));
-            closelog();
-        }
+            try {
+                $method = $request->getMethod();
+                $headers = $request->getHeaders();
+                $query = $request->getQueryParams();
+                $post = array();
+                if (!empty($body)) {
+                    parse_str($body, $post);
+                    $post = is_array($post)
+                        ? $post
+                        : [];
+                }
 
-        $symfonyResponse = $kernel->handle($symfonyRequest);
-        $kernel->terminate($symfonyRequest, $symfonyResponse);
-        $httpResponse = new \React\Http\Response(
-            $symfonyResponse->getStatusCode(),
-            $symfonyResponse->headers->all(),
-            $symfonyResponse->getContent()
-        );
+                $symfonyRequest = new \Symfony\Component\HttpFoundation\Request(
+                    $query,
+                    $post,
+                    $request->getAttributes(),
+                    $request->getCookieParams(),
+                    $request->getUploadedFiles(),
+                    array(), // Server is partially filled a few lines below
+                    $body
+                );
 
-    /**
-     * Catching errors and sending to syslog
-     */
-    } catch (\Exception $e) {
-        openlog("search-server", LOG_PID, LOG_LOCAL0);
-        syslog(LOG_ALERT, "[{$e->getFile()}] [{$e->getCode()}] ::: [{$e->getMessage()}]");
-        closelog();
+                $symfonyRequest->setMethod($method);
+                $symfonyRequest->headers->replace($headers);
+                $symfonyRequest->server->set('REQUEST_URI', $request->getUri());
+                if (isset($headers['Host'])) {
+                    $symfonyRequest->server->set('SERVER_NAME', explode(':', $headers['Host'][0]));
+                }
 
-        throw $e;
-    }
+                $decodedUrl = urldecode($symfonyRequest->getRequestUri());
+                if ($decodedUrl != '/v1/ping') {
+                    toSyslog(LOG_INFO, sprintf("::: [%s]",
+                        $decodedUrl
+                    ));
+                }
 
-    return $httpResponse;
+                $symfonyResponse = $kernel->handle($symfonyRequest);
+                $kernel->terminate($symfonyRequest, $symfonyResponse);
+                $httpResponse = new \React\Http\Response(
+                    $symfonyResponse->getStatusCode(),
+                    $symfonyResponse->headers->all(),
+                    $symfonyResponse->getContent()
+                );
+
+                /**
+                 * Catching errors and sending to syslog
+                 */
+            } catch (\Exception $e) {
+
+                exceptionToSyslog($e);
+                throw $e;
+            }
+
+            $resolve($httpResponse);
+        });
+
+        $request->getBody()->on('error', function (Exception $e) use ($resolve){
+            exceptionToSyslog($e);
+            $response = new \React\Http\Response(
+                400,
+                array('Content-Type' => 'text/plain'),
+                "An error occured while reading from stream"
+            );
+            $resolve($response);
+        });
+    });
+});
+
+$http->on('error', function(\Exception $e) {
+    exceptionToSyslog($e);
 });
 
 $http->listen($limitedServer);
 $loop->run();
+
+
+
+
+
+
+/**
+ * Common functions
+ */
+
+/**
+ * Send to syslog
+ *
+ * @param \Exception $e
+ */
+function exceptionToSyslog(\Exception $e)
+{
+    openlog("search-server", LOG_PID, LOG_LOCAL0);
+    syslog(LOG_ALERT, "[{$e->getFile()}] [{$e->getCode()}] ::: [{$e->getMessage()}]");
+    closelog();
+}
+
+/**
+ * Send to syslog
+ *
+ * @param string $level
+ * @param string $content
+ */
+function toSyslog(
+    string $level,
+    string $content
+) {
+    openlog("search-server", LOG_PID, LOG_LOCAL0);
+    syslog($level, $content);
+    closelog();
+}

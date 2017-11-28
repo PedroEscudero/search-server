@@ -46,8 +46,7 @@ class PHPExceptionToJsonResponse
 
         if ($exception instanceof InvalidFormatException) {
             $event->setResponse(new JsonResponse([
-                'message' => 'Invalid format - '.$exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
+                'message' => 'Invalid format',
             ], 400));
 
             return;
