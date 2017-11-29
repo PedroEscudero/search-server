@@ -399,7 +399,7 @@ class QueryRepository extends ElasticaWithAppIdWrapper
             foreach ($filter->getValues() as $value) {
                 $queryFilter = $this->createQueryFilter(
                     $filter,
-                    (string) $value
+                    $value
                 );
 
                 if ($queryFilter instanceof ElasticaQuery\AbstractQuery) {
@@ -436,13 +436,13 @@ class QueryRepository extends ElasticaWithAppIdWrapper
      * Creates Term/Terms query depending on the elements value.
      *
      * @param Filter $filter
-     * @param string $value
+     * @param mixed $value
      *
      * @return null|ElasticaQuery\AbstractQuery
      */
     private function createQueryFilter(
         Filter $filter,
-        string $value
+        $value
     ): ? ElasticaQuery\AbstractQuery {
         switch ($filter->getFilterType()) {
             case Filter::TYPE_FIELD:
@@ -467,13 +467,13 @@ class QueryRepository extends ElasticaWithAppIdWrapper
      * Returns null if no need to be applicable (true=true).
      *
      * @param Filter $filter
-     * @param string $value
+     * @param mixed $value
      *
      * @return ElasticaQuery\AbstractQuery
      */
     private function createTermFilter(
         Filter $filter,
-        string $value
+        $value
     ): ? ElasticaQuery\AbstractQuery {
         return $this->createMultipleTermFilter($filter->getField(), $value);
     }
