@@ -25,7 +25,7 @@
         "one-bundle-app/one-bundle-app": "dev-master",
         "apisearch-io/php-client": "dev-master",
         "apisearch-io/apisearch-bundle": "dev-master",
-        "react/http": "*",
+        "react/http": "0.7.4",
         "rsqueue/rsqueue": "dev-master",
         "rsqueue/rsqueue-bundle": "dev-master"
     },
