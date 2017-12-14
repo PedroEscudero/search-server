@@ -89,8 +89,10 @@ class EventsController extends Controller
         $stats = $this
             ->commandBus
             ->handle(new StatsEvents(
-                $query->get(HttpRepository::APP_ID_FIELD),
-                $query->get(HttpRepository::INDEX_FIELD),
+                RepositoryReference::create(
+                    $query->get(HttpRepository::APP_ID_FIELD),
+                    $query->get(HttpRepository::INDEX_FIELD)
+                ),
                 $this->castToIntIfNotNull($query, 'from'),
                 $this->castToIntIfNotNull($query, 'to')
             ));
