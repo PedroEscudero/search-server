@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,16 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Repository;
+namespace Apisearch\Server\Elastica\Repository;
 
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Server\Elastica\ElasticaWithAppIdWrapper;
-use Puntmig\Search\Server\Elastica\ElasticaWrapper;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Server\Elastica\ElasticaWrapper;
+use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 
 /**
  * Class DeleteRepository.
  */
-class DeleteRepository extends ElasticaWithAppIdWrapper
+class DeleteRepository extends ElasticaWrapperWithRepositoryReference
 {
     /**
      * Delete items.
@@ -35,7 +35,7 @@ class DeleteRepository extends ElasticaWithAppIdWrapper
         $this
             ->elasticaWrapper
             ->getType(
-                $this->appId,
+                $this->getRepositoryReference(),
                 ElasticaWrapper::ITEM_TYPE
             )
             ->deleteIds(

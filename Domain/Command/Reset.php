@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,15 +14,19 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Command;
+namespace Apisearch\Server\Domain\Command;
 
-use Puntmig\Search\Server\Domain\WithAppId;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
 
 /**
  * Class Reset.
  */
-class Reset extends WithAppId
+class Reset implements CommandWithRepositoryReference
 {
+    use WithRepositoryReference;
+
     /**
      * @var null|string
      *
@@ -33,14 +37,14 @@ class Reset extends WithAppId
     /**
      * ResetCommand constructor.
      *
-     * @param string      $appId
-     * @param null|string $language
+     * @param RepositoryReference $repositoryReference
+     * @param null|string         $language
      */
     public function __construct(
-        string $appId,
+        RepositoryReference $repositoryReference,
         ? string $language
     ) {
-        $this->appId = $appId;
+        $this->repositoryReference = $repositoryReference;
         $this->language = $language;
     }
 

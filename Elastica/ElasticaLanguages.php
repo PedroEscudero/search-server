@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica;
+namespace Apisearch\Server\Elastica;
 
 /**
  * Class ElasticaLanguages.
@@ -30,7 +30,7 @@ class ElasticaLanguages
      */
     public static function getStopwordsLanguageByIso(? string $iso): string
     {
-        return [
+        return (string) ([
             '_' => '_arabic_',
             '_' => '_armenian_',
             'ba' => '_basque_',
@@ -62,7 +62,7 @@ class ElasticaLanguages
             '_' => '_swedish_',
             '_' => '_thai_',
             '_' => '_turkish_',
-        ][$iso] ?? '_none_';
+        ][$iso] ?? '_none_');
     }
 
     /**
@@ -74,7 +74,7 @@ class ElasticaLanguages
      */
     public static function getStemmerLanguageByIso(? string $iso): ? string
     {
-        return [
+        $value = [
             '_' => 'arabic',
             '_' => 'armenian',
             'ba' => 'basque',
@@ -107,5 +107,9 @@ class ElasticaLanguages
             '_' => 'swedish',
             '_' => 'turkish',
         ][$iso] ?? null;
+
+        return is_null($value)
+            ? $value
+            : (string) $value;
     }
 }

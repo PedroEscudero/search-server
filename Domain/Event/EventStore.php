@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,10 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Event;
+namespace Apisearch\Server\Domain\Event;
 
-use Puntmig\Search\Event\Event;
-use Puntmig\Search\Event\EventRepository;
+use Apisearch\Event\Event;
+use Apisearch\Event\EventRepository;
+use Apisearch\Repository\RepositoryReference;
 
 /**
  * Class EventStore.
@@ -42,15 +43,15 @@ class EventStore
     }
 
     /**
-     * Set app id.
+     * Set repository reference.
      *
-     * @param string $appId
+     * @param RepositoryReference $repositoryReference
      */
-    public function setAppId(string $appId)
+    public function setRepositoryReference(RepositoryReference $repositoryReference)
     {
         $this
             ->eventRepository
-            ->setAppId($appId);
+            ->setRepositoryReference($repositoryReference);
     }
 
     /**
@@ -71,7 +72,7 @@ class EventStore
                         ->eventRepository
                         ->last(),
                     str_replace(
-                        'Puntmig\Search\Server\Domain\Event\\',
+                        'Apisearch\Server\Domain\Event\\',
                         '',
                         get_class($event)
                     ),

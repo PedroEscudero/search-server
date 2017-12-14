@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,24 +14,28 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Query\Query;
-use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Query\Query;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
 
 /**
  * Class EventPersistenceTest.
  */
-class EventPersistenceTest extends PuntmigSearchServerBundleFunctionalTest
+class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
 {
     /**
      * Test something.
      */
     public function testEventPersistence()
     {
-        $eventRepository = self::get('search_server.event_repository');
-        $eventRepository->setAppId(self::$appId);
+        $eventRepository = self::get('apisearch.server.event_repository');
+        $eventRepository->setRepositoryReference(RepositoryReference::create(
+            self::$appId,
+            self::$index
+        ));
         $eventRepository->createRepository(true);
 
         $this->reset();
@@ -65,10 +69,32 @@ class EventPersistenceTest extends PuntmigSearchServerBundleFunctionalTest
             $eventRepository->all()
         );
 
-        $eventRepository->setAppId(self::$anotherAppId);
+        $eventRepository->setRepositoryReference(RepositoryReference::create(
+            self::$anotherAppId,
+            self::$index
+        ));
         $eventRepository->createRepository(true);
         $this->assertCount(
             0,
+            $eventRepository->all()
+        );
+
+        $eventRepository->setRepositoryReference(RepositoryReference::create(
+            self::$anotherAppId,
+            self::$anotherIndex
+        ));
+        $eventRepository->createRepository(true);
+        $this->assertCount(
+            0,
+            $eventRepository->all()
+        );
+
+        $eventRepository->setRepositoryReference(RepositoryReference::create(
+            self::$appId,
+            self::$index
+        ));
+        $this->assertCount(
+            6,
             $eventRepository->all()
         );
     }

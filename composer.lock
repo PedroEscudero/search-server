@@ -4,20 +4,116 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "37f0b7af67316ae90c4765bc1989c709",
+    "content-hash": "b99becc585d01dab8a1190a5c6882172",
     "packages": [
         {
-            "name": "doctrine/annotations",
-            "version": "v1.5.0",
+            "name": "apisearch-io/apisearch-bundle",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/doctrine/annotations.git",
-                "reference": "5beebb01b025c94e93686b7a0ed3edae81fe3e7f"
+                "url": "https://github.com/apisearch-io/apisearch-bundle.git",
+                "reference": "b7f38f46004e71577168a33b77495c42b9744f1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/5beebb01b025c94e93686b7a0ed3edae81fe3e7f",
-                "reference": "5beebb01b025c94e93686b7a0ed3edae81fe3e7f",
+                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/b7f38f46004e71577168a33b77495c42b9744f1b",
+                "reference": "b7f38f46004e71577168a33b77495c42b9744f1b",
+                "shasum": ""
+            },
+            "require": {
+                "apisearch-io/php-client": "dev-master",
+                "mmoreram/base-bundle": "^1.0.7",
+                "mmoreram/symfony-bundle-dependencies": "^2.0.0",
+                "php": ">=7.1",
+                "symfony/framework-bundle": "^3.0|^4.0",
+                "symfony/http-kernel": "^3.0|^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.5.0",
+                "mmoreram/php-formatter": "1.3.1",
+                "phpunit/phpunit": "^5.6.4"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Apisearch\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc Morera",
+                    "email": "yuhu@mmoreram.com"
+                },
+                {
+                    "name": "Puntmig Team",
+                    "email": "hello@puntmig.com"
+                }
+            ],
+            "time": "2017-12-12T15:38:00+00:00"
+        },
+        {
+            "name": "apisearch-io/php-client",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/apisearch-io/php-client.git",
+                "reference": "07714a58fd2c0389c6153b460b54aad045f7981c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/07714a58fd2c0389c6153b460b54aad045f7981c",
+                "reference": "07714a58fd2c0389c6153b460b54aad045f7981c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.0",
+                "php": ">=7.1",
+                "psr/http-message": "^1.0.1",
+                "symfony/event-dispatcher": "^3.3|^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.5.0",
+                "mmoreram/php-formatter": "1.3.1",
+                "phpunit/phpunit": "^5.6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Apisearch\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc Morera",
+                    "email": "yuhu@mmoreram.com"
+                },
+                {
+                    "name": "Puntmig Team",
+                    "email": "hello@puntmig.com"
+                }
+            ],
+            "time": "2017-12-12T16:28:18+00:00"
+        },
+        {
+            "name": "doctrine/annotations",
+            "version": "v1.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/annotations.git",
+                "reference": "c7f2050c68a9ab0bdb0f98567ec08d80ea7d24d5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/c7f2050c68a9ab0bdb0f98567ec08d80ea7d24d5",
+                "reference": "c7f2050c68a9ab0bdb0f98567ec08d80ea7d24d5",
                 "shasum": ""
             },
             "require": {
@@ -26,12 +122,12 @@
             },
             "require-dev": {
                 "doctrine/cache": "1.*",
-                "phpunit/phpunit": "^5.7"
+                "phpunit/phpunit": "^6.4"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -72,7 +168,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2017-07-22T10:58:02+00:00"
+            "time": "2017-12-06T07:11:42+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -845,16 +941,16 @@
         },
         {
             "name": "league/tactician",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/tactician.git",
-                "reference": "1f3aaad497f07a8bef147a37c7e3f2f7c23fcd21"
+                "reference": "d0339e22fd9252fb0fa53102b488d2c514483b8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/tactician/zipball/1f3aaad497f07a8bef147a37c7e3f2f7c23fcd21",
-                "reference": "1f3aaad497f07a8bef147a37c7e3f2f7c23fcd21",
+                "url": "https://api.github.com/repos/thephpleague/tactician/zipball/d0339e22fd9252fb0fa53102b488d2c514483b8a",
+                "reference": "d0339e22fd9252fb0fa53102b488d2c514483b8a",
                 "shasum": ""
             },
             "require": {
@@ -862,7 +958,7 @@
             },
             "require-dev": {
                 "mockery/mockery": "~0.9",
-                "phpunit/phpunit": "~4.3",
+                "phpunit/phpunit": "^4.8.35",
                 "squizlabs/php_codesniffer": "~2.3"
             },
             "type": "library",
@@ -892,20 +988,20 @@
                 "command bus",
                 "service layer"
             ],
-            "time": "2016-02-20T11:14:36+00:00"
+            "time": "2017-11-30T09:17:20+00:00"
         },
         {
             "name": "league/tactician-bundle",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/tactician-bundle.git",
-                "reference": "735102ec2b5f5a1d927483e6156d1d9772b4f348"
+                "reference": "c319482382ade005987a20908893a17024ac5d64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/tactician-bundle/zipball/735102ec2b5f5a1d927483e6156d1d9772b4f348",
-                "reference": "735102ec2b5f5a1d927483e6156d1d9772b4f348",
+                "url": "https://api.github.com/repos/thephpleague/tactician-bundle/zipball/c319482382ade005987a20908893a17024ac5d64",
+                "reference": "c319482382ade005987a20908893a17024ac5d64",
                 "shasum": ""
             },
             "require": {
@@ -974,7 +1070,7 @@
                 "symfony",
                 "tactician"
             ],
-            "time": "2017-11-11T07:23:05+00:00"
+            "time": "2017-12-08T11:06:49+00:00"
         },
         {
             "name": "league/tactician-container",
@@ -1666,49 +1762,6 @@
             "time": "2017-01-02T13:31:39+00:00"
         },
         {
-            "name": "puntmig/php-search",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/puntmig/php-search.git",
-                "reference": "5e8b2b8e0e34107a143164e118e219eacffe88a3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/php-search/zipball/5e8b2b8e0e34107a143164e118e219eacffe88a3",
-                "reference": "5e8b2b8e0e34107a143164e118e219eacffe88a3",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.0",
-                "php": ">=7.1",
-                "psr/http-message": "*",
-                "symfony/event-dispatcher": "^3.3|^4.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.5.0",
-                "mmoreram/php-formatter": "1.3.1",
-                "phpunit/phpunit": "^5.6.5"
-            },
-            "type": "project",
-            "autoload": {
-                "psr-4": {
-                    "Puntmig\\Search\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marc Morera",
-                    "email": "yuhu@mmoreram.com"
-                }
-            ],
-            "time": "2017-11-28T19:31:40+00:00"
-        },
-        {
             "name": "react/cache",
             "version": "v0.4.1",
             "source": {
@@ -1832,31 +1885,30 @@
         },
         {
             "name": "react/http",
-            "version": "v0.7.4",
+            "version": "v0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/http.git",
-                "reference": "6646135c01097b5316d2cb47bc12e541bf26efae"
+                "reference": "0410c94463bdae4bdf34d60bff91e9e1eb4a6652"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/http/zipball/6646135c01097b5316d2cb47bc12e541bf26efae",
-                "reference": "6646135c01097b5316d2cb47bc12e541bf26efae",
+                "url": "https://api.github.com/repos/reactphp/http/zipball/0410c94463bdae4bdf34d60bff91e9e1eb4a6652",
+                "reference": "0410c94463bdae4bdf34d60bff91e9e1eb4a6652",
                 "shasum": ""
             },
             "require": {
                 "evenement/evenement": "^3.0 || ^2.0 || ^1.0",
                 "php": ">=5.3.0",
                 "react/promise": "^2.3 || ^1.2.1",
-                "react/socket": "^1.0 || ^0.8 || ^0.7 || ^0.6 || ^0.5",
-                "react/stream": "^1.0 || ^0.7 || ^0.6 || ^0.5 || ^0.4.6",
+                "react/promise-stream": "^1.1",
+                "react/socket": "^1.0 || ^0.8.3",
+                "react/stream": "^1.0 || ^0.7.1",
                 "ringcentral/psr7": "^1.2"
             },
             "require-dev": {
                 "clue/block-react": "^1.1",
-                "phpunit/phpunit": "^4.8.10||^5.0",
-                "react/promise-stream": "^0.1.1",
-                "react/socket": "^1.0 || ^0.8 || ^0.7"
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -1877,7 +1929,7 @@
                 "server",
                 "streaming"
             ],
-            "time": "2017-08-16T15:24:39+00:00"
+            "time": "2017-12-12T13:01:48+00:00"
         },
         {
             "name": "react/promise",
@@ -1924,6 +1976,62 @@
                 "promises"
             ],
             "time": "2017-03-25T12:08:31+00:00"
+        },
+        {
+            "name": "react/promise-stream",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/promise-stream.git",
+                "reference": "77ca2a233db59d671864c88e2b716d875cfbeb1f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/promise-stream/zipball/77ca2a233db59d671864c88e2b716d875cfbeb1f",
+                "reference": "77ca2a233db59d671864c88e2b716d875cfbeb1f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3",
+                "react/promise": "^2.1 || ^1.2",
+                "react/stream": "^1.0 || ^0.7 || ^0.6 || ^0.5 || ^0.4 || ^0.3"
+            },
+            "require-dev": {
+                "clue/block-react": "^1.0",
+                "phpunit/phpunit": "^4.8",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3",
+                "react/promise-timer": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "React\\Promise\\Stream\\": "src/"
+                },
+                "files": [
+                    "src/functions_include.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Lück",
+                    "email": "christian@lueck.tv"
+                }
+            ],
+            "description": "The missing link between Promise-land and Stream-land for ReactPHP",
+            "homepage": "https://github.com/reactphp/promise-stream",
+            "keywords": [
+                "Buffer",
+                "async",
+                "promise",
+                "reactphp",
+                "stream",
+                "unwrap"
+            ],
+            "time": "2017-11-28T18:31:39+00:00"
         },
         {
             "name": "react/promise-timer",
@@ -2984,16 +3092,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v2.8.3",
+            "version": "v2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "d9ec9b848cbf930c31dea3693d34dbd8b9c95295"
+                "reference": "454ddbe65da6a9297446f442bad244e8a99a9a38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/d9ec9b848cbf930c31dea3693d34dbd8b9c95295",
-                "reference": "d9ec9b848cbf930c31dea3693d34dbd8b9c95295",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/454ddbe65da6a9297446f442bad244e8a99a9a38",
+                "reference": "454ddbe65da6a9297446f442bad244e8a99a9a38",
                 "shasum": ""
             },
             "require": {
@@ -3020,7 +3128,8 @@
             "require-dev": {
                 "johnkary/phpunit-speedtrap": "^1.1 || ^2.0@dev",
                 "justinrainbow/json-schema": "^5.0",
-                "php-coveralls/php-coveralls": "^1.0.2",
+                "mikey179/vfsstream": "^1.6",
+                "php-coveralls/php-coveralls": "^2.0",
                 "php-cs-fixer/accessible-object": "^1.0",
                 "phpunit/phpunit": "^5.7.23 || ^6.4.3",
                 "symfony/phpunit-bridge": "^3.2.2 || ^4.0"
@@ -3060,7 +3169,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2017-11-26T20:45:16+00:00"
+            "time": "2017-12-08T16:36:20+00:00"
         },
         {
             "name": "gecko-packages/gecko-php-unit",
@@ -3858,52 +3967,6 @@
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
-            "name": "puntmig/search-bundle",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/puntmig/search-bundle.git",
-                "reference": "bd77625ee5a045bd1d9f57132202a2f18cba41d6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/puntmig/search-bundle/zipball/bd77625ee5a045bd1d9f57132202a2f18cba41d6",
-                "reference": "bd77625ee5a045bd1d9f57132202a2f18cba41d6",
-                "shasum": ""
-            },
-            "require": {
-                "mmoreram/base-bundle": "*",
-                "mmoreram/symfony-bundle-dependencies": "*",
-                "php": ">=7.1",
-                "puntmig/php-search": "dev-master",
-                "symfony/framework-bundle": "*",
-                "symfony/http-kernel": "*",
-                "twig/twig": "*"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.5.0",
-                "mmoreram/php-formatter": "1.3.1",
-                "phpunit/phpunit": "^5.6.4"
-            },
-            "type": "project",
-            "autoload": {
-                "psr-4": {
-                    "Puntmig\\Search\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marc Morera",
-                    "email": "yuhu@mmoreram.com"
-                }
-            ],
-            "time": "2017-11-21T19:47:47+00:00"
-        },
-        {
             "name": "sebastian/code-unit-reverse-lookup",
             "version": "1.0.1",
             "source": {
@@ -4526,11 +4589,11 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "league/tactician-bundle": 5,
-        "puntmig/php-search": 20,
         "one-bundle-app/one-bundle-app": 20,
+        "apisearch-io/php-client": 20,
+        "apisearch-io/apisearch-bundle": 20,
         "rsqueue/rsqueue": 20,
-        "rsqueue/rsqueue-bundle": 20,
-        "puntmig/search-bundle": 20
+        "rsqueue/rsqueue-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

@@ -1,0 +1,16 @@
+#!/bin/bash
+source "/etc/environment"
+if [[ "$1" == "pre-deploy" ]]; then
+    echo "pre-deploy hook"
+    # you might want to remove cache folder
+elif [[ "$1" == "post-deploy" ]]; then
+    echo "post-deploy hook"
+    cd $DEPLOY_LIVE && composer install
+    # you might want to generate empty cache folder
+elif [[ "$1" == "validate" ]]; then
+    echo "validate hook"
+    # Check vendor/autoload.php exists
+    [[ -f "$DEPLOY_LIVE/vendor/autoload.php" ]] || (echo "autoload.php not found"; exit 1)
+elif [[ "$1" == "destroy" ]]; then
+    echo "destroy hook"
+fi

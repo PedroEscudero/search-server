@@ -1,13 +1,12 @@
-bundles: Puntmig\Search\Server\PuntmigSearchServerBundle
+bundles: Apisearch\Server\ApisearchServerBundle
 routes:
-    - "@PuntmigSearchServerBundle/Resources/config/routing.yml"
+    - "@ApisearchServerBundle/Resources/config/routing.yml"
 config:
     imports:
-        - { resource: "@PuntmigSearchServerBundle/Resources/config/tactician.yml"}
+        - { resource: "@ApisearchServerBundle/Resources/config/tactician.yml"}
 
     parameters:
         kernel.secret: nsdjkfhdsupoifjñksd
-        token_server_endpoint: http://tokens.dev
 
     framework:
         form: false
@@ -22,21 +21,31 @@ config:
                 path: '%kernel.logs_dir%/%kernel.environment%.log'
                 level: debug
 
-    puntmig_search:
+    apisearch:
         repositories:
             search:
                 http: false
                 search:
-                    repository_service: "search_server.elastica_repository"
+                    repository_service: "apisearch.server.elastica_repository"
                     in_memory: false
                 event:
-                    repository_service: "search_server.elastica_event_repository"
+                    repository_service: "apisearch.server.elastica_event_repository"
                     in_memory: false
+                indexes:
+                    - default
             music_prod:
-                endpoint: http://puntmig.net:8900
+                endpoint: http://api.apisear.ch
                 app_id: music
-                secret: 1cc7a3e0-bda5-11e7-abc4-cec278b6b50a
-            music:
-                endpoint: http://localhost:8999
+                #
+                # secret: 1cc7a3e0-bda5-11e7-abc4-cec278b6b50a
+                # Uncomment this line to really make actions on production
+                #
+                token: 1cc7a3e0-bda5-11e7-abc4-cec278b6b50a
+                indexes:
+                    - default
+            music_dev:
+                endpoint: http://localhost:81
                 app_id: music
-                secret: 5fadd8c4-c966-11e7-abc4-cec278b6b50a
+                token: 5fadd8c4-c966-11e7-abc4-cec278b6b50a
+                indexes:
+                    - default

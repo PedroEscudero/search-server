@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,13 +14,13 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\QueryHandler;
+namespace Apisearch\Server\Domain\QueryHandler;
 
-use Puntmig\Search\Query\Filter;
-use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Domain\Event\QueryWasMade;
-use Puntmig\Search\Server\Domain\Query\Query;
-use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
+use Apisearch\Query\Filter;
+use Apisearch\Result\Result;
+use Apisearch\Server\Domain\Event\QueryWasMade;
+use Apisearch\Server\Domain\Query\Query;
+use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class QueryHandler.
@@ -36,12 +36,11 @@ class QueryHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(Query $query)
     {
-        $appId = $query->getAppId();
         $searchQuery = $query->getQuery();
 
         $this
             ->repository
-            ->setAppId($appId);
+            ->setRepositoryReference($query->getRepositoryReference());
 
         $result = $this
             ->repository

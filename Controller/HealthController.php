@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,21 +14,21 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Controller;
+namespace Apisearch\Server\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class PingController.
+ * Class HealthController.
  */
-class PingController
+class HealthController
 {
     /**
-     * Ping.
+     * Check health.
      *
      * @return Response
      */
-    public function ping()
+    public function check()
     {
         return new Response();
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,17 +14,17 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Controller;
+namespace Apisearch\Server\Controller;
 
+use Apisearch\Event\Event;
+use Apisearch\Repository\HttpRepository;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Domain\Query\ListEvents;
+use Apisearch\Server\Domain\Query\StatsEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
-
-use Puntmig\Search\Event\Event;
-use Puntmig\Search\Repository\HttpRepository;
-use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Domain\Query\ListEvents;
-use Puntmig\Search\Server\Domain\Query\StatsEvents;
 
 /**
  * Class EventsController.
@@ -48,7 +48,10 @@ class EventsController extends Controller
         $events = $this
             ->commandBus
             ->handle(new ListEvents(
-                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                RepositoryReference::create(
+                    $query->get(HttpRepository::APP_ID_FIELD),
+                    $query->get(HttpRepository::INDEX_FIELD)
+                ),
                 $query->get('name', ''),
                 $this->castToIntIfNotNull($query, 'from'),
                 $this->castToIntIfNotNull($query, 'to'),
@@ -86,7 +89,8 @@ class EventsController extends Controller
         $stats = $this
             ->commandBus
             ->handle(new StatsEvents(
-                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                $query->get(HttpRepository::APP_ID_FIELD),
+                $query->get(HttpRepository::INDEX_FIELD),
                 $this->castToIntIfNotNull($query, 'from'),
                 $this->castToIntIfNotNull($query, 'to')
             ));

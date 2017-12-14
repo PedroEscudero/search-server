@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,15 +14,19 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Query;
+namespace Apisearch\Server\Domain\Query;
 
-use Puntmig\Search\Server\Domain\WithAppId;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
 
 /**
  * Class ListEvents.
  */
-class ListEvents extends WithAppId
+class ListEvents implements CommandWithRepositoryReference
 {
+    use WithRepositoryReference;
+
     /**
      * @var string|null
      *
@@ -61,22 +65,22 @@ class ListEvents extends WithAppId
     /**
      * DeleteCommand constructor.
      *
-     * @param string      $appId
-     * @param string|null $name
-     * @param int|null    $from
-     * @param int|null    $to
-     * @param int|null    $length
-     * @param int|null    $offset
+     * @param RepositoryReference $repositoryReference
+     * @param string|null         $name
+     * @param int|null            $from
+     * @param int|null            $to
+     * @param int|null            $length
+     * @param int|null            $offset
      */
     public function __construct(
-        string $appId,
+        RepositoryReference $repositoryReference,
         ?string $name,
         ?int $from,
         ?int $to,
         ?int $length,
         ?int $offset
     ) {
-        $this->appId = $appId;
+        $this->repositoryReference = $repositoryReference;
         $this->name = $name;
         $this->from = $from;
         $this->to = $to;

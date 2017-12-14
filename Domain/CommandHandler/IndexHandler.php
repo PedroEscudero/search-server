@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\CommandHandler;
+namespace Apisearch\Server\Domain\CommandHandler;
 
-use Puntmig\Search\Server\Domain\Command\Index as IndexCommand;
-use Puntmig\Search\Server\Domain\Event\ItemsWereIndexed;
-use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
+use Apisearch\Server\Domain\Command\Index as IndexCommand;
+use Apisearch\Server\Domain\Event\ItemsWereIndexed;
+use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class IndexHandler.
@@ -32,12 +32,11 @@ class IndexHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(IndexCommand $indexCommand)
     {
-        $appId = $indexCommand->getAppId();
         $items = $indexCommand->getItems();
 
         $this
             ->repository
-            ->setAppId($appId);
+            ->setRepositoryReference($indexCommand->getRepositoryReference());
 
         $this
             ->repository

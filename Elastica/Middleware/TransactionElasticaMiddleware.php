@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,11 +14,10 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Middleware;
+namespace Apisearch\Server\Elastica\Middleware;
 
+use Apisearch\Repository\Repository;
 use League\Tactician\Middleware;
-
-use Puntmig\Search\Repository\Repository;
 
 /**
  * Class TransactionElasticaMiddleware.

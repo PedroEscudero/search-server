@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Event;
+namespace Apisearch\Server\Domain\Event;
 
 use Carbon\Carbon;
 use Exception;
@@ -104,7 +104,7 @@ abstract class DomainEvent
      */
     public static function fromArray(array $data)
     {
-        $namespace = 'Puntmig\Search\Server\Domain\Event\\'.$data['type'];
+        $namespace = 'Apisearch\Server\Domain\Event\\'.$data['type'];
 
         return $namespace::createByPlainValues(
             $data['occurred_on'],
@@ -120,7 +120,7 @@ abstract class DomainEvent
     public function toArray(): array
     {
         return [
-            'type' => str_replace('Puntmig\Search\Server\Domain\Event\\', '', get_class($this)),
+            'type' => str_replace('Apisearch\Server\Domain\Event\\', '', get_class($this)),
             'occurred_on' => $this->occurredOn(),
             'payload' => json_encode($this->payloadToArray()),
         ];

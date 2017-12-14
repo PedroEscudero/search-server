@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,11 +14,12 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Server\Elastica\ElasticaWrapper;
+use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class DeletionTest.
@@ -31,23 +32,42 @@ trait DeletionTest
     public function testItemDeletions()
     {
         $this->deleteItems([new ItemUUID('1', 'product')]);
-        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$appId, ElasticaWrapper::ITEM_TYPE)->count());
+        $this->assertNbItems(4);
 
         $this->deleteItems([new ItemUUID('1', 'product')]);
-        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$appId, ElasticaWrapper::ITEM_TYPE)->count());
+        $this->assertNbItems(4);
 
         $this->deleteItems([new ItemUUID('75894379573', 'product')]);
-        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$appId, ElasticaWrapper::ITEM_TYPE)->count());
+        $this->assertNbItems(4);
 
         $this->deleteItems([new ItemUUID('5', 'product')]);
-        $this->assertSame(4, $this->get('search_server.elastica_wrapper')->getType(self::$appId, ElasticaWrapper::ITEM_TYPE)->count());
+        $this->assertNbItems(4);
 
         $this->deleteItems([new ItemUUID('5', 'gum')]);
-        $this->assertSame(3, $this->get('search_server.elastica_wrapper')->getType(self::$appId, ElasticaWrapper::ITEM_TYPE)->count());
+        $this->assertNbItems(3);
 
         /*
          * Reseting scenario for next calls.
          */
         self::resetScenario();
+    }
+
+    /**
+     * Check nb items.
+     *
+     * @param int $nb
+     */
+    private function assertNbItems(int $nb)
+    {
+        $this->assertSame($nb, $this
+            ->get('apisearch.server.elastica_wrapper')
+            ->getType(
+                RepositoryReference::create(
+                    self::$appId,
+                    self::$index
+                ),
+                ElasticaWrapper::ITEM_TYPE
+            )->count()
+        );
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,26 +14,23 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica;
+namespace Apisearch\Server\Elastica;
+
+use Apisearch\Repository\WithRepositoryReference;
 
 /**
  * Class ElasticaWithAppIdWrapper.
  */
-abstract class ElasticaWithAppIdWrapper
+abstract class ElasticaWrapperWithRepositoryReference
 {
+    use WithRepositoryReference;
+
     /**
      * @var ElasticaWrapper
      *
      * Elastica wrapper
      */
     protected $elasticaWrapper;
-
-    /**
-     * @var string
-     *
-     * App id
-     */
-    protected $appId;
 
     /**
      * ElasticaSearchRepository constructor.
@@ -46,22 +43,12 @@ abstract class ElasticaWithAppIdWrapper
     }
 
     /**
-     * Set app id.
-     *
-     * @param string $appId
-     */
-    public function setAppId(string $appId)
-    {
-        $this->appId = $appId;
-    }
-
-    /**
      * Refresh.
      */
     protected function refresh()
     {
         $this
             ->elasticaWrapper
-            ->refresh($this->appId);
+            ->refresh($this->getRepositoryReference());
     }
 }

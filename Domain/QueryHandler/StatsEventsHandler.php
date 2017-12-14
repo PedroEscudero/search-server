@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\QueryHandler;
+namespace Apisearch\Server\Domain\QueryHandler;
 
-use Puntmig\Search\Event\EventRepository;
-use Puntmig\Search\Event\Stats;
-use Puntmig\Search\Server\Domain\Query\StatsEvents;
+use Apisearch\Event\EventRepository;
+use Apisearch\Event\Stats;
+use Apisearch\Server\Domain\Query\StatsEvents;
 
 /**
  * Class StatsEventsHandler.
@@ -53,7 +53,7 @@ class StatsEventsHandler
     {
         $this
             ->eventRepository
-            ->setAppId($statsEvents->getAppId());
+            ->setRepositoryReference($statsEvents->getRepositoryReference());
 
         return $this
             ->eventRepository

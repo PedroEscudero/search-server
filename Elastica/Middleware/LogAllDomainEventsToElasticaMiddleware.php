@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Middleware;
+namespace Apisearch\Server\Elastica\Middleware;
 
+use Apisearch\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
+use Apisearch\Server\Domain\Event\DomainEvent;
+use Apisearch\Server\Domain\Event\EventPublisher;
 use Carbon\Carbon;
 use Elastica\Client;
 use Exception;
@@ -24,10 +27,6 @@ use Monolog\Handler\ElasticSearchHandler;
 use Monolog\Logger;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
-
-use Puntmig\Search\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
-use Puntmig\Search\Server\Domain\Event\DomainEvent;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
 
 /**
  * Class LogAllDomainEventsToElasticaMiddleware.
@@ -118,7 +117,6 @@ class LogAllDomainEventsToElasticaMiddleware implements Middleware
         ]);
 
         $context = $event->toArray();
-        $context['key'] = $event->getKey();
         $context['occurred_on'] = $event->occurredOn();
         $context['occurred_on_in_atom'] = Carbon::createFromTimestampUTC($event->occurredOn())->toAtomString();
 

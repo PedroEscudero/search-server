@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,13 +14,14 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Repository;
+namespace Apisearch\Server\Elastica\Repository;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Query\Query;
-use Puntmig\Search\Repository\Repository as BaseRepository;
-use Puntmig\Search\Result\Result;
+use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Query\Query;
+use Apisearch\Repository\Repository as BaseRepository;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Result\Result;
 
 /**
  * Class Repository.
@@ -68,17 +69,17 @@ class Repository extends BaseRepository
     }
 
     /**
-     * Set key.
+     * Set repository reference.
      *
-     * @param string $appId
+     * @param RepositoryReference $repositoryReference
      */
-    public function setAppId(string $appId)
+    public function setRepositoryReference(RepositoryReference $repositoryReference)
     {
-        parent::setAppId($appId);
+        parent::setRepositoryReference($repositoryReference);
 
-        $this->queryRepository->setAppId($appId);
-        $this->indexRepository->setAppId($appId);
-        $this->deleteRepository->setAppId($appId);
+        $this->queryRepository->setRepositoryReference($repositoryReference);
+        $this->indexRepository->setRepositoryReference($repositoryReference);
+        $this->deleteRepository->setRepositoryReference($repositoryReference);
     }
 
     /**

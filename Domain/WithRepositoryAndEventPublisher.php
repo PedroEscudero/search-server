@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,10 +14,10 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain;
+namespace Apisearch\Server\Domain;
 
-use Puntmig\Search\Repository\Repository;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
+use Apisearch\Repository\Repository;
+use Apisearch\Server\Domain\Event\EventPublisher;
 
 /**
  * Class WithRepositoryAndEventPublisher.

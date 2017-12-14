@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,20 +14,19 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Repository;
+namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Model\Coordinate;
+use Apisearch\Model\Item;
+use Apisearch\Server\Elastica\ElasticaWrapper;
+use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
-
-use Puntmig\Search\Model\Coordinate;
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Server\Elastica\ElasticaWithAppIdWrapper;
-use Puntmig\Search\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class IndexRepository.
  */
-class IndexRepository extends ElasticaWithAppIdWrapper
+class IndexRepository extends ElasticaWrapperWithRepositoryReference
 {
     /**
      * Create the index.
@@ -39,7 +38,7 @@ class IndexRepository extends ElasticaWithAppIdWrapper
         $this
             ->elasticaWrapper
             ->createIndexMapping(
-                $this->appId,
+                $this->getRepositoryReference(),
                 1,
                 1,
                 $language
@@ -64,7 +63,7 @@ class IndexRepository extends ElasticaWithAppIdWrapper
 
         $this
             ->elasticaWrapper
-            ->getType($this->appId, ElasticaWrapper::ITEM_TYPE)
+            ->getType($this->getRepositoryReference(), ElasticaWrapper::ITEM_TYPE)
             ->addDocuments($documents);
 
         $this->refresh();

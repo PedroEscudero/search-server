@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,14 +14,14 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\CommandHandler;
+namespace Apisearch\Server\Domain\CommandHandler;
 
-use Puntmig\Search\Event\EventRepository;
-use Puntmig\Search\Repository\Repository;
-use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
-use Puntmig\Search\Server\Domain\Event\IndexWasReset;
-use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
+use Apisearch\Event\EventRepository;
+use Apisearch\Repository\Repository;
+use Apisearch\Server\Domain\Command\Reset as ResetCommand;
+use Apisearch\Server\Domain\Event\EventPublisher;
+use Apisearch\Server\Domain\Event\IndexWasReset;
+use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class ResetHandler.
@@ -62,12 +62,12 @@ class ResetHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(ResetCommand $resetCommand)
     {
-        $appId = $resetCommand->getAppId();
+        $repositoryReference = $resetCommand->getRepositoryReference();
         $language = $resetCommand->getLanguage();
 
         $this
             ->repository
-            ->setAppId($appId);
+            ->setRepositoryReference($repositoryReference);
 
         $this
             ->repository
@@ -75,7 +75,7 @@ class ResetHandler extends WithRepositoryAndEventPublisher
 
         $this
             ->eventRepository
-            ->setAppId($appId);
+            ->setRepositoryReference($repositoryReference);
 
         $this
             ->eventRepository

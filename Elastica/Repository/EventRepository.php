@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,12 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Repository;
+namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Event\Event;
+use Apisearch\Event\EventRepository as BaseEventRepository;
+use Apisearch\Event\Stats;
+use Apisearch\Repository\RepositoryWithCredentials;
 use DateTime;
 use Elastica\Aggregation\Terms;
 use Elastica\Client;
@@ -27,11 +31,6 @@ use Elastica\Result;
 use Elastica\Type;
 use Elastica\Type\Mapping;
 use Exception;
-
-use Puntmig\Search\Event\Event;
-use Puntmig\Search\Event\EventRepository as BaseEventRepository;
-use Puntmig\Search\Event\Stats;
-use Puntmig\Search\Repository\RepositoryWithCredentials;
 
 /**
  * Class EventRepository.
@@ -247,7 +246,7 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
     {
         return $this
             ->client
-            ->getIndex("puntmig_{$this->getAppId()}_events");
+            ->getIndex("apisearch_{$this->getRepositoryReference()->compose()}_events");
     }
 
     /**

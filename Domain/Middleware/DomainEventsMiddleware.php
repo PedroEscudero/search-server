@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,18 +14,17 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Middleware;
+namespace Apisearch\Server\Domain\Middleware;
 
-use League\Tactician\Middleware;
-use RSQueue\Services\Producer as QueueProducer;
-
-use Puntmig\Search\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
-use Puntmig\Search\Server\Domain\Event\EventPublisher;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
+use Apisearch\Server\Domain\Event\DomainEvent;
+use Apisearch\Server\Domain\Event\EventPublisher;
 
 /**
  * Class DomainEventsMiddleware.
  */
-class DomainEventsMiddleware implements Middleware
+abstract class DomainEventsMiddleware
 {
     /**
      * @var EventPublisher
@@ -35,29 +34,18 @@ class DomainEventsMiddleware implements Middleware
     private $eventPublisher;
 
     /**
-     * @var QueueProducer
-     *
-     * Queue producer
-     */
-    private $queueProducer;
-
-    /**
      * DomainEventsMiddleware constructor.
      *
      * @param EventPublisher $eventPublisher
-     * @param QueueProducer  $queueProducer
      */
-    public function __construct(
-        EventPublisher $eventPublisher,
-        QueueProducer $queueProducer
-    ) {
+    public function __construct(EventPublisher $eventPublisher)
+    {
         $this->eventPublisher = $eventPublisher;
-        $this->queueProducer = $queueProducer;
     }
 
     /**
-     * @param object   $command
-     * @param callable $next
+     * @param CommandWithRepositoryReference $command
+     * @param callable                       $next
      *
      * @return mixed
      */
@@ -71,17 +59,23 @@ class DomainEventsMiddleware implements Middleware
         $result = $next($command);
 
         foreach ($eventSubscriber->getEvents() as $event) {
-            $this
-                ->queueProducer
-                ->produce(
-                    'search-server:domain-events',
-                    [
-                        'app_id' => $command->getAppId(),
-                        'event' => $event->toArray(),
-                    ]
-                );
+            $this->processEvent(
+                $command,
+                $event
+            );
         }
 
         return $result;
     }
+
+    /**
+     * Process events.
+     *
+     * @param CommandWithRepositoryReference $command
+     * @param DomainEvent                    $event
+     */
+    abstract public function processEvent(
+        CommandWithRepositoryReference $command,
+        DomainEvent $event
+    );
 }

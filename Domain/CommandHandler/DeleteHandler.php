@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\CommandHandler;
+namespace Apisearch\Server\Domain\CommandHandler;
 
-use Puntmig\Search\Server\Domain\Command\Delete as DeleteCommand;
-use Puntmig\Search\Server\Domain\Event\ItemsWereDeleted;
-use Puntmig\Search\Server\Domain\WithRepositoryAndEventPublisher;
+use Apisearch\Server\Domain\Command\Delete as DeleteCommand;
+use Apisearch\Server\Domain\Event\ItemsWereDeleted;
+use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
  * Class DeleteHandler.
@@ -32,12 +32,11 @@ class DeleteHandler extends WithRepositoryAndEventPublisher
      */
     public function handle(DeleteCommand $deleteCommand)
     {
-        $appId = $deleteCommand->getAppId();
         $itemsUUID = $deleteCommand->getItemsUUID();
 
         $this
             ->repository
-            ->setAppId($appId);
+            ->setRepositoryReference($deleteCommand->getRepositoryReference());
 
         $this
             ->repository

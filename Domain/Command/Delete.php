@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,20 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Command;
+namespace Apisearch\Server\Domain\Command;
 
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Server\Domain\WithAppId;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
 
 /**
  * Class Delete.
  */
-class Delete extends WithAppId
+class Delete implements CommandWithRepositoryReference
 {
+    use WithRepositoryReference;
+
     /**
      * @var ItemUUID[]
      *
@@ -34,14 +38,14 @@ class Delete extends WithAppId
     /**
      * DeleteCommand constructor.
      *
-     * @param string     $appId
-     * @param ItemUUID[] $itemsUUID
+     * @param RepositoryReference $repositoryReference
+     * @param ItemUUID[]          $itemsUUID
      */
     public function __construct(
-        string $appId,
+        RepositoryReference $repositoryReference,
         array $itemsUUID
     ) {
-        $this->appId = $appId;
+        $this->repositoryReference = $repositoryReference;
         $this->itemsUUID = $itemsUUID;
     }
 

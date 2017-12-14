@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,20 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Query;
+namespace Apisearch\Server\Domain\Query;
 
-use Puntmig\Search\Query\Query as SearchQuery;
-use Puntmig\Search\Server\Domain\WithAppId;
+use Apisearch\Query\Query as SearchQuery;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
 
 /**
  * Class Query.
  */
-class Query extends WithAppId
+class Query implements CommandWithRepositoryReference
 {
+    use WithRepositoryReference;
+
     /**
      * @var SearchQuery
      *
@@ -34,14 +38,14 @@ class Query extends WithAppId
     /**
      * DeleteCommand constructor.
      *
-     * @param string      $appId
-     * @param SearchQuery $query
+     * @param RepositoryReference $repositoryReference
+     * @param SearchQuery         $query
      */
     public function __construct(
-        string $appId,
+        RepositoryReference $repositoryReference,
         SearchQuery $query
     ) {
-        $this->appId = $appId;
+        $this->repositoryReference = $repositoryReference;
         $this->query = $query;
     }
 

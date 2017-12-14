@@ -5,40 +5,40 @@ search_server_api_query:
     path: /v1
     methods: ["GET"]
     defaults:
-        _controller: search_server.query_controller:query
+        _controller: apisearch.server.query_controller:query
 
 search_server_api_reset:
     path: /v1
     methods: ["POST"]
     defaults:
-        _controller: search_server.reset_controller:reset
+        _controller: apisearch.server.reset_controller:reset
 
 search_server_api_index:
     path: /v1/items
     methods: ["POST"]
     defaults:
-        _controller: search_server.index_controller:index
+        _controller: apisearch.server.index_controller:index
 
 search_server_api_delete:
     path: /v1/items
     methods: ["DELETE"]
     defaults:
-        _controller: search_server.delete_controller:delete
+        _controller: apisearch.server.delete_controller:delete
 
 search_server_api_events:
     path: /v1/events
     methods: ["GET"]
     defaults:
-        _controller: search_server.events_controller:list
+        _controller: apisearch.server.events_controller:list
 
 search_server_api_event_stats:
     path: /v1/events/stats
     methods: ["GET"]
     defaults:
-        _controller: search_server.events_controller:stats
+        _controller: apisearch.server.events_controller:stats
 
-search_server_api_ping:
-    path: /v1/ping
-    methods: ["GET"]
+search_server_api_health:
+    path: /v1
+    methods: ["HEAD"]
     defaults:
-        _controller: search_server.ping_controller:ping
+        _controller: apisearch.server.ping_controller:health

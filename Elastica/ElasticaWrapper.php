@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,9 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica;
+namespace Apisearch\Server\Elastica;
 
+use Apisearch\Repository\RepositoryReference;
 use Elastica\Client;
 use Elastica\Index;
 use Elastica\Query;
@@ -55,26 +56,26 @@ class ElasticaWrapper
     /**
      * Get search index.
      *
-     * @param string $appId
+     * @param RepositoryReference $repositoryReference
      *
      * @return Index
      */
-    public function getSearchIndex(string $appId): Index
+    public function getSearchIndex(RepositoryReference $repositoryReference): Index
     {
         return $this
             ->client
-            ->getIndex("puntmig_$appId");
+            ->getIndex('apisearch_'.$repositoryReference->compose());
     }
 
     /**
      * Delete index.
      *
-     * @param string $appId
+     * @param RepositoryReference $repositoryReference
      */
-    public function deleteIndex(string $appId)
+    public function deleteIndex(RepositoryReference $repositoryReference)
     {
         try {
-            $this->getSearchIndex($appId)->delete();
+            $this->getSearchIndex($repositoryReference)->delete();
         } catch (Exception $e) {
             // Silent pass
         }
@@ -83,19 +84,19 @@ class ElasticaWrapper
     /**
      * Create index.
      *
-     * @param string      $appId
-     * @param int         $shards
-     * @param int         $replicas
-     * @param null|string $language
+     * @param RepositoryReference $repositoryReference
+     * @param int                 $shards
+     * @param int                 $replicas
+     * @param null|string         $language
      */
     public function createIndex(
-        string $appId,
+        RepositoryReference $repositoryReference,
         int $shards,
         int $replicas,
         ? string $language
     ) {
-        $this->deleteIndex($appId);
-        $searchIndex = $this->getSearchIndex($appId);
+        $this->deleteIndex($repositoryReference);
+        $searchIndex = $this->getSearchIndex($repositoryReference);
         $indexConfiguration = [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
@@ -165,38 +166,38 @@ class ElasticaWrapper
     /**
      * Create index.
      *
-     * @param string $appId
-     * @param string $typeName
+     * @param RepositoryReference $repositoryReference
+     * @param string              $typeName
      *
      * @return Type
      */
     public function getType(
-        string $appId,
+        RepositoryReference $repositoryReference,
         string $typeName
     ) {
         return $this
-            ->getSearchIndex($appId)
+            ->getSearchIndex($repositoryReference)
             ->getType($typeName);
     }
 
     /**
      * Search.
      *
-     * @param string $appId
-     * @param Query  $query
-     * @param int    $from
-     * @param int    $size
+     * @param RepositoryReference $repositoryReference
+     * @param Query               $query
+     * @param int                 $from
+     * @param int                 $size
      *
      * @return mixed
      */
     public function search(
-        string $appId,
+        RepositoryReference $repositoryReference,
         Query $query,
         int $from,
         int $size
     ) {
         $queryResult = $this
-            ->getSearchIndex($appId)
+            ->getSearchIndex($repositoryReference)
             ->search($query, [
                 'from' => $from,
                 'size' => $size,
@@ -213,43 +214,43 @@ class ElasticaWrapper
     /**
      * Refresh.
      *
-     * @param string $appId
+     * @param RepositoryReference $repositoryReference
      */
-    public function refresh(string $appId)
+    public function refresh(RepositoryReference $repositoryReference)
     {
         $this
-            ->getSearchIndex($appId)
+            ->getSearchIndex($repositoryReference)
             ->refresh();
     }
 
     /**
      * Create mapping.
      *
-     * @param string      $appId
-     * @param int         $shards
-     * @param int         $replicas
-     * @param null|string $language
+     * @param RepositoryReference $repositoryReference
+     * @param int                 $shards
+     * @param int                 $replicas
+     * @param null|string         $language
      */
     public function createIndexMapping(
-        string $appId,
+        RepositoryReference $repositoryReference,
         int $shards,
         int $replicas,
         ? string $language
     ) {
-        $this->createIndex($appId, $shards, $replicas, $language);
-        $this->createItemIndexMapping($appId);
-        $this->refresh($appId);
+        $this->createIndex($repositoryReference, $shards, $replicas, $language);
+        $this->createItemIndexMapping($repositoryReference);
+        $this->refresh($repositoryReference);
     }
 
     /**
      * Create item index mapping.
      *
-     * @param string $appId
+     * @param RepositoryReference $repositoryReference
      */
-    private function createItemIndexMapping(string $appId)
+    private function createItemIndexMapping(RepositoryReference $repositoryReference)
     {
         $itemMapping = new Mapping();
-        $itemMapping->setType($this->getType($appId, 'item'));
+        $itemMapping->setType($this->getType($repositoryReference, self::ITEM_TYPE));
         $itemMapping->setParam('dynamic_templates', [
             [
                 'dynamic_metadata_as_keywords' => [

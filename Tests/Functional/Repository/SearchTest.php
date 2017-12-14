@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,12 +14,14 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Query\Query;
-use Puntmig\Search\Query\User;
+use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Query\Query;
+use Apisearch\Query\User;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Elastica\ElasticaWrapper;
 
 /**
  * Class SearchTest.
@@ -32,9 +34,18 @@ trait SearchTest
     public function testMatchAll()
     {
         $result = $this->query(Query::createMatchAll());
+
         $this->assertSame(
             count($result->getItems()),
-            $this->get('search_server.elastica_wrapper')->getType(self::$appId, 'item')->count()
+            $this
+                ->get('apisearch.server.elastica_wrapper')
+                ->getType(
+                    RepositoryReference::create(
+                        self::$appId,
+                        self::$index
+                    ),
+                    ElasticaWrapper::ITEM_TYPE
+                )->count()
         );
     }
 
@@ -81,8 +92,8 @@ trait SearchTest
             new ItemUUID('3', 'book'),
         ]));
         $this->assertCount(2, $result->getItems());
-        $this->assertSame('5', $result->getItems()[0]->getUUID()->getId());
-        $this->assertSame('3', $result->getItems()[1]->getUUID()->getId());
+        $this->assertSame('3', $result->getItems()[0]->getUUID()->getId());
+        $this->assertSame('5', $result->getItems()[1]->getUUID()->getId());
 
         $result = $this->query(Query::createByUUIDs([
             new ItemUUID('5', 'gum'),

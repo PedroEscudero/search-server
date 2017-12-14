@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Query\Query;
+use Apisearch\Query\Query;
 
 /**
  * Class StopwordsSteemerTest.

@@ -3,77 +3,93 @@ services:
     #
     # Events
     #
-    search_server.event_repository:
-        alias: "search_server.elastica_event_repository"
+    apisearch.server.event_repository:
+        alias: "apisearch.server.elastica_event_repository"
 
-    search_server.event_store:
-        class: Puntmig\Search\Server\Domain\Event\EventStore
+    apisearch.server.event_store:
+        class: Apisearch\Server\Domain\Event\EventStore
         arguments:
-            - "@search_server.event_repository"
+            - "@apisearch.server.event_repository"
 
-    search_server.event_publisher:
-        class: Puntmig\Search\Server\Domain\Event\EventPublisher
+    apisearch.server.event_publisher:
+        class: Apisearch\Server\Domain\Event\EventPublisher
 
 
     #
     # Command handlers
     #
-    search_server.comand_handler.delete:
-        class: Puntmig\Search\Server\Domain\CommandHandler\DeleteHandler
+    apisearch.server.comand_handler.delete:
+        class: Apisearch\Server\Domain\CommandHandler\DeleteHandler
         arguments:
-            - "@puntmig_search.repository_search"
-            - "@search_server.event_publisher"
+            - "@apisearch.repository_search.default"
+            - "@apisearch.server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Delete }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\Delete }
 
-    search_server.comand_handler.index:
-        class: Puntmig\Search\Server\Domain\CommandHandler\IndexHandler
+    apisearch.server.comand_handler.index:
+        class: Apisearch\Server\Domain\CommandHandler\IndexHandler
         arguments:
-            - "@puntmig_search.repository_search"
-            - "@search_server.event_publisher"
+            - "@apisearch.repository_search.default"
+            - "@apisearch.server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Index }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\Index }
 
-    search_server.comand_handler.reset:
-        class: Puntmig\Search\Server\Domain\CommandHandler\ResetHandler
+    apisearch.server.comand_handler.reset:
+        class: Apisearch\Server\Domain\CommandHandler\ResetHandler
         arguments:
-            - "@puntmig_search.repository_search"
-            - "@search_server.event_publisher"
-            - "@search_server.event_repository"
+            - "@apisearch.repository_search.default"
+            - "@apisearch.server.event_publisher"
+            - "@apisearch.server.event_repository"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Command\Reset }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\Reset }
 
     #
     # Query handlers
     #
-    search_server.query_handler.query:
-        class: Puntmig\Search\Server\Domain\QueryHandler\QueryHandler
+    apisearch.server.query_handler.query:
+        class: Apisearch\Server\Domain\QueryHandler\QueryHandler
         arguments:
-            - "@puntmig_search.repository_search"
-            - "@search_server.event_publisher"
+            - "@apisearch.repository_search.default"
+            - "@apisearch.server.event_publisher"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\Query }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\Query }
 
-    search_server.query_handler.list_events:
-        class: Puntmig\Search\Server\Domain\QueryHandler\ListEventsHandler
+    apisearch.server.query_handler.list_events:
+        class: Apisearch\Server\Domain\QueryHandler\ListEventsHandler
         arguments:
-            - "@puntmig_search.event_repository_search"
+            - "@apisearch.event_repository_search.default"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\ListEvents }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\ListEvents }
 
-    search_server.query_handler.stats_events:
-        class: Puntmig\Search\Server\Domain\QueryHandler\StatsEventsHandler
+    apisearch.server.query_handler.stats_events:
+        class: Apisearch\Server\Domain\QueryHandler\StatsEventsHandler
         arguments:
-            - "@puntmig_search.event_repository_search"
+            - "@apisearch.event_repository_search.default"
         tags:
-            - { name: tactician.handler, command: Puntmig\Search\Server\Domain\Query\StatsEvents }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\StatsEvents }
 
     #
     # Middlewares
     #
-    search_server.middleware.domain_events:
-        class: Puntmig\Search\Server\Domain\Middleware\DomainEventsMiddleware
+    apisearch.server.middleware.ignore_domain_events:
+        class: Apisearch\Server\Domain\Middleware\IgnoreDomainEventsMiddleware
         arguments:
-            - "@search_server.event_publisher"
+            - "@apisearch.server.event_publisher"
+        public: false
+
+    apisearch.server.middleware.inline_events:
+        class: Apisearch\Server\Domain\Middleware\InlineDomainEventsMiddleware
+        arguments:
+            - "@apisearch.server.event_publisher"
+            - "@apisearch.server.event_store"
+        public: false
+
+    apisearch.server.middleware.queue_events:
+        class: Apisearch\Server\Domain\Middleware\QueueDomainEventsMiddleware
+        arguments:
+            - "@apisearch.server.event_publisher"
             - "@rs_queue.producer"
         public: false
+
+    apisearch.server.middleware.domain_events:
+        alias: "apisearch.server.middleware.queue_events"

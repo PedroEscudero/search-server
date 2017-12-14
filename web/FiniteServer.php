@@ -31,7 +31,7 @@ use React\Socket\ConnectionInterface;
  * @see ServerInterface
  * @see ConnectionInterface
  */
-class LimitingServer extends EventEmitter implements ServerInterface
+class FiniteServer extends EventEmitter implements ServerInterface
 {
     private $server;
     private $iterations = 0;

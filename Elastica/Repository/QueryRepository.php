@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,32 +14,31 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Elastica\Repository;
+namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Geo\CoordinateAndDistance;
+use Apisearch\Geo\LocationRange;
+use Apisearch\Geo\Polygon;
+use Apisearch\Geo\Square;
+use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Query\Aggregation as QueryAggregation;
+use Apisearch\Query\Filter;
+use Apisearch\Query\Query;
+use Apisearch\Query\Range;
+use Apisearch\Query\SortBy;
+use Apisearch\Result\Aggregation as ResultAggregation;
+use Apisearch\Result\Aggregations as ResultAggregations;
+use Apisearch\Result\Result;
+use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Suggest;
 
-use Puntmig\Search\Geo\CoordinateAndDistance;
-use Puntmig\Search\Geo\LocationRange;
-use Puntmig\Search\Geo\Polygon;
-use Puntmig\Search\Geo\Square;
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Query\Aggregation as QueryAggregation;
-use Puntmig\Search\Query\Filter;
-use Puntmig\Search\Query\Query;
-use Puntmig\Search\Query\Range;
-use Puntmig\Search\Query\SortBy;
-use Puntmig\Search\Result\Aggregation as ResultAggregation;
-use Puntmig\Search\Result\Aggregations as ResultAggregations;
-use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Elastica\ElasticaWithAppIdWrapper;
-
 /**
  * Class QueryRepository.
  */
-class QueryRepository extends ElasticaWithAppIdWrapper
+class QueryRepository extends ElasticaWrapperWithRepositoryReference
 {
     /**
      * Search cross the index types.
@@ -114,7 +113,7 @@ class QueryRepository extends ElasticaWithAppIdWrapper
         $results = $this
             ->elasticaWrapper
             ->search(
-                $this->appId,
+                $this->getRepositoryReference(),
                 $mainQuery,
                 $query->areResultsEnabled()
                     ? $query->getFrom()
@@ -436,7 +435,7 @@ class QueryRepository extends ElasticaWithAppIdWrapper
      * Creates Term/Terms query depending on the elements value.
      *
      * @param Filter $filter
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return null|ElasticaQuery\AbstractQuery
      */
@@ -467,7 +466,7 @@ class QueryRepository extends ElasticaWithAppIdWrapper
      * Returns null if no need to be applicable (true=true).
      *
      * @param Filter $filter
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return ElasticaQuery\AbstractQuery
      */

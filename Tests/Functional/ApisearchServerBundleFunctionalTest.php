@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,28 +14,28 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional;
+namespace Apisearch\Server\Tests\Functional;
 
+use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Query\Query as QueryModel;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Result\Result;
+use Apisearch\Server\ApisearchServerBundle;
+use Apisearch\Server\Domain\Command\Delete as DeleteCommand;
+use Apisearch\Server\Domain\Command\Index as IndexCommand;
+use Apisearch\Server\Domain\Command\Reset as ResetCommand;
+use Apisearch\Server\Domain\Query\Query;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Query\Query as QueryModel;
-use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Domain\Command\Delete as DeleteCommand;
-use Puntmig\Search\Server\Domain\Command\Index as IndexCommand;
-use Puntmig\Search\Server\Domain\Command\Reset as ResetCommand;
-use Puntmig\Search\Server\Domain\Query\Query;
-use Puntmig\Search\Server\PuntmigSearchServerBundle;
-
 /**
- * Class SearchBundleFunctionalTest.
+ * Class ApisearchServerBundleFunctionalTest.
  */
-abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTest
+abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
 {
     /**
      * Get kernel.
@@ -45,39 +45,41 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
     protected static function getKernel(): KernelInterface
     {
         $imports = [
-            ['resource' => '@PuntmigSearchServerBundle/Resources/config/tactician.yml'],
+            ['resource' => '@ApisearchServerBundle/Resources/config/tactician.yml'],
         ];
 
         if (!static::logDomainEvents()) {
-            $imports[] = ['resource' => '@PuntmigSearchServerBundle/Resources/test/logDomainEventsMiddleware.yml'];
+            $imports[] = ['resource' => '@ApisearchServerBundle/Resources/test/middlewares.yml'];
         }
 
         return new BaseKernel(
             [
                 BaseBundle::class,
-                PuntmigSearchServerBundle::class,
+                ApisearchServerBundle::class,
             ], [
                 'imports' => $imports,
                 'parameters' => [
-                    'token_server_endpoint' => '//',
                     'kernel.secret' => 'sdhjshjkds',
                 ],
                 'framework' => [
                     'test' => true,
                 ],
-                'puntmig_search' => [
+                'apisearch' => [
                     'repositories' => [
                         'search' => [
                             'endpoint' => 'xxx',
                             'app_id' => self::$appId,
-                            'secret' => 'xxx',
+                            'token' => 'xxx',
                             'test' => true,
+                            'indexes' => [
+                                self::$index,
+                            ],
                             'search' => [
-                                'repository_service' => 'search_server.elastica_repository',
+                                'repository_service' => 'apisearch.server.elastica_repository',
                                 'in_memory' => false,
                             ],
                             'event' => [
-                                'repository_service' => 'puntmig_search.event_repository_search',
+                                'repository_service' => 'apisearch.event_repository_search.'.self::$index,
                                 'in_memory' => true,
                             ],
                         ],
@@ -85,11 +87,14 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
                 ],
                 [
                     'services' => [
+                        'apisearch.server.middleware.domain_events' => [
+                            'alias' => 'apisearch.server.middleware.inline_domain_events',
+                        ],
                     ],
                 ],
             ],
             [
-                '@PuntmigSearchServerBundle/Resources/config/routing.yml',
+                '@ApisearchServerBundle/Resources/config/routing.yml',
             ],
             'test', true
         );
@@ -117,7 +122,21 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * App id
      */
+    public static $index = 'default';
+
+    /**
+     * @var string
+     *
+     * App id
+     */
     public static $anotherAppId = 'another_test';
+
+    /**
+     * @var string
+     *
+     * App id
+     */
+    public static $anotherIndex = 'default_0';
 
     /**
      * Sets up the fixture, for example, open a network connection.
@@ -156,17 +175,22 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * @param QueryModel $query
      * @param string     $appId
+     * @param string     $index
      *
      * @return Result
      */
     public function query(
         QueryModel $query,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
         return self::$container
             ->get('tactician.commandbus')
             ->handle(new Query(
-                $appId ?? self::$appId,
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
                 $query
             ));
     }
@@ -176,15 +200,20 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * @param ItemUUID[] $itemsUUID
      * @param string     $appId
+     * @param string     $index
      */
     public function deleteItems(
         array $itemsUUID,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
         self::$container
             ->get('tactician.commandbus')
             ->handle(new DeleteCommand(
-                $appId ?? self::$appId,
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
                 $itemsUUID
             ));
     }
@@ -194,15 +223,20 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * @param Item[] $items
      * @param string $appId
+     * @param string $index
      */
     public function addItems(
         array $items,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
         self::$container
             ->get('tactician.commandbus')
             ->handle(new IndexCommand(
-                $appId ?? self::$appId,
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
                 $items
             ));
     }
@@ -212,15 +246,20 @@ abstract class PuntmigSearchServerBundleFunctionalTest extends BaseFunctionalTes
      *
      * @param string $language
      * @param string $appId
+     * @param string $index
      */
     public function reset(
         string $language = null,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
         self::$container
             ->get('tactician.commandbus')
             ->handle(new ResetCommand(
-                $appId ?? self::$appId,
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
                 $language
             ));
     }

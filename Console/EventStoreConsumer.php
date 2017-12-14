@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,15 +14,15 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Console;
+namespace Apisearch\Server\Console;
 
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Domain\Event\DomainEvent;
+use Apisearch\Server\Domain\Event\EventStore;
 use RSQueue\Command\ConsumerCommand;
 use RSQueue\Services\Consumer;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use Puntmig\Search\Server\Domain\Event\DomainEvent;
-use Puntmig\Search\Server\Domain\Event\EventStore;
 
 /**
  * File header placeholder.
@@ -89,7 +89,12 @@ class EventStoreConsumer extends ConsumerCommand
 
         $this
             ->eventStore
-            ->setAppId($data['app_id']);
+            ->setRepositoryReference(
+                RepositoryReference::create(
+                    $data['app_id'],
+                    $data['index']
+                )
+            );
 
         $this
             ->eventStore

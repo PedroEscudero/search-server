@@ -3,43 +3,43 @@ services:
     #
     # Controllers
     #
-    search_server.query_controller:
-        class: Puntmig\Search\Server\Controller\QueryController
+    apisearch.server.query_controller:
+        class: Apisearch\Server\Controller\QueryController
         arguments:
             - "@tactician.commandbus.query"
-            - "@search_server.event_repository"
+            - "@apisearch.server.event_repository"
 
-    search_server.index_controller:
-        class: Puntmig\Search\Server\Controller\IndexController
+    apisearch.server.index_controller:
+        class: Apisearch\Server\Controller\IndexController
         arguments:
             - "@tactician.commandbus.command"
-            - "@search_server.event_repository"
+            - "@apisearch.server.event_repository"
 
-    search_server.delete_controller:
-        class: Puntmig\Search\Server\Controller\DeleteController
+    apisearch.server.delete_controller:
+        class: Apisearch\Server\Controller\DeleteController
         arguments:
             - "@tactician.commandbus.command"
-            - "@search_server.event_repository"
+            - "@apisearch.server.event_repository"
 
-    search_server.reset_controller:
-        class: Puntmig\Search\Server\Controller\ResetController
+    apisearch.server.reset_controller:
+        class: Apisearch\Server\Controller\ResetController
         arguments:
             - "@tactician.commandbus.command"
-            - "@search_server.event_repository"
+            - "@apisearch.server.event_repository"
 
-    search_server.events_controller:
-        class: Puntmig\Search\Server\Controller\EventsController
+    apisearch.server.events_controller:
+        class: Apisearch\Server\Controller\EventsController
         arguments:
             - "@tactician.commandbus.query"
-            - "@search_server.event_repository"
+            - "@apisearch.server.event_repository"
 
-    search_server.ping_controller:
-        class: Puntmig\Search\Server\Controller\PingController
+    apisearch.server.ping_controller:
+        class: Apisearch\Server\Controller\PingController
 
     #
     # Controller listener
     #
-    search_server.php_exception_to_json_response_listener:
-        class: Puntmig\Search\Server\Controller\Listener\PHPExceptionToJsonResponse
+    apisearch.server.php_exception_to_json_response_listener:
+        class: Apisearch\Server\Controller\Listener\PHPExceptionToJsonResponse
         tags:
             - { name: kernel.event_listener, event: kernel.exception }

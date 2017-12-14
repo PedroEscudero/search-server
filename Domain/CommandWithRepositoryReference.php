@@ -14,11 +14,19 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Domain;
+
+use Apisearch\Repository\RepositoryReference;
 
 /**
- * Class AServiceRepositoryTest.
+ * Interface CommandWithRepositoryReference.
  */
-class AServiceRepositoryTest extends RepositoryTest
+interface CommandWithRepositoryReference
 {
+    /**
+     * Get RepositoryReference.
+     *
+     * @return RepositoryReference
+     */
+    public function getRepositoryReference(): RepositoryReference;
 }

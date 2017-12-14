@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,20 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Domain\Command;
+namespace Apisearch\Server\Domain\Command;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Server\Domain\WithAppId;
+use Apisearch\Model\Item;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
 
 /**
  * Class Index.
  */
-class Index extends WithAppId
+class Index implements CommandWithRepositoryReference
 {
+    use WithRepositoryReference;
+
     /**
      * @var Item[]
      *
@@ -34,14 +38,14 @@ class Index extends WithAppId
     /**
      * IndexCommand constructor.
      *
-     * @param string $appId
-     * @param Item[] $items
+     * @param RepositoryReference $repositoryReference
+     * @param Item[]              $items
      */
     public function __construct(
-        string $appId,
+        RepositoryReference $repositoryReference,
         array $items
     ) {
-        $this->appId = $appId;
+        $this->repositoryReference = $repositoryReference;
         $this->items = $items;
     }
 

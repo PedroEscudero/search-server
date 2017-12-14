@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,15 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Result\Result;
-use Puntmig\Search\Server\Tests\Functional\PuntmigSearchServerBundleFunctionalTest;
+use Apisearch\Result\Result;
+use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
 
 /**
  * Class RepositoryTest.
  */
-abstract class RepositoryTest extends PuntmigSearchServerBundleFunctionalTest
+abstract class RepositoryTest extends ApisearchServerBundleFunctionalTest
 {
     use HighlightTest;
     use AggregationsTest;

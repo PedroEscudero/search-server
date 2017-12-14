@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,16 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Controller;
+namespace Apisearch\Server\Controller;
 
+use Apisearch\Model\Item;
+use Apisearch\Repository\HttpRepository;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Domain\Command\Index as IndexCommand;
+use Apisearch\Server\Domain\Exception\InvalidFormatException;
+use Apisearch\Server\Domain\Exception\InvalidKeyException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Repository\HttpRepository;
-use Puntmig\Search\Server\Domain\Command\Index as IndexCommand;
-use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
-use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
 
 /**
  * Class IndexController.
@@ -54,7 +54,10 @@ class IndexController extends Controller
         $this
             ->commandBus
             ->handle(new IndexCommand(
-                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                RepositoryReference::create(
+                    $query->get(HttpRepository::APP_ID_FIELD),
+                    $query->get(HttpRepository::INDEX_FIELD)
+                ),
                 array_map(function (array $object) {
                     return Item::createFromArray($object);
                 }, json_decode($items, true))

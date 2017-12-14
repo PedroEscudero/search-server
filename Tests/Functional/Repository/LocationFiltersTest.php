@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,13 +14,13 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Geo\CoordinateAndDistance;
-use Puntmig\Search\Geo\Polygon;
-use Puntmig\Search\Geo\Square;
-use Puntmig\Search\Model\Coordinate;
-use Puntmig\Search\Query\Query;
+use Apisearch\Geo\CoordinateAndDistance;
+use Apisearch\Geo\Polygon;
+use Apisearch\Geo\Square;
+use Apisearch\Model\Coordinate;
+use Apisearch\Query\Query;
 
 /**
  * Class LocationFiltersTest.

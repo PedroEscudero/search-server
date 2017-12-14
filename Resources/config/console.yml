@@ -3,10 +3,10 @@ services:
     #
     # Console commands
     #
-    search_server.event_store_consumer:
-        class: Puntmig\Search\Server\Console\EventStoreConsumer
+    apisearch.server.event_store_consumer:
+        class: Apisearch\Server\Console\EventStoreConsumer
         arguments:
             - "@rs_queue.consumer"
-            - "@search_server.event_store"
+            - "@apisearch.server.event_store"
         tags:
             -  { name: console.command }

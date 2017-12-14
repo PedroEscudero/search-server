@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,16 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Controller;
+namespace Apisearch\Server\Controller;
 
+use Apisearch\Query\Query as QueryModel;
+use Apisearch\Repository\HttpRepository;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Domain\Exception\InvalidFormatException;
+use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Domain\Query\Query;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
-use Puntmig\Search\Query\Query as QueryModel;
-use Puntmig\Search\Repository\HttpRepository;
-use Puntmig\Search\Server\Domain\Exception\InvalidFormatException;
-use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Domain\Query\Query;
 
 /**
  * Class QueryController.
@@ -60,7 +60,10 @@ class QueryController extends Controller
         $responseAsArray = $this
             ->commandBus
             ->handle(new Query(
-                $query->get(HttpRepository::APP_ID_FIELD, ''),
+                RepositoryReference::create(
+                    $query->get(HttpRepository::APP_ID_FIELD),
+                    $query->get(HttpRepository::INDEX_FIELD)
+                ),
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))
             ->toArray();

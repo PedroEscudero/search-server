@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,12 +14,14 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Puntmig\Search\Model\Item;
-use Puntmig\Search\Model\ItemUUID;
-use Puntmig\Search\Query\Query as QueryModel;
-use Puntmig\Search\Result\Result;
+use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
+use Apisearch\Query\Query as QueryModel;
+use Apisearch\Repository\Repository;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Result\Result;
 
 /**
  * Class HttpRepositoryTest.
@@ -31,17 +33,18 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param QueryModel $query
      * @param string     $appId
+     * @param string     $index
      *
      * @return Result
      */
     public function query(
         QueryModel $query,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
-        $repository = $this->get('puntmig_search.repository_search');
-        $repository->setCredentials($appId ?? self::$appId, 'xxx');
-
-        return $repository->query($query);
+        return $this
+            ->configureRepository($appId, $index)
+            ->query($query);
     }
 
     /**
@@ -49,13 +52,14 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param ItemUUID[] $itemsUUID
      * @param string     $appId
+     * @param string     $index
      */
     public function deleteItems(
         array $itemsUUID,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
-        $repository = $this->get('puntmig_search.repository_search');
-        $repository->setCredentials($appId ?? self::$appId, 'xxx');
+        $repository = $this->configureRepository($appId, $index);
         foreach ($itemsUUID as $itemUUID) {
             $repository->deleteItem($itemUUID);
         }
@@ -67,13 +71,14 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param Item[] $items
      * @param string $appId
+     * @param string $index
      */
     public function addItems(
         array $items,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
-        $repository = $this->get('puntmig_search.repository_search');
-        $repository->setCredentials($appId ?? self::$appId, 'xxx');
+        $repository = $this->configureRepository($appId, $index);
         foreach ($items as $item) {
             $repository->addItem($item);
         }
@@ -85,13 +90,40 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $language
      * @param string $appId
+     * @param string $index
      */
     public function reset(
         string $language = null,
-        string $appId = null
+        string $appId = null,
+        string $index = null
     ) {
-        $repository = $this->get('puntmig_search.repository_search');
-        $repository->setCredentials($appId ?? self::$appId, 'xxx');
-        $repository->reset($language);
+        $this
+            ->configureRepository($appId, $index)
+            ->reset($language);
+    }
+
+    /**
+     * Configure repository.
+     *
+     * @param string $appId
+     * @param string $index
+     *
+     * @return Repository
+     */
+    private function configureRepository(
+        string $appId = null,
+        string $index = null
+    ) {
+        $index = $index ?? self::$index;
+        $repository = $this->get('apisearch.repository_search.'.$index);
+        $repository->setCredentials(
+            RepositoryReference::create(
+                $appId ?? self::$appId,
+                $index
+            ),
+            'xxx'
+        );
+
+        return $repository;
     }
 }

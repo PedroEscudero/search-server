@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Search Server Bundle.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,14 +14,14 @@
 
 declare(strict_types=1);
 
-namespace Puntmig\Search\Server\Controller;
+namespace Apisearch\Server\Controller;
 
+use Apisearch\Repository\HttpRepository;
+use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Elastica\Repository\EventRepository;
 use League\Tactician\CommandBus;
 use Symfony\Component\HttpFoundation\Request;
-
-use Puntmig\Search\Repository\HttpRepository;
-use Puntmig\Search\Server\Domain\Exception\InvalidKeyException;
-use Puntmig\Search\Server\Elastica\Repository\EventRepository;
 
 /**
  * Class Controller.
@@ -68,6 +68,11 @@ abstract class Controller
         $query = $request->query;
         $this
             ->eventRepository
-            ->setAppId($query->get(HttpRepository::APP_ID_FIELD));
+            ->setRepositoryReference(
+                RepositoryReference::create(
+                    $query->get(HttpRepository::APP_ID_FIELD),
+                    $query->get(HttpRepository::INDEX_FIELD)
+                )
+            );
     }
 }
