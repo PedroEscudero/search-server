@@ -14,67 +14,48 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Domain\Query;
+namespace Apisearch\Server\Domain\Command;
 
+use Apisearch\Model\Item;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class StatsEvents.
+ * Class IndexItems.
  */
-class StatsEvents implements WithRepositoryReference
+class IndexItems implements WithRepositoryReference
 {
     use WithRepositoryReferenceTrait;
 
     /**
-     * @var int|null
+     * @var Item[]
      *
-     * From
+     * Items
      */
-    private $from;
+    private $items;
 
     /**
-     * @var int|null
-     *
-     * To
-     */
-    private $to;
-
-    /**
-     * DeleteCommand constructor.
+     * IndexCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param int|null            $from
-     * @param int|null            $to
+     * @param Item[]              $items
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        ?int $from,
-        ?int $to
+        array $items
     ) {
         $this->repositoryReference = $repositoryReference;
-        $this->from = $from;
-        $this->to = $to;
+        $this->items = $items;
     }
 
     /**
-     * Get From.
+     * Get Items.
      *
-     * @return int|null
+     * @return Item[]
      */
-    public function getFrom(): ? int
+    public function getItems(): array
     {
-        return $this->from;
-    }
-
-    /**
-     * Get To.
-     *
-     * @return int|null
-     */
-    public function getTo(): ? int
-    {
-        return $this->to;
+        return $this->items;
     }
 }

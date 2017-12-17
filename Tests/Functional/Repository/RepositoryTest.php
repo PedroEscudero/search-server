@@ -24,6 +24,8 @@ use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
  */
 abstract class RepositoryTest extends ApisearchServerBundleFunctionalTest
 {
+    use EventRepositoryPermissionsTest;
+    use RepositoryPermissionsTest;
     use HighlightTest;
     use AggregationsTest;
     use UniverseFilterTest;

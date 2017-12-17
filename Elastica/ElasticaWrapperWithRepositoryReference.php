@@ -17,13 +17,14 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica;
 
 use Apisearch\Repository\WithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
  * Class ElasticaWithAppIdWrapper.
  */
-abstract class ElasticaWrapperWithRepositoryReference
+abstract class ElasticaWrapperWithRepositoryReference implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
      * @var ElasticaWrapper

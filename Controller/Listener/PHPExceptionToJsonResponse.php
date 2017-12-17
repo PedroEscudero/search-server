@@ -16,8 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller\Listener;
 
-use Apisearch\Server\Domain\Exception\InvalidFormatException;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Exception\TransportableException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 
@@ -35,18 +34,10 @@ class PHPExceptionToJsonResponse
     {
         $exception = $event->getException();
 
-        if ($exception instanceof InvalidKeyException) {
+        if ($exception instanceof TransportableException) {
             $event->setResponse(new JsonResponse([
-                'message' => 'Invalid key',
-            ], 401));
-
-            return;
-        }
-
-        if ($exception instanceof InvalidFormatException) {
-            $event->setResponse(new JsonResponse([
-                'message' => 'Invalid format',
-            ], 400));
+                'message' => $exception->getMessage(),
+            ], $exception::getTransportableHTTPError()));
 
             return;
         }

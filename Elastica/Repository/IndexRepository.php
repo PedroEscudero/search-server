@@ -18,7 +18,6 @@ namespace Apisearch\Server\Elastica\Repository;
 
 use Apisearch\Model\Coordinate;
 use Apisearch\Model\Item;
-use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
@@ -37,12 +36,40 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
     {
         $this
             ->elasticaWrapper
-            ->createIndexMapping(
+            ->createIndex(
                 $this->getRepositoryReference(),
                 1,
                 1,
                 $language
             );
+
+        $this
+            ->elasticaWrapper
+            ->createIndexMapping($this->getRepositoryReference());
+
+        $this->refresh();
+    }
+
+    /**
+     * Delete the index.
+     */
+    public function deleteIndex()
+    {
+        $this
+            ->elasticaWrapper
+            ->deleteIndex($this->getRepositoryReference());
+    }
+
+    /**
+     * Reset the index.
+     */
+    public function resetIndex()
+    {
+        $this
+            ->elasticaWrapper
+            ->resetIndex($this->getRepositoryReference());
+
+        $this->refresh();
     }
 
     /**
@@ -63,8 +90,10 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
 
         $this
             ->elasticaWrapper
-            ->getType($this->getRepositoryReference(), ElasticaWrapper::ITEM_TYPE)
-            ->addDocuments($documents);
+            ->addDocuments(
+                $this->getRepositoryReference(),
+                $documents
+            );
 
         $this->refresh();
     }

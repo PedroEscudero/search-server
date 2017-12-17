@@ -16,46 +16,66 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Command;
 
-use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class Delete.
+ * Class CreateEventsIndex.
  */
-class Delete implements CommandWithRepositoryReference
+class CreateEventsIndex implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
-     * @var ItemUUID[]
+     * @var int
      *
-     * Items UUID
+     * Shards
      */
-    private $itemsUUID;
+    private $shards;
 
     /**
-     * DeleteCommand constructor.
+     * @var int
+     *
+     * Replicas
+     */
+    private $replicas;
+
+    /**
+     * ResetCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param ItemUUID[]          $itemsUUID
+     * @param int $shards
+     * @param int $replicas
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        array $itemsUUID
-    ) {
+        int $shards,
+        int $replicas
+    )
+    {
         $this->repositoryReference = $repositoryReference;
-        $this->itemsUUID = $itemsUUID;
+        $this->shards = $shards;
+        $this->replicas = $replicas;
     }
 
     /**
-     * Get Items.
+     * Get shards
      *
-     * @return ItemUUID[]
+     * @return int
      */
-    public function getItemsUUID(): array
+    public function getShards(): int
     {
-        return $this->itemsUUID;
+        return $this->shards;
+    }
+
+    /**
+     * Get replicas
+     *
+     * @return int
+     */
+    public function getReplicas(): int
+    {
+        return $this->replicas;
     }
 }

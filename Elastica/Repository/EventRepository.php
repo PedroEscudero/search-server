@@ -19,6 +19,8 @@ namespace Apisearch\Server\Elastica\Repository;
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository as BaseEventRepository;
 use Apisearch\Event\Stats;
+use Apisearch\Exception\ResourceExistsException;
+use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryWithCredentials;
 use DateTime;
 use Elastica\Aggregation\Terms;
@@ -30,7 +32,6 @@ use Elastica\Query as ElasticaQuery;
 use Elastica\Result;
 use Elastica\Type;
 use Elastica\Type\Mapping;
-use Exception;
 
 /**
  * Class EventRepository.
@@ -62,23 +63,63 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
     }
 
     /**
-     * Create repository.
+     * Create index.
      *
-     * @param bool $removeIfExists
+     * @param int  $shards
+     * @param int  $replicas
+     *
+     * @throws ResourceExistsException
      */
-    public function createRepository(bool $removeIfExists = false)
+    public function createIndex(
+        int $shards,
+        int $replicas
+    ) {
+        try {
+            $this
+                ->getEventsIndex()
+                ->create([
+                    'number_of_shards' => $shards,
+                    'number_of_replicas' => $replicas,
+                ]);
+            $this->createEventIndexMapping();
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            var_dump($this->getRepositoryReference()->compose());
+            throw ResourceExistsException::eventsIndexExists();
+        }
+    }
+
+    /**
+     * Delete index.
+     *
+     * @throws ResourceNotAvailableException
+     */
+    public function deleteIndex()
     {
-        $this->createIndex(
-            $removeIfExists,
-            1,
-            1
-        );
+        try {
+            $this
+                ->getEventsIndex()
+                ->delete();
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+        }
     }
 
     /**
      * Save event.
      *
      * @param Event $event
+     *
+     * @throws ResourceNotAvailableException
      */
     public function save(Event $event)
     {
@@ -94,11 +135,20 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
             $itemDocument
         );
 
-        $this
-            ->getType(self::EVENT_TYPE)
-            ->addDocument($elasticaDocument);
+        try {
+            $this
+                ->getType(self::EVENT_TYPE)
+                ->addDocument($elasticaDocument);
 
-        $this->refresh();
+            $this->refresh();
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+        }
     }
 
     /**
@@ -111,6 +161,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
      * @param int|null    $offset
      *
      * @return Event[]
+     *
+     * @throws ResourceNotAvailableException
      */
     public function all(
         string $name = null,
@@ -141,12 +193,22 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
         }
 
         $mainQuery->setQuery($boolQuery);
-        $queryResult = $this
-            ->getEventsIndex()
-            ->search($mainQuery, [
-                'from' => $offset,
-                'size' => $length,
-            ]);
+
+        try {
+            $queryResult = $this
+                ->getEventsIndex()
+                ->search($mainQuery, [
+                    'from' => $offset,
+                    'size' => $length,
+                ]);
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+        }
 
         return $this->resultsToEvents($queryResult->getResults());
     }
@@ -155,18 +217,28 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
      * Get last event.
      *
      * @return Event|null
+     *
+     * @throws ResourceNotAvailableException
      */
     public function last(): ? Event
     {
         $mainQuery = new ElasticaQuery();
-        //$mainQuery->setSort(['occurred_on' => 'desc']);
 
-        $queryResult = $this
-            ->getEventsIndex()
-            ->search($mainQuery, [
-                'from' => 0,
-                'size' => 1,
-            ]);
+        try {
+            $queryResult = $this
+                ->getEventsIndex()
+                ->search($mainQuery, [
+                    'from' => 0,
+                    'size' => 1,
+                ]);
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+        }
 
         $results = $queryResult->getResults();
         if (empty($results)) {
@@ -185,6 +257,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
      * @param int|null $to
      *
      * @return Stats
+     *
+     * @throws ResourceNotAvailableException
      */
     public function stats(
         ? int $from = null,
@@ -211,12 +285,21 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
         $aggregation->setField('name');
         $mainQuery->addAggregation($aggregation);
 
-        $queryResult = $this
-            ->getEventsIndex()
-            ->search($mainQuery, [
-                'from' => 0,
-                'size' => 0,
-            ]);
+        try {
+            $queryResult = $this
+                ->getEventsIndex()
+                ->search($mainQuery, [
+                    'from' => 0,
+                    'size' => 0,
+                ]);
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+        }
 
         $nameAggregationResults = $queryResult->getAggregation('name');
         $names = [
@@ -238,11 +321,44 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
     }
 
     /**
+     * Create event index mapping.
+     */
+    private function createEventIndexMapping()
+    {
+        try {
+            $itemMapping = new Mapping();
+            $itemMapping->setType($this->getType(self::EVENT_TYPE));
+            $itemMapping->setProperties([
+                'name' => [
+                    'type' => 'keyword',
+                ],
+                'payload' => [
+                    'type' => 'text',
+                    'index' => false,
+                ],
+                'occurred_on' => [
+                    'type' => 'date',
+                    'format' => 'basic_date_time',
+                ],
+            ]);
+
+            $itemMapping->send();
+
+        } catch (ResponseException $exception) {
+            /**
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+        }
+    }
+
+    /**
      * Get events index.
      *
      * @return Index
      */
-    public function getEventsIndex(): Index
+    private function getEventsIndex(): Index
     {
         return $this
             ->client
@@ -256,89 +372,17 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
      *
      * @return Type
      */
-    public function getType(string $typeName)
+    private function getType(string $typeName)
     {
         return $this
             ->getEventsIndex()
             ->getType($typeName);
     }
 
-    /*
-     * Set up methods
-     */
-
-    /**
-     * Create index.
-     *
-     * @param bool $removeIfExists
-     * @param int  $shards
-     * @param int  $replicas
-     */
-    public function createIndex(
-        bool $removeIfExists,
-        int $shards,
-        int $replicas
-    ) {
-        if ($removeIfExists) {
-            $this->deleteIndex();
-        }
-
-        $searchIndex = $this->getEventsIndex();
-        $indexConfiguration = [
-            'number_of_shards' => $shards,
-            'number_of_replicas' => $replicas,
-        ];
-
-        try {
-            $searchIndex->create($indexConfiguration);
-            $searchIndex->clearCache();
-            $this->createEventIndexMapping();
-            $searchIndex->refresh();
-        } catch (ResponseException $exception) {
-            // Silent pass.
-        }
-    }
-
-    /**
-     * Create event index mapping.
-     */
-    private function createEventIndexMapping()
-    {
-        $itemMapping = new Mapping();
-        $itemMapping->setType($this->getType(self::EVENT_TYPE));
-        $itemMapping->setProperties([
-            'name' => [
-                'type' => 'keyword',
-            ],
-            'payload' => [
-                'type' => 'text',
-                'index' => false,
-            ],
-            'occurred_on' => [
-                'type' => 'date',
-                'format' => 'basic_date_time',
-            ],
-        ]);
-
-        $itemMapping->send();
-    }
-
-    /**
-     * Delete index.
-     */
-    public function deleteIndex()
-    {
-        try {
-            $this->getEventsIndex()->delete();
-        } catch (Exception $e) {
-            // Silent pass
-        }
-    }
-
     /**
      * Refresh.
      */
-    public function refresh()
+    private function refresh()
     {
         $this
             ->getEventsIndex()

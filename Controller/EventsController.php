@@ -19,7 +19,7 @@ namespace Apisearch\Server\Controller;
 use Apisearch\Event\Event;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Server\Domain\Query\ListEvents;
 use Apisearch\Server\Domain\Query\StatsEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class EventsController.
  */
-class EventsController extends Controller
+class EventsController extends ControllerWithBus
 {
     /**
      * List events.
@@ -38,11 +38,10 @@ class EventsController extends Controller
      *
      * @return JsonResponse
      *
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
     public function list(Request $request)
     {
-        $this->configureEventRepository($request);
         $query = $request->query;
 
         $events = $this
@@ -79,11 +78,10 @@ class EventsController extends Controller
      *
      * @return JsonResponse
      *
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
     public function stats(Request $request)
     {
-        $this->configureEventRepository($request);
         $query = $request->query;
 
         $stats = $this

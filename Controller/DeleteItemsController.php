@@ -16,53 +16,53 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
-use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\Index as IndexCommand;
-use Apisearch\Server\Domain\Exception\InvalidFormatException;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Domain\Command\DeleteItems;
+use Apisearch\Exception\InvalidFormatException;
+use Apisearch\Exception\InvalidTokenException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class IndexController.
+ * Class DeleteItemsController.
  */
-class IndexController extends Controller
+class DeleteItemsController extends ControllerWithBusAndEventRepository
 {
     /**
-     * Add objects.
+     * Delete items
      *
      * @param Request $request
      *
      * @return JsonResponse
      *
      * @throws InvalidFormatException
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
-    public function index(Request $request)
+    public function deleteItems(Request $request)
     {
         $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
 
-        $items = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
-        if (!is_string($items)) {
-            throw new InvalidFormatException();
+        $itemsUUID = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
+        if (!is_string($itemsUUID)) {
+            throw InvalidFormatException::itemsUUIDRepresentationNotValid($itemsUUID);
         }
 
         $this
             ->commandBus
-            ->handle(new IndexCommand(
+            ->handle(new DeleteItems(
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
                 ),
                 array_map(function (array $object) {
-                    return Item::createFromArray($object);
-                }, json_decode($items, true))
+                    return ItemUUID::createFromArray($object);
+                }, json_decode($itemsUUID, true))
             ));
 
-        return new JsonResponse('Items indexed', 200);
+        return new JsonResponse('Items deleted', 200);
     }
 }

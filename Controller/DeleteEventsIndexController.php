@@ -18,41 +18,38 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\Reset as ResetCommand;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Server\Domain\Command\DeleteEventsIndex;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class ResetController.
+ * Class DeleteEventsIndexController.
  */
-class ResetController extends Controller
+class DeleteEventsIndexController extends ControllerWithBus
 {
     /**
-     * Reset the index.
+     * Delete the events index.
      *
      * @param Request $request
      *
      * @return JsonResponse
      *
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
-    public function reset(Request $request)
+    public function deleteEventsIndex(Request $request)
     {
-        $this->configureEventRepository($request);
         $query = $request->query;
-        $requestBody = $request->request;
 
         $this
             ->commandBus
-            ->handle(new ResetCommand(
+            ->handle(new DeleteEventsIndex(
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
-                ),
-                $requestBody->get(HttpRepository::LANGUAGE_FIELD, null)
+                )
             ));
 
-        return new JsonResponse('Index created', 200);
+        return new JsonResponse('Events index deleted', 200);
     }
 }

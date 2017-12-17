@@ -19,8 +19,8 @@ namespace Apisearch\Server\Controller;
 use Apisearch\Query\Query as QueryModel;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Exception\InvalidFormatException;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Exception\InvalidFormatException;
+use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Server\Domain\Query\Query;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class QueryController.
  */
-class QueryController extends Controller
+class QueryController extends ControllerWithBusAndEventRepository
 {
     /**
      * @var string
@@ -45,7 +45,7 @@ class QueryController extends Controller
      * @return JsonResponse
      *
      * @throws InvalidFormatException
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
     public function query(Request $request)
     {
@@ -54,7 +54,7 @@ class QueryController extends Controller
 
         $plainQuery = $query->get(HttpRepository::QUERY_FIELD, null);
         if (!is_string($plainQuery)) {
-            throw new InvalidFormatException();
+            throw InvalidFormatException::queryFormatNotValid($plainQuery);
         }
 
         $responseAsArray = $this

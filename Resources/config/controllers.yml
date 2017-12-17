@@ -1,7 +1,36 @@
 services:
 
     #
-    # Controllers
+    # Controllers with command bus
+    #
+    apisearch.server.create_index_controller:
+        class: Apisearch\Server\Controller\CreateIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    apisearch.server.delete_index_controller:
+        class: Apisearch\Server\Controller\DeleteIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    apisearch.server.reset_index_controller:
+        class: Apisearch\Server\Controller\ResetIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+            - "@apisearch.server.event_repository"
+
+    apisearch.server.create_events_index_controller:
+        class: Apisearch\Server\Controller\CreateEventsIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    apisearch.server.delete_events_index_controller:
+        class: Apisearch\Server\Controller\DeleteEventsIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    #
+    # Controllers with query bus
     #
     apisearch.server.query_controller:
         class: Apisearch\Server\Controller\QueryController
@@ -9,20 +38,14 @@ services:
             - "@tactician.commandbus.query"
             - "@apisearch.server.event_repository"
 
-    apisearch.server.index_controller:
-        class: Apisearch\Server\Controller\IndexController
+    apisearch.server.index_items_controller:
+        class: Apisearch\Server\Controller\IndexItemsController
         arguments:
             - "@tactician.commandbus.command"
             - "@apisearch.server.event_repository"
 
-    apisearch.server.delete_controller:
-        class: Apisearch\Server\Controller\DeleteController
-        arguments:
-            - "@tactician.commandbus.command"
-            - "@apisearch.server.event_repository"
-
-    apisearch.server.reset_controller:
-        class: Apisearch\Server\Controller\ResetController
+    apisearch.server.delete_items_controller:
+        class: Apisearch\Server\Controller\DeleteItemsController
         arguments:
             - "@tactician.commandbus.command"
             - "@apisearch.server.event_repository"
@@ -31,7 +54,6 @@ services:
         class: Apisearch\Server\Controller\EventsController
         arguments:
             - "@tactician.commandbus.query"
-            - "@apisearch.server.event_repository"
 
     apisearch.server.ping_controller:
         class: Apisearch\Server\Controller\PingController

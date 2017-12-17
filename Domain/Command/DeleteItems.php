@@ -16,46 +16,46 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Command;
 
-use Apisearch\Model\Item;
+use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class Index.
+ * Class DeleteItems.
  */
-class Index implements CommandWithRepositoryReference
+class DeleteItems implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
-     * @var Item[]
+     * @var ItemUUID[]
      *
-     * Items
+     * Items UUID
      */
-    private $items;
+    private $itemsUUID;
 
     /**
-     * IndexCommand constructor.
+     * DeleteCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param Item[]              $items
+     * @param ItemUUID[]          $itemsUUID
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        array $items
+        array $itemsUUID
     ) {
         $this->repositoryReference = $repositoryReference;
-        $this->items = $items;
+        $this->itemsUUID = $itemsUUID;
     }
 
     /**
      * Get Items.
      *
-     * @return Item[]
+     * @return ItemUUID[]
      */
-    public function getItems(): array
+    public function getItemsUUID(): array
     {
-        return $this->items;
+        return $this->itemsUUID;
     }
 }

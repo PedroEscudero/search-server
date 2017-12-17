@@ -171,7 +171,7 @@ trait AggregationsTest
      */
     public function testAggregationWithMetadataFormatConversion()
     {
-        $this->addItems([Item::create(
+        $this->indexItems([Item::create(
             new ItemUUID('1', 'testing'),
             [],
             [

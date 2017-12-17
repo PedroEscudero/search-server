@@ -27,18 +27,21 @@ use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
 class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
 {
     /**
+     * Get domain events middleware service
+     *
+     * @return string
+     */
+    protected static function getDomainEventsMiddlewareService() : string
+    {
+        return 'apisearch.server.middleware.inline_events';
+    }
+
+    /**
      * Test something.
      */
     public function testEventPersistence()
     {
         $eventRepository = self::get('apisearch.server.event_repository');
-        $eventRepository->setRepositoryReference(RepositoryReference::create(
-            self::$appId,
-            self::$index
-        ));
-        $eventRepository->createRepository(true);
-
-        $this->reset();
         $this->assertCount(
             1,
             $eventRepository->all()
@@ -58,41 +61,12 @@ class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
             4,
             $eventRepository->all()
         );
-        $this->reset();
+        $this->resetIndex();
         $this->assertCount(
             5,
             $eventRepository->all()
         );
-        $this->reset();
-        $this->assertCount(
-            6,
-            $eventRepository->all()
-        );
-
-        $eventRepository->setRepositoryReference(RepositoryReference::create(
-            self::$anotherAppId,
-            self::$index
-        ));
-        $eventRepository->createRepository(true);
-        $this->assertCount(
-            0,
-            $eventRepository->all()
-        );
-
-        $eventRepository->setRepositoryReference(RepositoryReference::create(
-            self::$anotherAppId,
-            self::$anotherIndex
-        ));
-        $eventRepository->createRepository(true);
-        $this->assertCount(
-            0,
-            $eventRepository->all()
-        );
-
-        $eventRepository->setRepositoryReference(RepositoryReference::create(
-            self::$appId,
-            self::$index
-        ));
+        $this->resetIndex();
         $this->assertCount(
             6,
             $eventRepository->all()

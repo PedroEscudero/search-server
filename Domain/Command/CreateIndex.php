@@ -18,14 +18,14 @@ namespace Apisearch\Server\Domain\Command;
 
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class Reset.
+ * Class CreateIndex.
  */
-class Reset implements CommandWithRepositoryReference
+class CreateIndex implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
      * @var null|string

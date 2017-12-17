@@ -1,5 +1,38 @@
 #
-# API
+# Write endpoints
+#
+search_server_api_create_index:
+    path: /v1/index
+    methods: ["POST"]
+    defaults:
+        _controller: apisearch.server.create_index_controller:createIndex
+
+search_server_api_delete_index:
+    path: /v1/index
+    methods: ["DELETE"]
+    defaults:
+        _controller: apisearch.server.delete_index_controller:deleteIndex
+
+search_server_api_reset_index:
+    path: /v1/index/reset
+    methods: ["POST"]
+    defaults:
+        _controller: apisearch.server.reset_index_controller:resetIndex
+
+search_server_api_create_events_index:
+    path: /v1/events
+    methods: ["POST"]
+    defaults:
+        _controller: apisearch.server.create_events_index_controller:createEventsIndex
+
+search_server_api_delete_events_index:
+    path: /v1/events
+    methods: ["DELETE"]
+    defaults:
+        _controller: apisearch.server.delete_events_index_controller:deleteEventsIndex
+
+#
+# Read endpoints
 #
 search_server_api_query:
     path: /v1
@@ -7,23 +40,17 @@ search_server_api_query:
     defaults:
         _controller: apisearch.server.query_controller:query
 
-search_server_api_reset:
-    path: /v1
-    methods: ["POST"]
-    defaults:
-        _controller: apisearch.server.reset_controller:reset
-
 search_server_api_index:
     path: /v1/items
     methods: ["POST"]
     defaults:
-        _controller: apisearch.server.index_controller:index
+        _controller: apisearch.server.index_items_controller:indexItems
 
 search_server_api_delete:
     path: /v1/items
     methods: ["DELETE"]
     defaults:
-        _controller: apisearch.server.delete_controller:delete
+        _controller: apisearch.server.delete_items_controller:deleteItems
 
 search_server_api_events:
     path: /v1/events

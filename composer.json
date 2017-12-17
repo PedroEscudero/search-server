@@ -16,7 +16,7 @@
         "symfony/framework-bundle": "^3.2",
         "symfony/http-kernel": "^3.2",
         "symfony/monolog-bundle" : "^2.8",
-        "ruflin/elastica": "^5.0",
+        "ruflin/elastica": "^6.0",
         "league/tactician-bundle": "@RC",
         "nesbot/carbon": "^1.22",
 
@@ -53,7 +53,15 @@
             "vendor/bin/php-formatter f:s:f . --exclude=vendor --exclude=web --exclude=bin --exclude=var",
             "vendor/bin/php-formatter f:u:s . --exclude=vendor --exclude=web --exclude=bin --exclude=var"
         ],
-        "test": "vendor/bin/phpunit"
+        "clean-for-test": [
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_test_default",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_test_default_events",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_another_test_default",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_another_test_default_events"
+        ],
+        "test": [
+            "vendor/bin/phpunit"
+        ]
     },
     "prefer-stable": true
 }

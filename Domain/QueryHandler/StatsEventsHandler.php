@@ -16,32 +16,15 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\QueryHandler;
 
-use Apisearch\Event\EventRepository;
 use Apisearch\Event\Stats;
 use Apisearch\Server\Domain\Query\StatsEvents;
+use Apisearch\Server\Domain\WithEventRepository;
 
 /**
  * Class StatsEventsHandler.
  */
-class StatsEventsHandler
+class StatsEventsHandler extends WithEventRepository
 {
-    /**
-     * @var EventRepository
-     *
-     * Event repository
-     */
-    private $eventRepository;
-
-    /**
-     * ListEventsHandler constructor.
-     *
-     * @param EventRepository $eventRepository
-     */
-    public function __construct(EventRepository $eventRepository)
-    {
-        $this->eventRepository = $eventRepository;
-    }
-
     /**
      * Reset the query.
      *

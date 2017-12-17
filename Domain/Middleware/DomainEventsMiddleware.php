@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Middleware;
 
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;
 use Apisearch\Server\Domain\Event\DomainEvent;
 use Apisearch\Server\Domain\Event\EventPublisher;
@@ -44,7 +44,7 @@ abstract class DomainEventsMiddleware
     }
 
     /**
-     * @param CommandWithRepositoryReference $command
+     * @param WithRepositoryReference $command
      * @param callable                       $next
      *
      * @return mixed
@@ -71,11 +71,11 @@ abstract class DomainEventsMiddleware
     /**
      * Process events.
      *
-     * @param CommandWithRepositoryReference $command
+     * @param WithRepositoryReference $command
      * @param DomainEvent                    $event
      */
     abstract public function processEvent(
-        CommandWithRepositoryReference $command,
+        WithRepositoryReference $command,
         DomainEvent $event
     );
 }

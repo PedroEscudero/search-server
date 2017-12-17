@@ -16,27 +16,27 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\CommandHandler;
 
-use Apisearch\Server\Domain\Command\Delete as DeleteCommand;
+use Apisearch\Server\Domain\Command\DeleteItems;
 use Apisearch\Server\Domain\Event\ItemsWereDeleted;
 use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
- * Class DeleteHandler.
+ * Class DeleteItemsHandler.
  */
-class DeleteHandler extends WithRepositoryAndEventPublisher
+class DeleteItemsHandler extends WithRepositoryAndEventPublisher
 {
     /**
      * Reset the delete.
      *
-     * @param DeleteCommand $deleteCommand
+     * @param DeleteItems $deleteItems
      */
-    public function handle(DeleteCommand $deleteCommand)
+    public function handle(DeleteItems $deleteItems)
     {
-        $itemsUUID = $deleteCommand->getItemsUUID();
+        $itemsUUID = $deleteItems->getItemsUUID();
 
         $this
             ->repository
-            ->setRepositoryReference($deleteCommand->getRepositoryReference());
+            ->setRepositoryReference($deleteItems->getRepositoryReference());
 
         $this
             ->repository
