@@ -164,7 +164,7 @@ class HttpRepositoryTest extends RepositoryTest
     }
 
     /**
-     * List all events using the bus
+     * List all events using the bus.
      *
      * @param string|null $name
      * @param int|null    $from
@@ -195,7 +195,7 @@ class HttpRepositoryTest extends RepositoryTest
     }
 
     /**
-     * List all events stats using the bus
+     * List all events stats using the bus.
      *
      * @param int|null $from
      * @param int|null $to

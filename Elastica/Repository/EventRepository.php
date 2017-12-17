@@ -65,8 +65,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
     /**
      * Create index.
      *
-     * @param int  $shards
-     * @param int  $replicas
+     * @param int $shards
+     * @param int $replicas
      *
      * @throws ResourceExistsException
      */
@@ -82,9 +82,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
                     'number_of_replicas' => $replicas,
                 ]);
             $this->createEventIndexMapping();
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -104,9 +103,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
             $this
                 ->getEventsIndex()
                 ->delete();
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -141,9 +139,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
                 ->addDocument($elasticaDocument);
 
             $this->refresh();
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -201,9 +198,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
                     'from' => $offset,
                     'size' => $length,
                 ]);
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -231,9 +227,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
                     'from' => 0,
                     'size' => 1,
                 ]);
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -292,9 +287,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
                     'from' => 0,
                     'size' => 0,
                 ]);
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -343,9 +337,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
             ]);
 
             $itemMapping->send();
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */

@@ -45,22 +45,21 @@ class CreateEventsIndex implements WithRepositoryReference
      * ResetCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param int $shards
-     * @param int $replicas
+     * @param int                 $shards
+     * @param int                 $replicas
      */
     public function __construct(
         RepositoryReference $repositoryReference,
         int $shards,
         int $replicas
-    )
-    {
+    ) {
         $this->repositoryReference = $repositoryReference;
         $this->shards = $shards;
         $this->replicas = $replicas;
     }
 
     /**
-     * Get shards
+     * Get shards.
      *
      * @return int
      */
@@ -70,7 +69,7 @@ class CreateEventsIndex implements WithRepositoryReference
     }
 
     /**
-     * Get replicas
+     * Get replicas.
      *
      * @return int
      */

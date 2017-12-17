@@ -21,8 +21,8 @@ use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryReference;
 use Elastica\Client;
 use Elastica\Document;
-use Elastica\Exception\ResponseException;
 use Elastica\Exception\Bulk\ResponseException as BulkResponseException;
+use Elastica\Exception\ResponseException;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Type;
@@ -68,7 +68,7 @@ class ElasticaWrapper
     {
         return $this
             ->client
-            ->getIndex('apisearch_' . $repositoryReference->compose());
+            ->getIndex('apisearch_'.$repositoryReference->compose());
     }
 
     /**
@@ -84,9 +84,8 @@ class ElasticaWrapper
             $searchIndex = $this->getSearchIndex($repositoryReference);
             $searchIndex->clearCache();
             $searchIndex->delete();
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -95,7 +94,7 @@ class ElasticaWrapper
     }
 
     /**
-     * Remove index
+     * Remove index.
      *
      * @param RepositoryReference $repositoryReference
      *
@@ -107,9 +106,8 @@ class ElasticaWrapper
             $searchIndex = $this->getSearchIndex($repositoryReference);
             $searchIndex->clearCache();
             $searchIndex->deleteByQuery(new Query\MatchAll());
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -198,7 +196,7 @@ class ElasticaWrapper
         try {
             $searchIndex->create($indexConfiguration);
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -238,7 +236,7 @@ class ElasticaWrapper
         Query $query,
         int $from,
         int $size
-    ) : array {
+    ): array {
         try {
             $queryResult = $this
                 ->getSearchIndex($repositoryReference)
@@ -246,9 +244,8 @@ class ElasticaWrapper
                     'from' => $from,
                     'size' => $size,
                 ]);
-
         } catch (ResponseException $exception) {
-            /**
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -290,9 +287,9 @@ class ElasticaWrapper
             $itemMapping->setParam('dynamic_templates', [
                 [
                     'dynamic_metadata_as_keywords' => [
-                        'path_match'         => 'indexed_metadata.*',
+                        'path_match' => 'indexed_metadata.*',
                         'match_mapping_type' => 'string',
-                        'mapping'            => [
+                        'mapping' => [
                             'type' => 'keyword',
                         ],
                     ],
@@ -300,20 +297,20 @@ class ElasticaWrapper
                 [
                     'dynamic_searchable_metadata_as_text' => [
                         'path_match' => 'searchable_metadata.*',
-                        'mapping'    => [
-                            'type'            => 'text',
-                            'analyzer'        => 'default',
+                        'mapping' => [
+                            'type' => 'text',
+                            'analyzer' => 'default',
                             'search_analyzer' => 'search_analyzer',
                         ],
                     ],
                 ],
             ]);
             $itemMapping->setProperties([
-                'uuid'                    => [
-                    'type'       => 'object',
-                    'dynamic'    => 'strict',
+                'uuid' => [
+                    'type' => 'object',
+                    'dynamic' => 'strict',
                     'properties' => [
-                        'id'   => [
+                        'id' => [
                             'type' => 'keyword',
                         ],
                         'type' => [
@@ -321,34 +318,34 @@ class ElasticaWrapper
                         ],
                     ],
                 ],
-                'coordinate'              => ['type' => 'geo_point'],
-                'metadata'                => [
-                    'type'    => 'object',
+                'coordinate' => ['type' => 'geo_point'],
+                'metadata' => [
+                    'type' => 'object',
                     'dynamic' => true,
                     'enabled' => false,
                 ],
-                'indexed_metadata'        => [
-                    'type'    => 'object',
+                'indexed_metadata' => [
+                    'type' => 'object',
                     'dynamic' => true,
                 ],
-                'searchable_metadata'     => [
-                    'type'    => 'object',
+                'searchable_metadata' => [
+                    'type' => 'object',
                     'dynamic' => true,
                 ],
                 'exact_matching_metadata' => [
-                    'type'       => 'keyword',
+                    'type' => 'keyword',
                     'normalizer' => 'exact_matching_normalizer',
                 ],
-                'suggest'                 => [
-                    'type'            => 'completion',
-                    'analyzer'        => 'search_analyzer',
+                'suggest' => [
+                    'type' => 'completion',
+                    'analyzer' => 'search_analyzer',
                     'search_analyzer' => 'search_analyzer',
                 ],
             ]);
 
             $itemMapping->send();
-        }  catch (ResponseException $exception) {
-            /**
+        } catch (ResponseException $exception) {
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -357,25 +354,23 @@ class ElasticaWrapper
     }
 
     /**
-     * Add documents
+     * Add documents.
      *
      * @param RepositoryReference $repositoryReference
-     * @param Document[] $documents
+     * @param Document[]          $documents
      *
      * @throws ResourceExistsException
      */
     public function addDocuments(
         RepositoryReference $repositoryReference,
         array $documents
-    )
-    {
+    ) {
         try {
             $this
                 ->getType($repositoryReference, self::ITEM_TYPE)
                 ->addDocuments($documents);
-
-        }  catch (BulkResponseException $exception) {
-            /**
+        } catch (BulkResponseException $exception) {
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
@@ -384,25 +379,23 @@ class ElasticaWrapper
     }
 
     /**
-     * Delete documents by its
+     * Delete documents by its.
      *
      * @param RepositoryReference $repositoryReference
-     * @param string[] $documentsId
+     * @param string[]            $documentsId
      *
      * @throws ResourceExistsException
      */
     public function deleteDocumentsByIds(
         RepositoryReference $repositoryReference,
         array $documentsId
-    )
-    {
+    ) {
         try {
             $this
                 ->getType($repositoryReference, self::ITEM_TYPE)
                 ->deleteIds($documentsId);
-
-        }  catch (BulkResponseException $exception) {
-            /**
+        } catch (BulkResponseException $exception) {
+            /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */

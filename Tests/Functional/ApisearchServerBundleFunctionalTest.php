@@ -180,10 +180,22 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      */
     public static function resetScenario(? string $language = null)
     {
-        try{ self::deleteIndex(self::$appId); } catch(ResourceNotAvailableException $e) {}
-        try{ self::deleteEventsIndex(self::$appId); } catch(ResourceNotAvailableException $e) {}
-        try{ self::deleteIndex(self::$anotherAppId); } catch(ResourceNotAvailableException $e) {}
-        try{ self::deleteEventsIndex(self::$anotherAppId); } catch(ResourceNotAvailableException $e) {}
+        try {
+            self::deleteIndex(self::$appId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteEventsIndex(self::$appId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteIndex(self::$anotherAppId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteEventsIndex(self::$anotherAppId);
+        } catch (ResourceNotAvailableException $e) {
+        }
 
         self::createIndex($language, self::$appId);
         self::createEventsIndex(self::$appId);
@@ -379,7 +391,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
-     * List all events using the bus
+     * List all events using the bus.
      *
      * @param string|null $name
      * @param int|null    $from
@@ -414,7 +426,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
-     * List all events stats using the bus
+     * List all events stats using the bus.
      *
      * @param int|null $from
      * @param int|null $to

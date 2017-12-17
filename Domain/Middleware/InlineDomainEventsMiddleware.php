@@ -53,7 +53,7 @@ class InlineDomainEventsMiddleware extends DomainEventsMiddleware implements Mid
      * Process events.
      *
      * @param WithRepositoryReference $command
-     * @param DomainEvent                    $event
+     * @param DomainEvent             $event
      */
     public function processEvent(
         WithRepositoryReference $command,

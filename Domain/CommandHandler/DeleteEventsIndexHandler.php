@@ -25,7 +25,7 @@ use Apisearch\Server\Domain\WithEventRepository;
 class DeleteEventsIndexHandler extends WithEventRepository
 {
     /**
-     * Deletes de events index
+     * Deletes de events index.
      *
      * @param DeleteEventsIndex $deleteEventsIndex
      */

@@ -33,7 +33,7 @@ abstract class ControllerWithBus
     /**
      * Controller constructor.
      *
-     * @param CommandBus      $commandBus
+     * @param CommandBus $commandBus
      */
     public function __construct(CommandBus $commandBus)
     {

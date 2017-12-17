@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Exception\InvalidFormatException;
+use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Model\Item;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\IndexItems;
-use Apisearch\Exception\InvalidFormatException;
-use Apisearch\Exception\InvalidTokenException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 class IndexItemsController extends ControllerWithBusAndEventRepository
 {
     /**
-     * Index items
+     * Index items.
      *
      * @param Request $request
      *

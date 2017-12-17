@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the {Package name}.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -8,17 +9,20 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
+
+declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
 
 /**
- * Class EventRepositoryPermissionsTest
+ * Class EventRepositoryPermissionsTest.
  */
 trait EventRepositoryPermissionsTest
 {
     /**
-     * Test events list without permissions
+     * Test events list without permissions.
      *
      * @expectedException \Apisearch\Exception\ResourceNotAvailableException
      * @dataProvider dataEventsBadPermissions
@@ -37,7 +41,7 @@ trait EventRepositoryPermissionsTest
     }
 
     /**
-     * Test events stats without permissions
+     * Test events stats without permissions.
      *
      * @expectedException \Apisearch\Exception\ResourceNotAvailableException
      * @dataProvider dataEventsBadPermissions
@@ -53,11 +57,11 @@ trait EventRepositoryPermissionsTest
     }
 
     /**
-     * Data for some cases
+     * Data for some cases.
      *
      * @return array
      */
-    public function dataEventsBadPermissions() : array
+    public function dataEventsBadPermissions(): array
     {
         return [
             [self::$anotherAppId, self::$anotherIndex],
@@ -67,7 +71,7 @@ trait EventRepositoryPermissionsTest
     }
 
     /**
-     * Reset all
+     * Reset all.
      */
     public function testResetAfterEventRepositoryPermissionTest()
     {

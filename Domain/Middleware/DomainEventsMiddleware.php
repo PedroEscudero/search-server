@@ -45,7 +45,7 @@ abstract class DomainEventsMiddleware
 
     /**
      * @param WithRepositoryReference $command
-     * @param callable                       $next
+     * @param callable                $next
      *
      * @return mixed
      */
@@ -72,7 +72,7 @@ abstract class DomainEventsMiddleware
      * Process events.
      *
      * @param WithRepositoryReference $command
-     * @param DomainEvent                    $event
+     * @param DomainEvent             $event
      */
     abstract public function processEvent(
         WithRepositoryReference $command,

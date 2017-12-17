@@ -18,7 +18,6 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
-use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
 
 /**
@@ -27,11 +26,11 @@ use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
 class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
 {
     /**
-     * Get domain events middleware service
+     * Get domain events middleware service.
      *
      * @return string
      */
-    protected static function getDomainEventsMiddlewareService() : string
+    protected static function getDomainEventsMiddlewareService(): string
     {
         return 'apisearch.server.middleware.inline_events';
     }

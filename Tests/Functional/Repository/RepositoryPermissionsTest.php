@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the {Package name}.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -8,20 +9,24 @@
  * Feel free to edit as you please, and have fun.
  *
  * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
 
+declare(strict_types=1);
+
 namespace Apisearch\Server\Tests\Functional\Repository;
+
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
 
 /**
- * Class RepositoryPermissionsTest
+ * Class RepositoryPermissionsTest.
  */
 trait RepositoryPermissionsTest
 {
     /**
-     * Test events requests without permissions
+     * Test events requests without permissions.
      *
      * @expectedException \Apisearch\Exception\ResourceNotAvailableException
      * @dataProvider dataBadPermissions
@@ -43,15 +48,16 @@ trait RepositoryPermissionsTest
     }
 
     /**
-     * Data for testBadPermissions
+     * Data for testBadPermissions.
      *
      * @return array
      */
-    public function dataBadPermissions() : array
+    public function dataBadPermissions(): array
     {
         $itemUUID = ItemUUID::createByComposedUUID('1~product');
         $item = Item::create($itemUUID);
         $query = Query::createMatchAll();
+
         return [
             [self::$anotherAppId, self::$anotherIndex, 'deleteIndex'],
             [self::$anotherAppId, self::$anotherIndex, 'resetIndex'],
@@ -74,7 +80,7 @@ trait RepositoryPermissionsTest
     }
 
     /**
-     * Reset all
+     * Reset all.
      */
     public function testResetAfterRepositoryPermissionTest()
     {

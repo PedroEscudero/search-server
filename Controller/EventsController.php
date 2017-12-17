@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Event\Event;
+use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Server\Domain\Query\ListEvents;
 use Apisearch\Server\Domain\Query\StatsEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
