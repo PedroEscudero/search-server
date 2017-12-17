@@ -17,12 +17,14 @@ declare(strict_types=1);
 namespace Apisearch\Server;
 
 use Apisearch\ApisearchBundle;
+use Apisearch\Server\DependencyInjection\CompilerPass\DomainEventsMiddlewareCompilerPass;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\SimpleBaseBundle;
 use RSQueueBundle\RSQueueBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\MonologBundle\MonologBundle;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -61,6 +63,18 @@ class ApisearchServerBundle extends SimpleBaseBundle
             BaseBundle::class,
             RSQueueBundle::class,
             new TacticianBundle(),
+        ];
+    }
+
+    /**
+     * Return a CompilerPass instance array.
+     *
+     * @return CompilerPassInterface[]
+     */
+    public function getCompilerPasses(): array
+    {
+        return [
+            new DomainEventsMiddlewareCompilerPass(),
         ];
     }
 }
