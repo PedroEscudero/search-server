@@ -16,34 +16,34 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\CommandHandler;
 
-use Apisearch\Server\Domain\Command\Index as IndexCommand;
-use Apisearch\Server\Domain\Event\ItemsWereIndexed;
+use Apisearch\Server\Domain\Command\ResetIndex;
+use Apisearch\Server\Domain\Event\IndexWasReset;
 use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
- * Class IndexHandler.
+ * Class ResetIndexHandler.
  */
-class IndexHandler extends WithRepositoryAndEventPublisher
+class ResetIndexHandler extends WithRepositoryAndEventPublisher
 {
     /**
      * Reset the index.
      *
-     * @param IndexCommand $indexCommand
+     * @param ResetIndex $resetIndex
      */
-    public function handle(IndexCommand $indexCommand)
+    public function handle(ResetIndex $resetIndex)
     {
-        $items = $indexCommand->getItems();
+        $repositoryReference = $resetIndex->getRepositoryReference();
 
         $this
             ->repository
-            ->setRepositoryReference($indexCommand->getRepositoryReference());
+            ->setRepositoryReference($repositoryReference);
 
         $this
             ->repository
-            ->addItems($items);
+            ->resetIndex();
 
         $this
             ->eventPublisher
-            ->publish(new ItemsWereIndexed($items));
+            ->publish(new IndexWasReset());
     }
 }

@@ -16,53 +16,41 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
-use Apisearch\Model\Item;
+use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\Index as IndexCommand;
-use Apisearch\Server\Domain\Exception\InvalidFormatException;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Domain\Command\ResetIndex;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class IndexController.
+ * Class ResetIndexController.
  */
-class IndexController extends Controller
+class ResetIndexController extends ControllerWithBusAndEventRepository
 {
     /**
-     * Add objects.
+     * Reset the index.
      *
      * @param Request $request
      *
      * @return JsonResponse
      *
-     * @throws InvalidFormatException
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
-    public function index(Request $request)
+    public function resetIndex(Request $request)
     {
         $this->configureEventRepository($request);
         $query = $request->query;
-        $requestBody = $request->request;
-
-        $items = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
-        if (!is_string($items)) {
-            throw new InvalidFormatException();
-        }
 
         $this
             ->commandBus
-            ->handle(new IndexCommand(
+            ->handle(new ResetIndex(
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
-                ),
-                array_map(function (array $object) {
-                    return Item::createFromArray($object);
-                }, json_decode($items, true))
+                )
             ));
 
-        return new JsonResponse('Items indexed', 200);
+        return new JsonResponse('Index created', 200);
     }
 }

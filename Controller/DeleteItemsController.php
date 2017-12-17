@@ -16,51 +16,51 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Exception\InvalidFormatException;
+use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\Delete as DeleteCommand;
-use Apisearch\Server\Domain\Exception\InvalidFormatException;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Domain\Command\DeleteItems;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class DeleteController.
+ * Class DeleteItemsController.
  */
-class DeleteController extends Controller
+class DeleteItemsController extends ControllerWithBusAndEventRepository
 {
     /**
-     * Remove objects.
+     * Delete items.
      *
      * @param Request $request
      *
      * @return JsonResponse
      *
      * @throws InvalidFormatException
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
-    public function delete(Request $request)
+    public function deleteItems(Request $request)
     {
         $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
 
-        $items = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
-        if (!is_string($items)) {
-            throw new InvalidFormatException();
+        $itemsUUID = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
+        if (!is_string($itemsUUID)) {
+            throw InvalidFormatException::itemsUUIDRepresentationNotValid($itemsUUID);
         }
 
         $this
             ->commandBus
-            ->handle(new DeleteCommand(
+            ->handle(new DeleteItems(
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
                 ),
                 array_map(function (array $object) {
                     return ItemUUID::createFromArray($object);
-                }, json_decode($items, true))
+                }, json_decode($itemsUUID, true))
             ));
 
         return new JsonResponse('Items deleted', 200);

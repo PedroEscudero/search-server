@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Exception\ResourceExistsException;
+use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
@@ -111,6 +113,8 @@ class Repository extends BaseRepository
      * @param Query $query
      *
      * @return Result
+     *
+     * @throws ResourceNotAvailableException
      */
     public function query(Query $query): Result
     {
@@ -120,11 +124,13 @@ class Repository extends BaseRepository
     }
 
     /**
-     * Reset the index.
+     * Create an index.
      *
-     * @var null|string
+     * @param null|string $language
+     *
+     * @throws ResourceExistsException
      */
-    public function reset(? string $language)
+    public function createIndex(? string $language)
     {
         $this
             ->indexRepository
@@ -132,12 +138,26 @@ class Repository extends BaseRepository
     }
 
     /**
-     * Create the index.
+     * Delete an index.
      *
-     * @param null|string $language
+     * @throws ResourceNotAvailableException
      */
-    public function createIndex(? string $language)
+    public function deleteIndex()
     {
-        $this->reset($language);
+        $this
+            ->indexRepository
+            ->deleteIndex();
+    }
+
+    /**
+     * Reset the index.
+     *
+     * @throws ResourceNotAvailableException
+     */
+    public function resetIndex()
+    {
+        $this
+            ->indexRepository
+            ->resetIndex();
     }
 }

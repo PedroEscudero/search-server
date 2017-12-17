@@ -19,14 +19,14 @@ namespace Apisearch\Server\Domain\Query;
 use Apisearch\Query\Query as SearchQuery;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
  * Class Query.
  */
-class Query implements CommandWithRepositoryReference
+class Query implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
      * @var SearchQuery

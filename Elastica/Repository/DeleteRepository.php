@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica\Repository;
 
 use Apisearch\Model\ItemUUID;
-use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 
 /**
@@ -34,11 +33,8 @@ class DeleteRepository extends ElasticaWrapperWithRepositoryReference
     {
         $this
             ->elasticaWrapper
-            ->getType(
+            ->deleteDocumentsByIds(
                 $this->getRepositoryReference(),
-                ElasticaWrapper::ITEM_TYPE
-            )
-            ->deleteIds(
                 array_map(function (ItemUUID $itemUUID) {
                     return $itemUUID->composeUUID();
                 }, $itemUUIDs)

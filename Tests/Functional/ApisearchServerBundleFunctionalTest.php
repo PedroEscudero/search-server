@@ -16,16 +16,23 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional;
 
+use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query as QueryModel;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Result\Result;
 use Apisearch\Server\ApisearchServerBundle;
-use Apisearch\Server\Domain\Command\Delete as DeleteCommand;
-use Apisearch\Server\Domain\Command\Index as IndexCommand;
-use Apisearch\Server\Domain\Command\Reset as ResetCommand;
+use Apisearch\Server\Domain\Command\CreateEventsIndex;
+use Apisearch\Server\Domain\Command\CreateIndex;
+use Apisearch\Server\Domain\Command\DeleteEventsIndex;
+use Apisearch\Server\Domain\Command\DeleteIndex;
+use Apisearch\Server\Domain\Command\DeleteItems;
+use Apisearch\Server\Domain\Command\IndexItems;
+use Apisearch\Server\Domain\Command\ResetIndex;
+use Apisearch\Server\Domain\Query\ListEvents;
 use Apisearch\Server\Domain\Query\Query;
+use Apisearch\Server\Domain\Query\StatsEvents;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
@@ -65,6 +72,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                     'test' => true,
                 ],
                 'apisearch' => [
+                    'middleware_domain_events_service' => 'apisearch.server.middleware.inline_events',
                     'repositories' => [
                         'search' => [
                             'endpoint' => 'xxx',
@@ -73,22 +81,32 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             'test' => true,
                             'indexes' => [
                                 self::$index,
+                                self::$anotherIndex,
                             ],
                             'search' => [
                                 'repository_service' => 'apisearch.server.elastica_repository',
                                 'in_memory' => false,
                             ],
                             'event' => [
-                                'repository_service' => 'apisearch.event_repository_search.'.self::$index,
-                                'in_memory' => true,
+                                'repository_service' => 'apisearch.server.elastica_event_repository',
+                                'in_memory' => false,
                             ],
                         ],
-                    ],
-                ],
-                [
-                    'services' => [
-                        'apisearch.server.middleware.domain_events' => [
-                            'alias' => 'apisearch.server.middleware.inline_domain_events',
+                        'search_http' => [
+                            'endpoint' => 'xxx',
+                            'app_id' => self::$appId,
+                            'token' => 'xxx',
+                            'test' => true,
+                            'indexes' => [
+                                self::$index,
+                                self::$anotherIndex,
+                            ],
+                            'search' => [
+                                'in_memory' => false,
+                            ],
+                            'event' => [
+                                'in_memory' => false,
+                            ],
                         ],
                     ],
                 ],
@@ -136,7 +154,14 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * App id
      */
-    public static $anotherIndex = 'default_0';
+    public static $anotherInexistentAppId = 'another_test_not_exists';
+
+    /**
+     * @var string
+     *
+     * App id
+     */
+    public static $anotherIndex = 'another_index';
 
     /**
      * Sets up the fixture, for example, open a network connection.
@@ -155,8 +180,27 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      */
     public static function resetScenario(? string $language = null)
     {
-        self::reset($language, self::$appId);
-        self::reset($language, self::$anotherAppId);
+        try {
+            self::deleteIndex(self::$appId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteEventsIndex(self::$appId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteIndex(self::$anotherAppId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteEventsIndex(self::$anotherAppId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+
+        self::createIndex($language, self::$appId);
+        self::createEventsIndex(self::$appId);
+        self::createIndex($language, self::$anotherAppId);
+        self::createEventsIndex(self::$anotherAppId);
 
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
@@ -167,7 +211,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
             }
             $itemsInstances[] = Item::createFromArray($item);
         }
-        self::addItems($itemsInstances, self::$appId);
+        self::indexItems($itemsInstances, self::$appId);
     }
 
     /**
@@ -209,7 +253,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     ) {
         self::$container
             ->get('tactician.commandbus')
-            ->handle(new DeleteCommand(
+            ->handle(new DeleteItems(
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index
@@ -225,14 +269,14 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param string $appId
      * @param string $index
      */
-    public function addItems(
+    public function indexItems(
         array $items,
         string $appId = null,
         string $index = null
     ) {
         self::$container
             ->get('tactician.commandbus')
-            ->handle(new IndexCommand(
+            ->handle(new IndexItems(
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index
@@ -242,25 +286,168 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
-     * Reset repository using the bus.
+     * Reset index using the bus.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    public function resetIndex(
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new ResetIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
+     * Create index using the bus.
      *
      * @param string $language
      * @param string $appId
      * @param string $index
      */
-    public function reset(
+    public function createIndex(
         string $language = null,
         string $appId = null,
         string $index = null
     ) {
         self::$container
             ->get('tactician.commandbus')
-            ->handle(new ResetCommand(
+            ->handle(new CreateIndex(
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index
                 ),
                 $language
+            ));
+    }
+
+    /**
+     * Delete index using the bus.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    public function deleteIndex(
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new DeleteIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
+     * Create event index using the bus.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    public function createEventsIndex(
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new CreateEventsIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
+                3,
+                2
+            ));
+    }
+
+    /**
+     * Delete event index using the bus.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    public function deleteEventsIndex(
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new DeleteEventsIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
+     * List all events using the bus.
+     *
+     * @param string|null $name
+     * @param int|null    $from
+     * @param int|null    $to
+     * @param int|null    $length
+     * @param int|null    $offset
+     * @param string      $appId
+     * @param string      $index
+     */
+    public function listEvents(
+        ?string $name = null,
+        ?int $from = null,
+        ?int $to = null,
+        ?int $length = null,
+        ?int $offset = null,
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new ListEvents(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
+                $name,
+                $from,
+                $to,
+                $length,
+                $offset
+            ));
+    }
+
+    /**
+     * List all events stats using the bus.
+     *
+     * @param int|null $from
+     * @param int|null $to
+     * @param string   $appId
+     * @param string   $index
+     */
+    public function statsEvents(
+        int $from = null,
+        int $to = null,
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new StatsEvents(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
+                $from,
+                $to
             ));
     }
 }

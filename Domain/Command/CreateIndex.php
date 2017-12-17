@@ -16,46 +16,45 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Command;
 
-use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class Delete.
+ * Class CreateIndex.
  */
-class Delete implements CommandWithRepositoryReference
+class CreateIndex implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
-     * @var ItemUUID[]
+     * @var null|string
      *
-     * Items UUID
+     * Language
      */
-    private $itemsUUID;
+    private $language;
 
     /**
-     * DeleteCommand constructor.
+     * ResetCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param ItemUUID[]          $itemsUUID
+     * @param null|string         $language
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        array $itemsUUID
+        ? string $language
     ) {
         $this->repositoryReference = $repositoryReference;
-        $this->itemsUUID = $itemsUUID;
+        $this->language = $language;
     }
 
     /**
-     * Get Items.
+     * Get Language.
      *
-     * @return ItemUUID[]
+     * @return null|string
      */
-    public function getItemsUUID(): array
+    public function getLanguage(): ? string
     {
-        return $this->itemsUUID;
+        return $this->language;
     }
 }

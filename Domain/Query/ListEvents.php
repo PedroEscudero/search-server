@@ -18,14 +18,14 @@ namespace Apisearch\Server\Domain\Query;
 
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
  * Class ListEvents.
  */
-class ListEvents implements CommandWithRepositoryReference
+class ListEvents implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
      * @var string|null

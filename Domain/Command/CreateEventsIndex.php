@@ -18,43 +18,63 @@ namespace Apisearch\Server\Domain\Command;
 
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class Reset.
+ * Class CreateEventsIndex.
  */
-class Reset implements CommandWithRepositoryReference
+class CreateEventsIndex implements WithRepositoryReference
 {
-    use WithRepositoryReference;
+    use WithRepositoryReferenceTrait;
 
     /**
-     * @var null|string
+     * @var int
      *
-     * Language
+     * Shards
      */
-    private $language;
+    private $shards;
+
+    /**
+     * @var int
+     *
+     * Replicas
+     */
+    private $replicas;
 
     /**
      * ResetCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param null|string         $language
+     * @param int                 $shards
+     * @param int                 $replicas
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        ? string $language
+        int $shards,
+        int $replicas
     ) {
         $this->repositoryReference = $repositoryReference;
-        $this->language = $language;
+        $this->shards = $shards;
+        $this->replicas = $replicas;
     }
 
     /**
-     * Get Language.
+     * Get shards.
      *
-     * @return null|string
+     * @return int
      */
-    public function getLanguage(): ? string
+    public function getShards(): int
     {
-        return $this->language;
+        return $this->shards;
+    }
+
+    /**
+     * Get replicas.
+     *
+     * @return int
+     */
+    public function getReplicas(): int
+    {
+        return $this->replicas;
     }
 }

@@ -22,20 +22,10 @@ namespace Apisearch\Server\Domain\Event;
 class IndexWasReset extends DomainEvent
 {
     /**
-     * @var null|string
-     *
-     * Language
-     */
-    private $language;
-
-    /**
      * ItemsWasIndexed constructor.
-     *
-     * @param null|string $language
      */
-    public function __construct(? string $language)
+    public function __construct()
     {
-        $this->language = $language;
         $this->setNow();
     }
 
@@ -46,9 +36,7 @@ class IndexWasReset extends DomainEvent
      */
     public function payloadToArray(): array
     {
-        return [
-            'language' => $this->language,
-        ];
+        return [];
     }
 
     /**
@@ -60,8 +48,6 @@ class IndexWasReset extends DomainEvent
      */
     public static function stringToPayload(string $data): array
     {
-        return [
-            json_decode($data, true)['language'],
-        ];
+        return [];
     }
 }

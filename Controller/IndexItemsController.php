@@ -16,43 +16,53 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Exception\InvalidFormatException;
+use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Model\Item;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\Reset as ResetCommand;
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Server\Domain\Command\IndexItems;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class ResetController.
+ * Class IndexItemsController.
  */
-class ResetController extends Controller
+class IndexItemsController extends ControllerWithBusAndEventRepository
 {
     /**
-     * Reset the index.
+     * Index items.
      *
      * @param Request $request
      *
      * @return JsonResponse
      *
-     * @throws InvalidKeyException
+     * @throws InvalidFormatException
+     * @throws InvalidTokenException
      */
-    public function reset(Request $request)
+    public function indexItems(Request $request)
     {
         $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
 
+        $items = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
+        if (!is_string($items)) {
+            throw InvalidFormatException::itemsRepresentationNotValid($items);
+        }
+
         $this
             ->commandBus
-            ->handle(new ResetCommand(
+            ->handle(new IndexItems(
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
                 ),
-                $requestBody->get(HttpRepository::LANGUAGE_FIELD, null)
+                array_map(function (array $object) {
+                    return Item::createFromArray($object);
+                }, json_decode($items, true))
             ));
 
-        return new JsonResponse('Index created', 200);
+        return new JsonResponse('Items indexed', 200);
     }
 }

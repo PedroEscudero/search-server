@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Token;
 
-use Apisearch\Server\Domain\Exception\InvalidKeyException;
+use Apisearch\Exception\InvalidTokenException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -48,7 +48,7 @@ class TokenChecker
      * @param string  $appId
      * @param string  $token
      *
-     * @throws InvalidKeyException
+     * @throws InvalidTokenException
      */
     public function checkToken(
         Request $request,
@@ -63,7 +63,7 @@ class TokenChecker
                 $token
             )
         ) {
-            throw InvalidKeyException::create();
+            throw InvalidTokenException::create();
         }
     }
 

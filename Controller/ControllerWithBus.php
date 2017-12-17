@@ -14,22 +14,29 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Domain\Exception;
+namespace Apisearch\Server\Controller;
 
-use Exception;
+use League\Tactician\CommandBus;
 
 /**
- * Class InvalidKeyException.
+ * Class ControllerWithBus.
  */
-class InvalidKeyException extends Exception
+abstract class ControllerWithBus
 {
     /**
-     * Throw an invalid key exception.
+     * @var CommandBus
      *
-     * @return InvalidKeyException
+     * Message bus
      */
-    public static function create(): self
+    protected $commandBus;
+
+    /**
+     * Controller constructor.
+     *
+     * @param CommandBus $commandBus
+     */
+    public function __construct(CommandBus $commandBus)
     {
-        return new self('Wrong API key provided');
+        $this->commandBus = $commandBus;
     }
 }

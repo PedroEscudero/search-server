@@ -5,7 +5,6 @@ tactician:
             middleware:
                 - tactician.middleware.locking
                 - apisearch.server.middleware.transaction
-                # - apisearch.server.middleware.log_all_domain_events_to_elastica
                 - apisearch.server.middleware.domain_events
                 - tactician.middleware.command_handler
 
@@ -13,6 +12,5 @@ tactician:
             middleware:
                 - tactician.middleware.locking
                 - apisearch.server.middleware.transaction
-                # - apisearch.server.middleware.log_all_domain_events_to_elastica
                 - apisearch.server.middleware.domain_events
                 - tactician.middleware.command_handler

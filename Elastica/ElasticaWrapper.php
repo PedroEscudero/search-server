@@ -16,13 +16,17 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica;
 
+use Apisearch\Exception\ResourceExistsException;
+use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryReference;
 use Elastica\Client;
+use Elastica\Document;
+use Elastica\Exception\Bulk\ResponseException as BulkResponseException;
+use Elastica\Exception\ResponseException;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Type;
 use Elastica\Type\Mapping;
-use Exception;
 
 /**
  * Class ElasticaWrapper.
@@ -71,13 +75,43 @@ class ElasticaWrapper
      * Delete index.
      *
      * @param RepositoryReference $repositoryReference
+     *
+     * @throws ResourceNotAvailableException
      */
     public function deleteIndex(RepositoryReference $repositoryReference)
     {
         try {
-            $this->getSearchIndex($repositoryReference)->delete();
-        } catch (Exception $e) {
-            // Silent pass
+            $searchIndex = $this->getSearchIndex($repositoryReference);
+            $searchIndex->clearCache();
+            $searchIndex->delete();
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::indexNotAvailable();
+        }
+    }
+
+    /**
+     * Remove index.
+     *
+     * @param RepositoryReference $repositoryReference
+     *
+     * @throws ResourceNotAvailableException
+     */
+    public function resetIndex(RepositoryReference $repositoryReference)
+    {
+        try {
+            $searchIndex = $this->getSearchIndex($repositoryReference);
+            $searchIndex->clearCache();
+            $searchIndex->deleteByQuery(new Query\MatchAll());
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::indexNotAvailable();
         }
     }
 
@@ -88,6 +122,8 @@ class ElasticaWrapper
      * @param int                 $shards
      * @param int                 $replicas
      * @param null|string         $language
+     *
+     * @throws ResourceExistsException
      */
     public function createIndex(
         RepositoryReference $repositoryReference,
@@ -95,7 +131,6 @@ class ElasticaWrapper
         int $replicas,
         ? string $language
     ) {
-        $this->deleteIndex($repositoryReference);
         $searchIndex = $this->getSearchIndex($repositoryReference);
         $indexConfiguration = [
             'number_of_shards' => $shards,
@@ -158,9 +193,15 @@ class ElasticaWrapper
             ];
         }
 
-        $searchIndex->create($indexConfiguration, true);
-        $searchIndex->clearCache();
-        $searchIndex->refresh();
+        try {
+            $searchIndex->create($indexConfiguration);
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceExistsException::indexExists();
+        }
     }
 
     /**
@@ -188,20 +229,28 @@ class ElasticaWrapper
      * @param int                 $from
      * @param int                 $size
      *
-     * @return mixed
+     * @return array
      */
     public function search(
         RepositoryReference $repositoryReference,
         Query $query,
         int $from,
         int $size
-    ) {
-        $queryResult = $this
-            ->getSearchIndex($repositoryReference)
-            ->search($query, [
-                'from' => $from,
-                'size' => $size,
-            ]);
+    ): array {
+        try {
+            $queryResult = $this
+                ->getSearchIndex($repositoryReference)
+                ->search($query, [
+                    'from' => $from,
+                    'size' => $size,
+                ]);
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::indexNotAvailable();
+        }
 
         return [
             'items' => $queryResult->getResults(),
@@ -227,89 +276,130 @@ class ElasticaWrapper
      * Create mapping.
      *
      * @param RepositoryReference $repositoryReference
-     * @param int                 $shards
-     * @param int                 $replicas
-     * @param null|string         $language
+     *
+     * @throws ResourceExistsException
      */
-    public function createIndexMapping(
-        RepositoryReference $repositoryReference,
-        int $shards,
-        int $replicas,
-        ? string $language
-    ) {
-        $this->createIndex($repositoryReference, $shards, $replicas, $language);
-        $this->createItemIndexMapping($repositoryReference);
-        $this->refresh($repositoryReference);
+    public function createIndexMapping(RepositoryReference $repositoryReference)
+    {
+        try {
+            $itemMapping = new Mapping();
+            $itemMapping->setType($this->getType($repositoryReference, self::ITEM_TYPE));
+            $itemMapping->setParam('dynamic_templates', [
+                [
+                    'dynamic_metadata_as_keywords' => [
+                        'path_match' => 'indexed_metadata.*',
+                        'match_mapping_type' => 'string',
+                        'mapping' => [
+                            'type' => 'keyword',
+                        ],
+                    ],
+                ],
+                [
+                    'dynamic_searchable_metadata_as_text' => [
+                        'path_match' => 'searchable_metadata.*',
+                        'mapping' => [
+                            'type' => 'text',
+                            'analyzer' => 'default',
+                            'search_analyzer' => 'search_analyzer',
+                        ],
+                    ],
+                ],
+            ]);
+            $itemMapping->setProperties([
+                'uuid' => [
+                    'type' => 'object',
+                    'dynamic' => 'strict',
+                    'properties' => [
+                        'id' => [
+                            'type' => 'keyword',
+                        ],
+                        'type' => [
+                            'type' => 'keyword',
+                        ],
+                    ],
+                ],
+                'coordinate' => ['type' => 'geo_point'],
+                'metadata' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'enabled' => false,
+                ],
+                'indexed_metadata' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                ],
+                'searchable_metadata' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                ],
+                'exact_matching_metadata' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'exact_matching_normalizer',
+                ],
+                'suggest' => [
+                    'type' => 'completion',
+                    'analyzer' => 'search_analyzer',
+                    'search_analyzer' => 'search_analyzer',
+                ],
+            ]);
+
+            $itemMapping->send();
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::indexNotAvailable();
+        }
     }
 
     /**
-     * Create item index mapping.
+     * Add documents.
      *
      * @param RepositoryReference $repositoryReference
+     * @param Document[]          $documents
+     *
+     * @throws ResourceExistsException
      */
-    private function createItemIndexMapping(RepositoryReference $repositoryReference)
-    {
-        $itemMapping = new Mapping();
-        $itemMapping->setType($this->getType($repositoryReference, self::ITEM_TYPE));
-        $itemMapping->setParam('dynamic_templates', [
-            [
-                'dynamic_metadata_as_keywords' => [
-                    'path_match' => 'indexed_metadata.*',
-                    'match_mapping_type' => 'string',
-                    'mapping' => [
-                        'type' => 'keyword',
-                    ],
-                ],
-            ],
-            [
-                'dynamic_searchable_metadata_as_text' => [
-                    'path_match' => 'searchable_metadata.*',
-                    'mapping' => [
-                        'type' => 'text',
-                        'analyzer' => 'default',
-                        'search_analyzer' => 'search_analyzer',
-                    ],
-                ],
-            ],
-        ]);
-        $itemMapping->setProperties([
-            'uuid' => [
-                'type' => 'object',
-                'dynamic' => 'strict',
-                'properties' => [
-                    'id' => [
-                        'type' => 'keyword',
-                    ],
-                    'type' => [
-                        'type' => 'keyword',
-                    ],
-                ],
-            ],
-            'coordinate' => ['type' => 'geo_point'],
-            'metadata' => [
-                'type' => 'object',
-                'dynamic' => true,
-                'enabled' => false,
-            ],
-            'indexed_metadata' => [
-                'type' => 'object',
-                'dynamic' => true,
-            ],
-            'searchable_metadata' => [
-                'type' => 'object',
-                'dynamic' => true,
-            ],
-            'exact_matching_metadata' => [
-                'type' => 'keyword',
-                'normalizer' => 'exact_matching_normalizer',
-            ],
-            'suggest' => [
-                'type' => 'completion',
-                'analyzer' => 'search_analyzer',
-                'search_analyzer' => 'search_analyzer',
-            ],
-        ]);
+    public function addDocuments(
+        RepositoryReference $repositoryReference,
+        array $documents
+    ) {
+        try {
+            $this
+                ->getType($repositoryReference, self::ITEM_TYPE)
+                ->addDocuments($documents);
+        } catch (BulkResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::indexNotAvailable();
+        }
+    }
 
-        $itemMapping->send();
+    /**
+     * Delete documents by its.
+     *
+     * @param RepositoryReference $repositoryReference
+     * @param string[]            $documentsId
+     *
+     * @throws ResourceExistsException
+     */
+    public function deleteDocumentsByIds(
+        RepositoryReference $repositoryReference,
+        array $documentsId
+    ) {
+        try {
+            $this
+                ->getType($repositoryReference, self::ITEM_TYPE)
+                ->deleteIds($documentsId);
+        } catch (BulkResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceNotAvailableException::indexNotAvailable();
+        }
     }
 }
