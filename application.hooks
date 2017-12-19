@@ -6,7 +6,9 @@ if [[ "$1" == "pre-deploy" ]]; then
 elif [[ "$1" == "post-deploy" ]]; then
     echo "post-deploy hook"
     cd $DEPLOY_LIVE && composer install
-    rm -Rf $DEPLOY_LIVE/var/cache/
+    sudo rm -Rf $DEPLOY_LIVE/var/cache/
+    sudo setfacl -dR -m u:deploybot:rwX -m u:root:rwX -m u:www-data:rwX $DEPLOY_LIVE/var
+    sudo setfacl -R -m u:deploybot:rwX -m u:root:rwX -m u:www-data:rwX $DEPLOY_LIVE/var
     sudo /etc/init.d/supervisor restart
     # you might want to generate empty cache folder
 elif [[ "$1" == "validate" ]]; then
