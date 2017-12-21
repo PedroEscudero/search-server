@@ -6,7 +6,7 @@ if [[ "$1" == "pre-deploy" ]]; then
 elif [[ "$1" == "post-deploy" ]]; then
     echo "post-deploy hook"
     cd $DEPLOY_LIVE && composer install
-    sudo rm -Rf $DEPLOY_LIVE/var/cache/
+    rm -Rf /var/www/apisearch/htdocs/var/cache/
     bin/console --env=prod cache:warmup
     composer dump-autoload
     sudo setfacl -dR -m u:deploybot:rwX -m u:root:rwX -m u:www-data:rwX $DEPLOY_LIVE/var
