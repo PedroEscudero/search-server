@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 class HealthController
 {
     /**
-     * Check health.
+     * Health controller.
      *
      * @return Response
      */

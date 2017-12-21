@@ -65,7 +65,7 @@ search_server_api_event_stats:
         _controller: apisearch.server.events_controller:stats
 
 search_server_api_health:
-    path: /v1
+    path: /health
     methods: ["HEAD"]
     defaults:
-        _controller: apisearch.server.ping_controller:health
+        _controller: apisearch.server.health_controller:check
