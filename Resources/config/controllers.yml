@@ -55,8 +55,8 @@ services:
         arguments:
             - "@tactician.commandbus.query"
 
-    apisearch.server.ping_controller:
-        class: Apisearch\Server\Controller\PingController
+    apisearch.server.health_controller:
+        class: Apisearch\Server\Controller\HealthController
 
     #
     # Controller listener

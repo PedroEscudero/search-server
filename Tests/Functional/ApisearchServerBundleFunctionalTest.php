@@ -80,8 +80,8 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             'token' => 'xxx',
                             'test' => true,
                             'indexes' => [
-                                self::$index,
-                                self::$anotherIndex,
+                                self::$index => self::$index,
+                                self::$anotherIndex => self::$anotherIndex,
                             ],
                             'search' => [
                                 'repository_service' => 'apisearch.server.elastica_repository',
@@ -98,8 +98,8 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             'token' => 'xxx',
                             'test' => true,
                             'indexes' => [
-                                self::$index,
-                                self::$anotherIndex,
+                                self::$index => self::$index,
+                                self::$anotherIndex => self::$anotherIndex,
                             ],
                             'search' => [
                                 'in_memory' => false,

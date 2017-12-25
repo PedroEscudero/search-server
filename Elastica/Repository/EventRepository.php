@@ -87,7 +87,6 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            var_dump($this->getRepositoryReference()->compose());
             throw ResourceExistsException::eventsIndexExists();
         }
     }
@@ -171,17 +170,17 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
         $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
 
-        if (!is_null($name)) {
+        if (!empty($name)) {
             $boolQuery->addMust(new ElasticaQuery\Term(['name' => $name]));
         }
 
         $range = [];
 
-        if (!is_null($from)) {
+        if (!empty($from)) {
             $range['gte'] = $from;
         }
 
-        if (!is_null($to)) {
+        if (!empty($to)) {
             $range['lt'] = $to;
         }
 

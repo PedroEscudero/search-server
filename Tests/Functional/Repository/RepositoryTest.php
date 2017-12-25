@@ -26,6 +26,7 @@ abstract class RepositoryTest extends ApisearchServerBundleFunctionalTest
 {
     use EventRepositoryPermissionsTest;
     use RepositoryPermissionsTest;
+    use RepositoryResetTest;
     use HighlightTest;
     use AggregationsTest;
     use UniverseFilterTest;
