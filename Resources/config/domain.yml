@@ -3,119 +3,126 @@ services:
     #
     # Events
     #
-    apisearch.server.event_repository:
-        alias: "apisearch.server.elastica_event_repository"
+    apisearch_server.event_repository:
+        alias: "apisearch_server.elastica_event_repository"
 
-    apisearch.server.event_store:
+    apisearch_server.event_store:
         class: Apisearch\Server\Domain\Event\EventStore
         arguments:
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
 
-    apisearch.server.event_publisher:
+    apisearch_server.event_publisher:
         class: Apisearch\Server\Domain\Event\EventPublisher
 
     #
     # Command handlers
     #
-    apisearch.server.comand_handler.create_index:
+    apisearch_server.comand_handler.create_index:
         class: Apisearch\Server\Domain\CommandHandler\CreateIndexHandler
         arguments:
             - "@apisearch.repository_search.default"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\CreateIndex }
 
-    apisearch.server.comand_handler.delete_index:
+    apisearch_server.comand_handler.delete_index:
         class: Apisearch\Server\Domain\CommandHandler\DeleteIndexHandler
         arguments:
             - "@apisearch.repository_search.default"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteIndex }
 
-    apisearch.server.comand_handler.reset_index:
+    apisearch_server.comand_handler.reset_index:
         class: Apisearch\Server\Domain\CommandHandler\ResetIndexHandler
         arguments:
             - "@apisearch.repository_search.default"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\ResetIndex }
 
 
-    apisearch.server.comand_handler.delete_items:
+    apisearch_server.comand_handler.delete_items:
         class: Apisearch\Server\Domain\CommandHandler\DeleteItemsHandler
         arguments:
             - "@apisearch.repository_search.default"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteItems }
 
-    apisearch.server.comand_handler.index_items:
+    apisearch_server.comand_handler.index_items:
         class: Apisearch\Server\Domain\CommandHandler\IndexItemsHandler
         arguments:
             - "@apisearch.repository_search.default"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\IndexItems }
 
-    apisearch.server.comand_handler.create_events_index:
+    apisearch_server.comand_handler.create_events_index:
         class: Apisearch\Server\Domain\CommandHandler\CreateEventsIndexHandler
         arguments:
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\CreateEventsIndex }
 
-    apisearch.server.comand_handler.delete_events_index:
+    apisearch_server.comand_handler.delete_events_index:
         class: Apisearch\Server\Domain\CommandHandler\DeleteEventsIndexHandler
         arguments:
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteEventsIndex }
 
     #
     # Query handlers
     #
-    apisearch.server.query_handler.query:
+    apisearch_server.query_handler.query:
         class: Apisearch\Server\Domain\QueryHandler\QueryHandler
         arguments:
             - "@apisearch.repository_search.default"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\Query }
 
-    apisearch.server.query_handler.list_events:
+    apisearch_server.query_handler.list_events:
         class: Apisearch\Server\Domain\QueryHandler\ListEventsHandler
         arguments:
             - "@apisearch.event_repository_search.default"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\ListEvents }
 
-    apisearch.server.query_handler.stats_events:
+    apisearch_server.query_handler.stats_events:
         class: Apisearch\Server\Domain\QueryHandler\StatsEventsHandler
         arguments:
             - "@apisearch.event_repository_search.default"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\StatsEvents }
 
+    apisearch_server.query_handler.check_health:
+        class: Apisearch\Server\Domain\QueryHandler\CheckHealthHandler
+        arguments:
+            - "@apisearch_server.elastica_client"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\CheckHealth }
+
     #
     # Middlewares
     #
-    apisearch.server.middleware.ignore_events:
+    apisearch_server.middleware.ignore_events:
         class: Apisearch\Server\Domain\Middleware\IgnoreDomainEventsMiddleware
         arguments:
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
         public: false
 
-    apisearch.server.middleware.inline_events:
+    apisearch_server.middleware.inline_events:
         class: Apisearch\Server\Domain\Middleware\InlineDomainEventsMiddleware
         arguments:
-            - "@apisearch.server.event_publisher"
-            - "@apisearch.server.event_store"
+            - "@apisearch_server.event_publisher"
+            - "@apisearch_server.event_store"
         public: false
 
-    apisearch.server.middleware.queue_events:
+    apisearch_server.middleware.queue_events:
         class: Apisearch\Server\Domain\Middleware\QueueDomainEventsMiddleware
         arguments:
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.event_publisher"
             - "@rs_queue.producer"
         public: false

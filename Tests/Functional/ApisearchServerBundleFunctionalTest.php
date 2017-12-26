@@ -71,8 +71,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 'framework' => [
                     'test' => true,
                 ],
+                'apisearch_server' => [
+                    'middleware_domain_events_service' => 'apisearch_server.middleware.inline_events',
+                ],
                 'apisearch' => [
-                    'middleware_domain_events_service' => 'apisearch.server.middleware.inline_events',
                     'repositories' => [
                         'search' => [
                             'endpoint' => 'xxx',
@@ -84,11 +86,11 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                                 self::$anotherIndex => self::$anotherIndex,
                             ],
                             'search' => [
-                                'repository_service' => 'apisearch.server.elastica_repository',
+                                'repository_service' => 'apisearch_server.elastica_repository',
                                 'in_memory' => false,
                             ],
                             'event' => [
-                                'repository_service' => 'apisearch.server.elastica_event_repository',
+                                'repository_service' => 'apisearch_server.elastica_event_repository',
                                 'in_memory' => false,
                             ],
                         ],
@@ -174,11 +176,43 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     */
+    public static function tearDownAfterClass()
+    {
+        self::deleteEverything();
+    }
+
+    /**
      * Reset scenario.
      *
      * @param null|string $language
      */
     public static function resetScenario(? string $language = null)
+    {
+        self::deleteEverything();
+        self::createIndex($language, self::$appId);
+        self::createEventsIndex(self::$appId);
+        self::createIndex($language, self::$anotherAppId);
+        self::createEventsIndex(self::$anotherAppId);
+
+        $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
+        $itemsInstances = [];
+        foreach ($items['items'] as $item) {
+            if (isset($item['indexed_metadata']['created_at'])) {
+                $date = new \DateTime($item['indexed_metadata']['created_at']);
+                $item['indexed_metadata']['created_at'] = $date->format(DATE_ATOM);
+            }
+            $itemsInstances[] = Item::createFromArray($item);
+        }
+        self::indexItems($itemsInstances, self::$appId);
+    }
+
+    /**
+     * Clean all tests data.
+     */
+    public static function deleteEverything()
     {
         try {
             self::deleteIndex(self::$appId);
@@ -196,22 +230,6 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
             self::deleteEventsIndex(self::$anotherAppId);
         } catch (ResourceNotAvailableException $e) {
         }
-
-        self::createIndex($language, self::$appId);
-        self::createEventsIndex(self::$appId);
-        self::createIndex($language, self::$anotherAppId);
-        self::createEventsIndex(self::$anotherAppId);
-
-        $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
-        $itemsInstances = [];
-        foreach ($items['items'] as $item) {
-            if (isset($item['indexed_metadata']['created_at'])) {
-                $date = new \DateTime($item['indexed_metadata']['created_at']);
-                $item['indexed_metadata']['created_at'] = $date->format(DATE_ATOM);
-            }
-            $itemsInstances[] = Item::createFromArray($item);
-        }
-        self::indexItems($itemsInstances, self::$appId);
     }
 
     /**

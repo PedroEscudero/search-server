@@ -38,7 +38,7 @@ trait SearchTest
         $this->assertSame(
             count($result->getItems()),
             $this
-                ->get('apisearch.server.elastica_wrapper')
+                ->get('apisearch_server.elastica_wrapper')
                 ->getType(
                     RepositoryReference::create(
                         self::$appId,

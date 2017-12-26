@@ -3,65 +3,67 @@ services:
     #
     # Elastica related services
     #
-    apisearch.server.elastica_client:
+    apisearch_server.elastica_client:
         class: Elastica\Client
         arguments:
-            - { servers: { default: { host: localhost, port: 9200}}}
+            - "%apisearch_server.cluster%"
 
-    apisearch.server.elastica_wrapper:
+    apisearch_server.elastica_wrapper:
         class: Apisearch\Server\Elastica\ElasticaWrapper
         arguments:
-            - "@apisearch.server.elastica_client"
+            - "@apisearch_server.elastica_client"
 
     #
     # Elastica repositories
     #
-    apisearch.server.elastica_with_app_id_wrapper:
+    apisearch_server.elastica_with_app_id_wrapper:
         class: Apisearch\Server\Elastica\ElasticaWithAppIdWrapper
         abstract: true
         public: false
         arguments:
-            - "@apisearch.server.elastica_wrapper"
+            - "@apisearch_server.elastica_wrapper"
+            - "%apisearch_server.config.repository%"
 
-    apisearch.server.elastica_query_repository:
+    apisearch_server.elastica_query_repository:
         class: Apisearch\Server\Elastica\Repository\QueryRepository
-        parent: apisearch.server.elastica_with_app_id_wrapper
+        parent: apisearch_server.elastica_with_app_id_wrapper
 
-    apisearch.server.elastica_index_repository:
+    apisearch_server.elastica_index_repository:
         class: Apisearch\Server\Elastica\Repository\IndexRepository
-        parent: apisearch.server.elastica_with_app_id_wrapper
+        parent: apisearch_server.elastica_with_app_id_wrapper
 
-    apisearch.server.elastica_delete_repository:
+    apisearch_server.elastica_delete_repository:
         class: Apisearch\Server\Elastica\Repository\DeleteRepository
-        parent: apisearch.server.elastica_with_app_id_wrapper
+        parent: apisearch_server.elastica_with_app_id_wrapper
 
-    apisearch.server.elastica_event_repository:
+    apisearch_server.elastica_event_repository:
         class: Apisearch\Server\Elastica\Repository\EventRepository
         arguments:
-            - "@apisearch.server.elastica_client"
+            - "@apisearch_server.elastica_client"
+            - "%apisearch_server.config.event_repository%"
 
 
     #
     # Adapters
     #
-    apisearch.server.elastica_repository:
+    apisearch_server.elastica_repository:
         class: Apisearch\Server\Elastica\Repository\Repository
         arguments:
-            - "@apisearch.server.elastica_query_repository"
-            - "@apisearch.server.elastica_index_repository"
-            - "@apisearch.server.elastica_delete_repository"
+            - "@apisearch_server.elastica_query_repository"
+            - "@apisearch_server.elastica_index_repository"
+            - "@apisearch_server.elastica_delete_repository"
 
     #
     # Middlewares
     #
-    apisearch.server.middleware.log_all_domain_events_to_elastica:
+    apisearch_server.middleware.log_all_domain_events_to_elastica:
         class: Apisearch\Server\Elastica\Middleware\LogAllDomainEventsToElasticaMiddleware
         arguments:
-            - "@apisearch.server.elastica_client"
-            - "@apisearch.server.event_publisher"
+            - "@apisearch_server.elastica_client"
+            - "@apisearch_server.event_publisher"
         public: false
 
-    apisearch.server.middleware.transaction:
+    apisearch_server.middleware.transaction:
         class: Apisearch\Server\Elastica\Middleware\TransactionElasticaMiddleware
         arguments:
             - "@apisearch.repository_search.default"

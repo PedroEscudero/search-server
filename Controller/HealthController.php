@@ -16,12 +16,15 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Server\Domain\Query\CheckHealth;
+use Elastica\Cluster\Health;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class HealthController.
  */
-class HealthController
+class HealthController extends ControllerWithBus
 {
     /**
      * Health controller.
@@ -30,6 +33,13 @@ class HealthController
      */
     public function check()
     {
-        return new Response();
+        /**
+         * @var Health
+         */
+        $health = $this
+            ->commandBus
+            ->handle(new CheckHealth());
+
+        return new JsonResponse($health->getData());
     }
 }

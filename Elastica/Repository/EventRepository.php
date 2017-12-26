@@ -53,33 +53,39 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
     private $client;
 
     /**
+     * @var array
+     *
+     * Event repository config
+     */
+    private $eventRepositoryConfig;
+
+    /**
      * Construct.
      *
      * @param Client $client
+     * @param array  $eventRepositoryConfig
      */
-    public function __construct(Client $client)
-    {
+    public function __construct(
+        Client $client,
+        array $eventRepositoryConfig
+    ) {
         $this->client = $client;
+        $this->eventRepositoryConfig = $eventRepositoryConfig;
     }
 
     /**
      * Create index.
      *
-     * @param int $shards
-     * @param int $replicas
-     *
      * @throws ResourceExistsException
      */
-    public function createIndex(
-        int $shards,
-        int $replicas
-    ) {
+    public function createIndex()
+    {
         try {
             $this
                 ->getEventsIndex()
                 ->create([
-                    'number_of_shards' => $shards,
-                    'number_of_replicas' => $replicas,
+                    'number_of_shards' => $this->eventRepositoryConfig['shards'],
+                    'number_of_replicas' => $this->eventRepositoryConfig['replicas'],
                 ]);
             $this->createEventIndexMapping();
         } catch (ResponseException $exception) {

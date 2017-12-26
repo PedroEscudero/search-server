@@ -3,28 +3,28 @@ services:
     #
     # Controllers with command bus
     #
-    apisearch.server.create_index_controller:
+    apisearch_server.create_index_controller:
         class: Apisearch\Server\Controller\CreateIndexController
         arguments:
             - "@tactician.commandbus.command"
 
-    apisearch.server.delete_index_controller:
+    apisearch_server.delete_index_controller:
         class: Apisearch\Server\Controller\DeleteIndexController
         arguments:
             - "@tactician.commandbus.command"
 
-    apisearch.server.reset_index_controller:
+    apisearch_server.reset_index_controller:
         class: Apisearch\Server\Controller\ResetIndexController
         arguments:
             - "@tactician.commandbus.command"
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
 
-    apisearch.server.create_events_index_controller:
+    apisearch_server.create_events_index_controller:
         class: Apisearch\Server\Controller\CreateEventsIndexController
         arguments:
             - "@tactician.commandbus.command"
 
-    apisearch.server.delete_events_index_controller:
+    apisearch_server.delete_events_index_controller:
         class: Apisearch\Server\Controller\DeleteEventsIndexController
         arguments:
             - "@tactician.commandbus.command"
@@ -32,36 +32,38 @@ services:
     #
     # Controllers with query bus
     #
-    apisearch.server.query_controller:
+    apisearch_server.query_controller:
         class: Apisearch\Server\Controller\QueryController
         arguments:
             - "@tactician.commandbus.query"
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
 
-    apisearch.server.index_items_controller:
+    apisearch_server.index_items_controller:
         class: Apisearch\Server\Controller\IndexItemsController
         arguments:
             - "@tactician.commandbus.command"
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
 
-    apisearch.server.delete_items_controller:
+    apisearch_server.delete_items_controller:
         class: Apisearch\Server\Controller\DeleteItemsController
         arguments:
             - "@tactician.commandbus.command"
-            - "@apisearch.server.event_repository"
+            - "@apisearch_server.event_repository"
 
-    apisearch.server.events_controller:
+    apisearch_server.events_controller:
         class: Apisearch\Server\Controller\EventsController
         arguments:
             - "@tactician.commandbus.query"
 
-    apisearch.server.health_controller:
+    apisearch_server.health_controller:
         class: Apisearch\Server\Controller\HealthController
+        arguments:
+            - "@tactician.commandbus.command"
 
     #
     # Controller listener
     #
-    apisearch.server.php_exception_to_json_response_listener:
+    apisearch_server.php_exception_to_json_response_listener:
         class: Apisearch\Server\Controller\Listener\PHPExceptionToJsonResponse
         tags:
             - { name: kernel.event_listener, event: kernel.exception }

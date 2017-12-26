@@ -34,13 +34,24 @@ abstract class ElasticaWrapperWithRepositoryReference implements WithRepositoryR
     protected $elasticaWrapper;
 
     /**
+     * @var array
+     *
+     * Repository config
+     */
+    protected $repositoryConfig;
+
+    /**
      * ElasticaSearchRepository constructor.
      *
      * @param ElasticaWrapper $elasticaWrapper
+     * @param array           $repositoryConfig
      */
-    public function __construct(ElasticaWrapper $elasticaWrapper)
-    {
+    public function __construct(
+        ElasticaWrapper $elasticaWrapper,
+        array $repositoryConfig
+    ) {
         $this->elasticaWrapper = $elasticaWrapper;
+        $this->repositoryConfig = $repositoryConfig;
     }
 
     /**

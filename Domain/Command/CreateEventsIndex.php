@@ -28,53 +28,12 @@ class CreateEventsIndex implements WithRepositoryReference
     use WithRepositoryReferenceTrait;
 
     /**
-     * @var int
-     *
-     * Shards
-     */
-    private $shards;
-
-    /**
-     * @var int
-     *
-     * Replicas
-     */
-    private $replicas;
-
-    /**
      * ResetCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param int                 $shards
-     * @param int                 $replicas
      */
-    public function __construct(
-        RepositoryReference $repositoryReference,
-        int $shards,
-        int $replicas
-    ) {
+    public function __construct(RepositoryReference $repositoryReference)
+    {
         $this->repositoryReference = $repositoryReference;
-        $this->shards = $shards;
-        $this->replicas = $replicas;
-    }
-
-    /**
-     * Get shards.
-     *
-     * @return int
-     */
-    public function getShards(): int
-    {
-        return $this->shards;
-    }
-
-    /**
-     * Get replicas.
-     *
-     * @return int
-     */
-    public function getReplicas(): int
-    {
-        return $this->replicas;
     }
 }

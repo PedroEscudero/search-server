@@ -32,7 +32,7 @@ class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
      */
     protected static function getDomainEventsMiddlewareService(): string
     {
-        return 'apisearch.server.middleware.inline_events';
+        return 'apisearch_server.middleware.inline_events';
     }
 
     /**
@@ -40,7 +40,7 @@ class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
      */
     public function testEventPersistence()
     {
-        $eventRepository = self::get('apisearch.server.event_repository');
+        $eventRepository = self::get('apisearch_server.event_repository');
         $this->assertCount(
             1,
             $eventRepository->all()

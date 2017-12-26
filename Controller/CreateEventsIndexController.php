@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
-use Apisearch\Event\HttpEventRepository;
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
@@ -48,9 +47,7 @@ class CreateEventsIndexController extends ControllerWithBus
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
-                ),
-                $request->request->get(HttpEventRepository::SHARDS_FIELD, 3),
-                $request->request->get(HttpEventRepository::REPLICAS_FIELD, 2)
+                )
             ));
 
         return new JsonResponse('Events index created', 200);

@@ -4,13 +4,13 @@ tactician:
         command:
             middleware:
                 - tactician.middleware.locking
-                - apisearch.server.middleware.transaction
-                - apisearch.server.middleware.domain_events
+                - apisearch_server.middleware.transaction
+                - apisearch_server.middleware.domain_events
                 - tactician.middleware.command_handler
 
         query:
             middleware:
                 - tactician.middleware.locking
-                - apisearch.server.middleware.transaction
-                - apisearch.server.middleware.domain_events
+                - apisearch_server.middleware.transaction
+                - apisearch_server.middleware.domain_events
                 - tactician.middleware.command_handler

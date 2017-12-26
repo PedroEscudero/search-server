@@ -38,8 +38,8 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
             ->elasticaWrapper
             ->createIndex(
                 $this->getRepositoryReference(),
-                1,
-                1,
+                $this->repositoryConfig['shards'],
+                $this->repositoryConfig['replicas'],
                 $language
             );
 

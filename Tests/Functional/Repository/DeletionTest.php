@@ -60,7 +60,7 @@ trait DeletionTest
     private function assertNbItems(int $nb)
     {
         $this->assertSame($nb, $this
-            ->get('apisearch.server.elastica_wrapper')
+            ->get('apisearch_server.elastica_wrapper')
             ->getType(
                 RepositoryReference::create(
                     self::$appId,

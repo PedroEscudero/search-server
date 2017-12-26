@@ -3,10 +3,10 @@ services:
     #
     # Console commands
     #
-    apisearch.server.event_store_consumer:
+    apisearch_server.event_store_consumer:
         class: Apisearch\Server\Console\EventStoreConsumer
         arguments:
             - "@rs_queue.consumer"
-            - "@apisearch.server.event_store"
+            - "@apisearch_server.event_store"
         tags:
             -  { name: console.command }

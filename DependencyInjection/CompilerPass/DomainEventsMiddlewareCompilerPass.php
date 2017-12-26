@@ -31,7 +31,7 @@ class DomainEventsMiddlewareCompilerPass implements CompilerPassInterface
     {
         $container
             ->addAliases([
-                'apisearch.server.middleware.domain_events' => $container->getParameter('apisearch.middleware_domain_events_service'),
+                'apisearch_server.middleware.domain_events' => $container->getParameter('apisearch_server.middleware_domain_events_service'),
             ]);
     }
 }

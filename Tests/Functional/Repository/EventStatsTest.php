@@ -32,7 +32,7 @@ class EventStatsTest extends ApisearchServerBundleFunctionalTest
      */
     protected static function getDomainEventsMiddlewareService(): string
     {
-        return 'apisearch.server.middleware.inline_events';
+        return 'apisearch_server.middleware.inline_events';
     }
 
     /**
@@ -40,7 +40,7 @@ class EventStatsTest extends ApisearchServerBundleFunctionalTest
      */
     public function testEventStats()
     {
-        $eventRepository = self::get('apisearch.server.event_repository');
+        $eventRepository = self::get('apisearch_server.event_repository');
 
         $stats = $eventRepository->stats();
         $this->assertFalse(array_key_exists('QueryWasMade', $stats->getEventCounter()));

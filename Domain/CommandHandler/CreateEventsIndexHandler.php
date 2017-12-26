@@ -39,9 +39,6 @@ class CreateEventsIndexHandler extends WithEventRepository
 
         $this
             ->eventRepository
-            ->createIndex(
-                3,
-                2
-            );
+            ->createIndex();
     }
 }

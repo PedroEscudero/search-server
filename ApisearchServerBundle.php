@@ -17,34 +17,32 @@ declare(strict_types=1);
 namespace Apisearch\Server;
 
 use Apisearch\ApisearchBundle;
+use Apisearch\Server\DependencyInjection\ApisearchServerExtension;
 use Apisearch\Server\DependencyInjection\CompilerPass\DomainEventsMiddlewareCompilerPass;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
-use Mmoreram\BaseBundle\SimpleBaseBundle;
 use RSQueueBundle\RSQueueBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Class PuntmigSearchServerBundle.
  */
-class ApisearchServerBundle extends SimpleBaseBundle
+class ApisearchServerBundle extends BaseBundle
 {
     /**
-     * get config files.
+     * Returns the bundle's container extension.
      *
-     * @return array
+     * @return ExtensionInterface|null The container extension
+     *
+     * @throws \LogicException
      */
-    public function getConfigFiles(): array
+    public function getContainerExtension()
     {
-        return [
-            'domain',
-            'controllers',
-            'console',
-            'elastica',
-        ];
+        return new ApisearchServerExtension();
     }
 
     /**

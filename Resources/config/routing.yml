@@ -5,31 +5,31 @@ search_server_api_create_index:
     path: /v1/index
     methods: ["POST"]
     defaults:
-        _controller: apisearch.server.create_index_controller:createIndex
+        _controller: apisearch_server.create_index_controller:createIndex
 
 search_server_api_delete_index:
     path: /v1/index
     methods: ["DELETE"]
     defaults:
-        _controller: apisearch.server.delete_index_controller:deleteIndex
+        _controller: apisearch_server.delete_index_controller:deleteIndex
 
 search_server_api_reset_index:
     path: /v1/index/reset
     methods: ["POST"]
     defaults:
-        _controller: apisearch.server.reset_index_controller:resetIndex
+        _controller: apisearch_server.reset_index_controller:resetIndex
 
 search_server_api_create_events_index:
     path: /v1/events
     methods: ["POST"]
     defaults:
-        _controller: apisearch.server.create_events_index_controller:createEventsIndex
+        _controller: apisearch_server.create_events_index_controller:createEventsIndex
 
 search_server_api_delete_events_index:
     path: /v1/events
     methods: ["DELETE"]
     defaults:
-        _controller: apisearch.server.delete_events_index_controller:deleteEventsIndex
+        _controller: apisearch_server.delete_events_index_controller:deleteEventsIndex
 
 #
 # Read endpoints
@@ -38,34 +38,34 @@ search_server_api_query:
     path: /v1
     methods: ["GET"]
     defaults:
-        _controller: apisearch.server.query_controller:query
+        _controller: apisearch_server.query_controller:query
 
 search_server_api_index:
     path: /v1/items
     methods: ["POST"]
     defaults:
-        _controller: apisearch.server.index_items_controller:indexItems
+        _controller: apisearch_server.index_items_controller:indexItems
 
 search_server_api_delete:
     path: /v1/items
     methods: ["DELETE"]
     defaults:
-        _controller: apisearch.server.delete_items_controller:deleteItems
+        _controller: apisearch_server.delete_items_controller:deleteItems
 
 search_server_api_events:
     path: /v1/events
     methods: ["GET"]
     defaults:
-        _controller: apisearch.server.events_controller:list
+        _controller: apisearch_server.events_controller:list
 
 search_server_api_event_stats:
     path: /v1/events/stats
     methods: ["GET"]
     defaults:
-        _controller: apisearch.server.events_controller:stats
+        _controller: apisearch_server.events_controller:stats
 
 search_server_api_health:
     path: /health
-    methods: ["HEAD"]
+    methods: ["HEAD", "GET"]
     defaults:
-        _controller: apisearch.server.health_controller:check
+        _controller: apisearch_server.health_controller:check
