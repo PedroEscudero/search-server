@@ -135,6 +135,7 @@ class ElasticaWrapper
         $indexConfiguration = [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
+            'max_result_window' => 50000,
             'analysis' => [
                 'analyzer' => [
                     'default' => [
