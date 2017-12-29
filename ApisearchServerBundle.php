@@ -19,6 +19,8 @@ namespace Apisearch\Server;
 use Apisearch\ApisearchBundle;
 use Apisearch\Server\DependencyInjection\ApisearchServerExtension;
 use Apisearch\Server\DependencyInjection\CompilerPass\DomainEventsMiddlewareCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\ElasticaConfigPathCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\ElasticsearchRepositoriesCompilerPass;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
 use RSQueueBundle\RSQueueBundle;
@@ -72,6 +74,8 @@ class ApisearchServerBundle extends BaseBundle
     public function getCompilerPasses(): array
     {
         return [
+            new ElasticsearchRepositoriesCompilerPass(),
+            new ElasticaConfigPathCompilerPass(),
             new DomainEventsMiddlewareCompilerPass(),
         ];
     }

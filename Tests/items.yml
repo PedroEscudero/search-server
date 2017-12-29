@@ -34,6 +34,15 @@ items:
                 - "3"
             stores:
                 - ppal
+            field_for_boosting_test:
+                - one
+                - two
+            other_field_for_boosting_test:
+                - one
+                - two
+        searchable_metadata:
+            editorial: "Alfaguarra"
+            boosting: "boosting"
 
     prod_2:
         uuid:
@@ -67,6 +76,19 @@ items:
                 - "3"
             stores:
                 - sec
+            field_for_boosting_test:
+                - one
+                - two
+                - three
+            other_field_for_boosting_test:
+                - one
+                - two
+                - three
+        searchable_metadata:
+            editorial: "Matutano"
+            boosting:
+                - "boosting"
+                - "anotherboosting"
 
     book_1:
         uuid:
@@ -108,6 +130,12 @@ items:
                 - "9"
             stores:
                 - ppal
+            field_for_boosting_test:
+                - one
+                - four
+            other_field_for_boosting_test:
+                - one
+                - four
         searchable_metadata:
             title: Code da vinci
             description: Código de Hernando
@@ -140,6 +168,12 @@ items:
                 - "5"
                 - "9"
                 - "6"
+            field_for_boosting_test:
+                - two
+                - four
+            other_field_for_boosting_test:
+                - two
+                - four
         searchable_metadata:
             title: álamo
         suggest:
@@ -175,9 +209,16 @@ items:
                 - "id##7~~name##cat7~~level##1"
                 - "id##8~~name##cat8~~level##2"
                 - "id##9~~name##cat9~~level##3"
+            field_for_boosting_test:
+                - three
+            other_field_for_boosting_test:
+                - three
         searchable_metadata:
             title: barcelona
             description: badalona
+            boosting:
+                - "boosting"
+                - "anotherboosting"
         exact_matching_metadata:
             - Vinci
         suggest:

@@ -16,22 +16,24 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\CommandHandler;
 
-use Apisearch\Server\Domain\Command\CreateIndex;
+use Apisearch\Server\Domain\Command\ConfigureIndex;
+use Apisearch\Server\Domain\Event\IndexWasConfigured;
 use Apisearch\Server\Domain\WithRepositoryAndEventPublisher;
 
 /**
- * Class CreateIndexHandler.
+ * Class ConfigIndexHandler.
  */
-class CreateIndexHandler extends WithRepositoryAndEventPublisher
+class ConfigureIndexHandler extends WithRepositoryAndEventPublisher
 {
     /**
-     * Create the index.
+     * Configure the index.
      *
-     * @param CreateIndex $createIndex
+     * @param ConfigureIndex $configureIndex
      */
-    public function handle(CreateIndex $createIndex)
+    public function handle(ConfigureIndex $configureIndex)
     {
-        $repositoryReference = $createIndex->getRepositoryReference();
+        $repositoryReference = $configureIndex->getRepositoryReference();
+        $config = $configureIndex->getConfig();
 
         $this
             ->repository
@@ -39,6 +41,10 @@ class CreateIndexHandler extends WithRepositoryAndEventPublisher
 
         $this
             ->repository
-            ->createIndex();
+            ->configureIndex($config);
+
+        $this
+            ->eventPublisher
+            ->publish(new IndexWasConfigured($config));
     }
 }

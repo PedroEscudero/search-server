@@ -55,6 +55,12 @@ services:
         arguments:
             - "@tactician.commandbus.query"
 
+    apisearch_server.configure_index_controller:
+        class: Apisearch\Server\Controller\ConfigureIndexController
+        arguments:
+            - "@tactician.commandbus.query"
+            - "@apisearch_server.event_repository"
+
     apisearch_server.health_controller:
         class: Apisearch\Server\Controller\HealthController
         arguments:

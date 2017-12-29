@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional;
 
+use Apisearch\Config\Config;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
@@ -23,6 +24,7 @@ use Apisearch\Query\Query as QueryModel;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Result\Result;
 use Apisearch\Server\ApisearchServerBundle;
+use Apisearch\Server\Domain\Command\ConfigureIndex;
 use Apisearch\Server\Domain\Command\CreateEventsIndex;
 use Apisearch\Server\Domain\Command\CreateIndex;
 use Apisearch\Server\Domain\Command\DeleteEventsIndex;
@@ -73,6 +75,17 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 ],
                 'apisearch_server' => [
                     'middleware_domain_events_service' => 'apisearch_server.middleware.inline_events',
+                    'config' => [
+                        'repository' => [
+                            'config_path' => '/tmp/config_{app_id}_{index_id}',
+                            'shards' => 1,
+                            'replicas' => 0,
+                        ],
+                        'event_repository' => [
+                            'shards' => 1,
+                            'replicas' => 0,
+                        ],
+                    ],
                 ],
                 'apisearch' => [
                     'repositories' => [
@@ -186,15 +199,13 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
 
     /**
      * Reset scenario.
-     *
-     * @param null|string $language
      */
-    public static function resetScenario(? string $language = null)
+    public static function resetScenario()
     {
         self::deleteEverything();
-        self::createIndex($language, self::$appId);
+        self::createIndex(self::$appId);
         self::createEventsIndex(self::$appId);
-        self::createIndex($language, self::$anotherAppId);
+        self::createIndex(self::$anotherAppId);
         self::createEventsIndex(self::$anotherAppId);
 
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
@@ -326,12 +337,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     /**
      * Create index using the bus.
      *
-     * @param string $language
      * @param string $appId
      * @param string $index
      */
     public function createIndex(
-        string $language = null,
         string $appId = null,
         string $index = null
     ) {
@@ -341,8 +350,30 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
+     * Configure index using the bus.
+     *
+     * @param Config $config
+     * @param string $appId
+     * @param string $index
+     */
+    public function configureIndex(
+        Config $config,
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new ConfigureIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
                 ),
-                $language
+                $config
             ));
     }
 

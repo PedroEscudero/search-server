@@ -37,6 +37,7 @@ config:
                 port: 9203
         config:
             repository:
+                config_path: '/tmp/config_{app_id}_{index_id}'
                 shards: 4
                 replicas: 4
             event_repository:

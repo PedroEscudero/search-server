@@ -27,14 +27,26 @@ services:
     apisearch_server.elastica_query_repository:
         class: Apisearch\Server\Elastica\Repository\QueryRepository
         parent: apisearch_server.elastica_with_app_id_wrapper
+        tags:
+            - {name: "apisearch_server.elastica_repository"}
 
     apisearch_server.elastica_index_repository:
         class: Apisearch\Server\Elastica\Repository\IndexRepository
         parent: apisearch_server.elastica_with_app_id_wrapper
+        tags:
+            - {name: "apisearch_server.elastica_repository"}
 
     apisearch_server.elastica_delete_repository:
         class: Apisearch\Server\Elastica\Repository\DeleteRepository
         parent: apisearch_server.elastica_with_app_id_wrapper
+        tags:
+            - {name: "apisearch_server.elastica_repository"}
+
+    apisearch_server.elastica_config_repository:
+        class: Apisearch\Server\Elastica\Repository\ConfigRepository
+        parent: apisearch_server.elastica_with_app_id_wrapper
+        tags:
+            - {name: "apisearch_server.elastica_repository"}
 
     apisearch_server.elastica_event_repository:
         class: Apisearch\Server\Elastica\Repository\EventRepository

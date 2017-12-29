@@ -121,15 +121,13 @@ class ElasticaWrapper
      * @param RepositoryReference $repositoryReference
      * @param int                 $shards
      * @param int                 $replicas
-     * @param null|string         $language
      *
      * @throws ResourceExistsException
      */
     public function createIndex(
         RepositoryReference $repositoryReference,
         int $shards,
-        int $replicas,
-        ? string $language
+        int $replicas
     ) {
         $searchIndex = $this->getSearchIndex($repositoryReference);
         $indexConfiguration = [
@@ -145,7 +143,6 @@ class ElasticaWrapper
                             'lowercase',
                             'asciifolding',
                             'ngram_filter',
-                            'stop_words',
                         ],
                     ],
                     'search_analyzer' => [
@@ -154,7 +151,6 @@ class ElasticaWrapper
                         'filter' => [
                             'lowercase',
                             'asciifolding',
-                            'stop_words',
                         ],
                     ],
                 ],
@@ -166,10 +162,6 @@ class ElasticaWrapper
                         'token_chars' => [
                             'letter',
                         ],
-                    ],
-                    'stop_words' => [
-                        'type' => 'stop',
-                        'stopwords' => ElasticaLanguages::getStopwordsLanguageByIso($language),
                     ],
                 ],
                 'normalizer' => [
@@ -184,18 +176,75 @@ class ElasticaWrapper
             ],
         ];
 
+        try {
+            $searchIndex->create($indexConfiguration);
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw ResourceExistsException::indexExists();
+        }
+    }
+
+    /**
+     * Update index configuration.
+     *
+     * @param RepositoryReference $repositoryReference
+     * @param string              $configPath
+     * @param null|string         $language
+     */
+    public function updateIndexSettings(
+        RepositoryReference $repositoryReference,
+        string $configPath,
+        ? string $language
+    ) {
+        $searchIndex = $this->getSearchIndex($repositoryReference);
+        $indexSettings = [
+            'analysis' => [
+                'analyzer' => [
+                    'search_analyzer' => [
+                        'type' => 'custom',
+                        'tokenizer' => 'standard',
+                        'filter' => [
+                            'lowercase',
+                            'asciifolding',
+                            'stop_words',
+                        ],
+                    ],
+                ],
+                'filter' => [
+                    'stop_words' => [
+                        'type' => 'stop',
+                        'stopwords' => ElasticaLanguages::getStopwordsLanguageByIso($language),
+                    ],
+                ],
+            ],
+        ];
+
+        $synonymPath = $configPath.'/synonyms.txt';
+        if (file_exists($synonymPath)) {
+            $indexSettings['analysis']['analyzer']['search_analyzer']['filter'][] = 'synonym';
+            $indexSettings['analysis']['filter']['synonym'] = [
+                'type' => 'synonym',
+                'synonyms_path' => $synonymPath,
+            ];
+        }
+
         $stemmer = ElasticaLanguages::getStemmerLanguageByIso($language);
         if (!is_null($stemmer)) {
-            $indexConfiguration['analysis']['analyzer']['default']['filter'][] = 'stemmer';
-            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
-            $indexConfiguration['analysis']['filter']['stemmer'] = [
+            $indexSettings['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
+            $indexSettings['analysis']['filter']['stemmer'] = [
                 'type' => 'stemmer',
                 'name' => $stemmer,
             ];
         }
 
         try {
-            $searchIndex->create($indexConfiguration);
+            $searchIndex->close();
+            $searchIndex->setSettings($indexSettings);
+            $searchIndex->open();
+            sleep(1);
         } catch (ResponseException $exception) {
             /*
              * The index resource cannot be deleted.

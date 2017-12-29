@@ -19,6 +19,12 @@ search_server_api_reset_index:
     defaults:
         _controller: apisearch_server.reset_index_controller:resetIndex
 
+search_server_api_configure_index:
+    path: /v1/index/config
+    methods: ["POST"]
+    defaults:
+        _controller: apisearch_server.configure_index_controller:configureIndex
+
 search_server_api_create_events_index:
     path: /v1/events
     methods: ["POST"]

@@ -16,24 +16,11 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Command;
 
-use Apisearch\Repository\RepositoryReference;
-use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Server\Domain\CommandWithRepositoryReference;
 
 /**
  * Class CreateEventsIndex.
  */
-class CreateEventsIndex implements WithRepositoryReference
+class CreateEventsIndex extends CommandWithRepositoryReference
 {
-    use WithRepositoryReferenceTrait;
-
-    /**
-     * ResetCommand constructor.
-     *
-     * @param RepositoryReference $repositoryReference
-     */
-    public function __construct(RepositoryReference $repositoryReference)
-    {
-        $this->repositoryReference = $repositoryReference;
-    }
 }

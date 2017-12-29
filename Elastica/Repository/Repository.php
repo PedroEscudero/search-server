@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Config\Config;
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Model\Item;
@@ -24,6 +25,7 @@ use Apisearch\Query\Query;
 use Apisearch\Repository\Repository as BaseRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Result\Result;
+use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 
 /**
  * Class Repository.
@@ -31,43 +33,36 @@ use Apisearch\Result\Result;
 class Repository extends BaseRepository
 {
     /**
-     * @var QueryRepository
+     * @var ElasticaWrapperWithRepositoryReference[]
      *
-     * Query repository
+     * Repositories
      */
-    private $queryRepository;
+    private $repositories = [];
 
     /**
-     * @var IndexRepository
+     * Add repository.
      *
-     * Index repository
+     * @param ElasticaWrapperWithRepositoryReference $repository
      */
-    private $indexRepository;
+    public function addRepository(ElasticaWrapperWithRepositoryReference $repository)
+    {
+        $this->repositories[] = $repository;
+    }
 
     /**
-     * @var DeleteRepository
+     * Get repository by class.
      *
-     * Delete repository
-     */
-    private $deleteRepository;
-
-    /**
-     * ServiceRepository constructor.
+     * @param string $class
      *
-     * @param QueryRepository  $queryRepository
-     * @param IndexRepository  $indexRepository
-     * @param DeleteRepository $deleteRepository
+     * @return ElasticaWrapperWithRepositoryReference
      */
-    public function __construct(
-        QueryRepository $queryRepository,
-        IndexRepository $indexRepository,
-        DeleteRepository $deleteRepository
-    ) {
-        parent::__construct();
-
-        $this->queryRepository = $queryRepository;
-        $this->indexRepository = $indexRepository;
-        $this->deleteRepository = $deleteRepository;
+    private function getRepository(string $class)
+    {
+        foreach ($this->repositories as $repository) {
+            if (get_class($repository) === $class) {
+                return $repository;
+            }
+        }
     }
 
     /**
@@ -79,9 +74,9 @@ class Repository extends BaseRepository
     {
         parent::setRepositoryReference($repositoryReference);
 
-        $this->queryRepository->setRepositoryReference($repositoryReference);
-        $this->indexRepository->setRepositoryReference($repositoryReference);
-        $this->deleteRepository->setRepositoryReference($repositoryReference);
+        foreach ($this->repositories as $repository) {
+            $repository->setRepositoryReference($repositoryReference);
+        }
     }
 
     /**
@@ -96,13 +91,13 @@ class Repository extends BaseRepository
     ) {
         if (!empty($itemsToUpdate)) {
             $this
-                ->indexRepository
+                ->getRepository(IndexRepository::class)
                 ->addItems($itemsToUpdate);
         }
 
         if (!empty($itemsToDelete)) {
             $this
-                ->deleteRepository
+                ->getRepository(DeleteRepository::class)
                 ->deleteItems($itemsToDelete);
         }
     }
@@ -119,22 +114,20 @@ class Repository extends BaseRepository
     public function query(Query $query): Result
     {
         return $this
-            ->queryRepository
+            ->getRepository(QueryRepository::class)
             ->query($query);
     }
 
     /**
      * Create an index.
      *
-     * @param null|string $language
-     *
      * @throws ResourceExistsException
      */
-    public function createIndex(? string $language)
+    public function createIndex()
     {
         $this
-            ->indexRepository
-            ->createIndex($language);
+            ->getRepository(IndexRepository::class)
+            ->createIndex();
     }
 
     /**
@@ -145,7 +138,7 @@ class Repository extends BaseRepository
     public function deleteIndex()
     {
         $this
-            ->indexRepository
+            ->getRepository(IndexRepository::class)
             ->deleteIndex();
     }
 
@@ -157,7 +150,21 @@ class Repository extends BaseRepository
     public function resetIndex()
     {
         $this
-            ->indexRepository
+            ->getRepository(IndexRepository::class)
             ->resetIndex();
+    }
+
+    /**
+     * Config the index.
+     *
+     * @param Config $config
+     *
+     * @throws ResourceNotAvailableException
+     */
+    public function configureIndex(Config $config)
+    {
+        $this
+            ->getRepository(ConfigRepository::class)
+            ->configureIndex($config);
     }
 }

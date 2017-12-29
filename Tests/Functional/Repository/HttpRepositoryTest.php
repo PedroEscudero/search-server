@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
 
+use Apisearch\Config\Config;
 use Apisearch\Event\EventRepository;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
@@ -104,18 +105,33 @@ class HttpRepositoryTest extends RepositoryTest
     /**
      * Create index using the bus.
      *
-     * @param string $language
      * @param string $appId
      * @param string $index
      */
     public function createIndex(
-        string $language = null,
         string $appId = null,
         string $index = null
     ) {
         $this
             ->configureRepository($appId, $index)
-            ->createIndex($language);
+            ->createIndex();
+    }
+
+    /**
+     * Configure index using the bus.
+     *
+     * @param Config $config
+     * @param string $appId
+     * @param string $index
+     */
+    public function configureIndex(
+        Config $config,
+        string $appId = null,
+        string $index = null
+    ) {
+        $this
+            ->configureRepository($appId, $index)
+            ->configureIndex($config);
     }
 
     /**
@@ -224,7 +240,7 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @return Repository
      */
-    private function configureRepository(
+    public function configureRepository(
         string $appId = null,
         string $index = null
     ) {

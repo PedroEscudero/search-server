@@ -41,6 +41,13 @@ services:
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\ResetIndex }
 
+    apisearch_server.comand_handler.configure_index:
+        class: Apisearch\Server\Domain\CommandHandler\ConfigureIndexHandler
+        arguments:
+            - "@apisearch.repository_search.default"
+            - "@apisearch_server.event_publisher"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\ConfigureIndex }
 
     apisearch_server.comand_handler.delete_items:
         class: Apisearch\Server\Domain\CommandHandler\DeleteItemsHandler

@@ -63,4 +63,18 @@ abstract class ElasticaWrapperWithRepositoryReference implements WithRepositoryR
             ->elasticaWrapper
             ->refresh($this->getRepositoryReference());
     }
+
+    /**
+     * Get config path.
+     *
+     * @return string
+     */
+    protected function getConfigPath(): string
+    {
+        return rtrim(str_replace(
+            ['{app_id}', '{index_id}'],
+            [$this->getAppId(), $this->getIndex()],
+            $this->repositoryConfig['config_path']
+        ), '/');
+    }
 }

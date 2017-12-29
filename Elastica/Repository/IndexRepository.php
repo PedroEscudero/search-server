@@ -29,18 +29,16 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
 {
     /**
      * Create the index.
-     *
-     * @param null|string $language
      */
-    public function createIndex(? string $language)
+    public function createIndex()
     {
+        mkdir($this->getConfigPath(), 0755, true);
         $this
             ->elasticaWrapper
             ->createIndex(
                 $this->getRepositoryReference(),
                 $this->repositoryConfig['shards'],
-                $this->repositoryConfig['replicas'],
-                $language
+                $this->repositoryConfig['replicas']
             );
 
         $this
@@ -58,6 +56,9 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
         $this
             ->elasticaWrapper
             ->deleteIndex($this->getRepositoryReference());
+
+        $this->deleteConfigFolder();
+        @rmdir($this->getConfigPath());
     }
 
     /**
@@ -150,5 +151,18 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
             (is_bool($element) && !$element) ||
             (is_array($element) && empty($element))
         );
+    }
+
+    /**
+     * Delete all config folder.
+     */
+    private function deleteConfigFolder()
+    {
+        $files = glob($this->getConfigPath().'/*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
     }
 }

@@ -16,20 +16,22 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Config\Config;
+use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\CreateIndex;
+use Apisearch\Server\Domain\Command\ConfigureIndex;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class CreateIndexController.
+ * Class ConfigureIndexController.
  */
-class CreateIndexController extends ControllerWithBus
+class ConfigureIndexController extends ControllerWithBusAndEventRepository
 {
     /**
-     * Create an index.
+     * Config the index.
      *
      * @param Request $request
      *
@@ -37,19 +39,27 @@ class CreateIndexController extends ControllerWithBus
      *
      * @throws InvalidTokenException
      */
-    public function createIndex(Request $request)
+    public function configureIndex(Request $request)
     {
+        $this->configureEventRepository($request);
         $query = $request->query;
+        $requestBody = $request->request;
+
+        $plainConfig = $requestBody->get(HttpRepository::CONFIG_FIELD, null);
+        if (!is_string($plainConfig)) {
+            throw InvalidFormatException::configFormatNotValid($plainConfig);
+        }
 
         $this
             ->commandBus
-            ->handle(new CreateIndex(
+            ->handle(new ConfigureIndex(
                 RepositoryReference::create(
                     $query->get(HttpRepository::APP_ID_FIELD),
                     $query->get(HttpRepository::INDEX_FIELD)
-                )
+                ),
+                Config::createFromArray(json_decode($plainConfig, true))
             ));
 
-        return new JsonResponse('Index created', 200);
+        return new JsonResponse('Config applied', 200);
     }
 }

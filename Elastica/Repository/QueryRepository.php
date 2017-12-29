@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Config\Campaign;
+use Apisearch\Config\Campaigns;
 use Apisearch\Geo\CoordinateAndDistance;
 use Apisearch\Geo\LocationRange;
 use Apisearch\Geo\Polygon;
@@ -31,9 +33,11 @@ use Apisearch\Result\Aggregation as ResultAggregation;
 use Apisearch\Result\Aggregations as ResultAggregations;
 use Apisearch\Result\Result;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
+use Carbon\Carbon;
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Suggest;
+use Exception;
 
 /**
  * Class QueryRepository.
@@ -77,6 +81,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
             $this->addHighlights($mainQuery);
         }
 
+        $this->addCampaigns($query, $boolQuery);
         $mainQuery->setQuery($boolQuery);
 
         if (SortBy::SCORE !== $query->getSortBy()) {
@@ -313,8 +318,8 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
                 $match = new ElasticaQuery\MultiMatch();
                 $filterFields = empty($filterFields)
                     ? [
-                        'searchable_metadata.*^2',
-                        'exact_matching_metadata^10',
+                        'searchable_metadata.*',
+                        'exact_matching_metadata^5',
                     ]
                     : $filterFields;
 
@@ -323,7 +328,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
                     ->setQuery($queryString)
                     ->setType('phrase');
             }
-            $boolQuery->addMust($match);
+            $boolQuery->addShould($match);
 
             return;
         }
@@ -703,6 +708,8 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
     /**
      * Promote UUID.
      *
+     * The boosting values go from 1 (not included) to 3 (not included)
+     *
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param ItemUUID[]              $itemsPriorized
      */
@@ -714,12 +721,12 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
             return;
         }
 
-        $total = count($itemsPriorized) + 1;
+        $it = 1;
         foreach ($itemsPriorized as $position => $itemUUID) {
             $boolQuery->addShould(new ElasticaQuery\Term([
                 '_id' => [
                     'value' => $itemUUID->composeUUID(),
-                    'boost' => ($total - $position),
+                    'boost' => 10 + ($it++ / (count($itemsPriorized) + 1)),
                 ],
             ]));
         }
@@ -740,5 +747,92 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Add campaigns.
+     *
+     * @param Query                   $query
+     * @param ElasticaQuery\BoolQuery $elasticaQuery
+     */
+    private function addCampaigns(
+        Query $query,
+        ElasticaQuery\BoolQuery $elasticaQuery
+    ) {
+        $file = $this->getConfigPath().'/campaigns.json';
+        if (!is_file($file)) {
+            return;
+        }
+
+        try {
+            $campaignsAsArray = json_decode(file_get_contents($file), true);
+        } catch (Exception $e) {
+            return;
+        }
+
+        $now = Carbon::now('UTC')->timestamp;
+        $enabledCampaigns = array_filter(
+            Campaigns::createFromArray($campaignsAsArray)->getCampaigns(),
+            function (Campaign $campaign) use ($query, $now) {
+                return
+                    $campaign->isEnabled() &&
+                    !empty($campaign->getBoostClauses()) &&
+                    (
+                        is_null($campaign->getFrom()) ||
+                        $campaign->getFrom()->getTimestamp() <= $now
+                    ) &&
+                    (
+                        is_null($campaign->getTo()) ||
+                        $campaign->getTo()->getTimestamp() > $now
+                    ) &&
+                    (
+                        empty($campaign->getQueryText()) ||
+                        (preg_match('~^'.$campaign->getQueryText().'$~i', $query->getQueryText()) === 1)
+                    ) &&
+                    (
+                        empty($campaign->getAppliedFilters()) ||
+                        empty(array_filter(
+                            $campaign->getAppliedFilters(),
+                            function ($values, string $field) use ($query) {
+                                $values = is_array($values) ? $values : [$values];
+                                $filter = $query->getFilterByField($field);
+                                if (is_null($filter)) {
+                                    return true;
+                                }
+
+                                return !empty(array_intersect($values, $filter->getValues()));
+                            },
+                            ARRAY_FILTER_USE_BOTH
+                        ))
+                    )
+                ;
+            }
+        );
+
+        if (empty($enabledCampaigns)) {
+            return;
+        }
+
+        /**
+         * @var Campaign $enabledCampaign
+         */
+        $boolQuery = new ElasticaQuery\BoolQuery();
+        foreach ($enabledCampaigns as $enabledCampaign) {
+            foreach ($enabledCampaign->getBoostClauses() as $boostClause) {
+                $boosting = $boostClause->getBoost();
+                foreach ($boostClause->getValues() as $value) {
+                    $term = new ElasticaQuery\Term([
+                        Filter::getFilterPathByField($boostClause->getField()) => [
+                            'value' => $value,
+                            'boost' => $boosting,
+                        ],
+                    ]);
+                    $boolQuery->addShould($term);
+                }
+            }
+        }
+        $enabledCampaign->getMode() === Campaign::MODE_BOOST
+            ? $elasticaQuery->addShould($boolQuery)
+            : $elasticaQuery->addMust($boolQuery);
     }
 }
