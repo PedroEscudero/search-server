@@ -328,7 +328,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
                     ->setQuery($queryString)
                     ->setType('phrase');
             }
-            $boolQuery->addShould($match);
+            $boolQuery->addMust($match);
 
             return;
         }
