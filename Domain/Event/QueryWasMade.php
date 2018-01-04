@@ -60,6 +60,13 @@ class QueryWasMade extends DomainEvent
     private $size;
 
     /**
+     * @var string[]
+     *
+     * Result ids
+     */
+    private $resultIds;
+
+    /**
      * @var User|null
      *
      * User
@@ -74,6 +81,7 @@ class QueryWasMade extends DomainEvent
      * @param string    $sortField
      * @param string    $sortDirection
      * @param int       $size
+     * @param string[]  $resultIds
      * @param User|null $user
      */
     public function __construct(
@@ -82,6 +90,7 @@ class QueryWasMade extends DomainEvent
         string $sortField,
         string $sortDirection,
         int $size,
+        array $resultIds,
         ? User $user
     ) {
         $this->queryText = $queryText;
@@ -89,6 +98,7 @@ class QueryWasMade extends DomainEvent
         $this->sortField = $sortField;
         $this->sortDirection = $sortDirection;
         $this->size = $size;
+        $this->resultIds = $resultIds;
         $this->user = $user;
         $this->setNow();
     }
@@ -108,6 +118,7 @@ class QueryWasMade extends DomainEvent
             'sort_field' => $this->sortField,
             'sort_direction' => $this->sortDirection,
             'size' => $this->size,
+            'result_ids' => $this->resultIds,
             'user' => ($this->user instanceof User)
                 ? $this->user->toArray()
                 : null,
@@ -141,6 +152,7 @@ class QueryWasMade extends DomainEvent
             $payload['sort_field'],
             $payload['sort_direction'],
             $payload['size'],
+            $payload['result_ids'] ?? [],
             isset($payload['user'])
                 ? User::createFromArray($payload['user'])
                 : null,

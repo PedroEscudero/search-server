@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Event\Event;
+use Apisearch\Event\SortBy;
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
@@ -55,7 +56,8 @@ class EventsController extends ControllerWithBus
                 $this->castToIntIfNotNull($query, 'from'),
                 $this->castToIntIfNotNull($query, 'to'),
                 $this->castToIntIfNotNull($query, 'length'),
-                $this->castToIntIfNotNull($query, 'offset')
+                $this->castToIntIfNotNull($query, 'offset'),
+                $query->get('sort_by', SortBy::OCCURRED_ON_DESC)
             ));
 
         $events = array_map(function (Event $event) {

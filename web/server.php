@@ -47,7 +47,7 @@ $http = new \React\Http\Server(function (\Psr\Http\Message\ServerRequestInterfac
         });
 
         $request->getBody()->on('end', function () use ($resolve, &$body, $request, $kernel){
-
+echo $request->getUri() . PHP_EOL;
             try {
                 $method = $request->getMethod();
                 $headers = $request->getHeaders();

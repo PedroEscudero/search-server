@@ -16,7 +16,9 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\QueryHandler;
 
+use Apisearch\Model\Item;
 use Apisearch\Query\Filter;
+use Apisearch\Query\Query as ApisearchQuery;
 use Apisearch\Result\Result;
 use Apisearch\Server\Domain\Event\QueryWasMade;
 use Apisearch\Server\Domain\Query\Query;
@@ -54,6 +56,9 @@ class QueryHandler extends WithRepositoryAndEventPublisher
                 array_keys($searchQuery->getSortBy())[0],
                 array_values($searchQuery->getSortBy())[0]['order'],
                 $searchQuery->getSize(),
+                array_map(function (Item $item) {
+                    return $item->composeUUID();
+                }, $result->getItems()),
                 $searchQuery->getUser()
             ));
 
@@ -81,5 +86,21 @@ class QueryHandler extends WithRepositoryAndEventPublisher
                     }
                 )
             );
+    }
+
+    /**
+     * Query has the minimums requirements to be added as an event.
+     *
+     * Not used at the moment.
+     *
+     * * Query with more than 1 char
+     * * Or a filter applied
+     */
+    private function queryShouldBeAddedAsEvent(ApisearchQuery $query)
+    {
+        return
+            strlen($query->getQueryText()) > 1 ||
+            count($query->getFilters()) > 1
+        ;
     }
 }

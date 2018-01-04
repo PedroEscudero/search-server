@@ -18,6 +18,7 @@ namespace Apisearch\Server\Domain\Event;
 
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository;
+use Apisearch\Event\SortBy;
 use Apisearch\Repository\RepositoryReference;
 
 /**
@@ -85,10 +86,11 @@ class EventStore
     /**
      * Get all domain events.
      *
-     * @param int|null $from
-     * @param int|null $to
-     * @param int|null $length
-     * @param int|null $offset
+     * @param int|null    $from
+     * @param int|null    $to
+     * @param int|null    $length
+     * @param int|null    $offset
+     * @param string|null $sortBy
      *
      * @return DomainEvent[]
      */
@@ -96,7 +98,8 @@ class EventStore
         ?int $from = null,
         ?int $to = null,
         ?int $length = 10,
-        ?int $offset = 0
+        ?int $offset = 0,
+        ?string $sortBy = SortBy::OCCURRED_ON_DESC
     ): array {
         return array_map(function (Event $event) {
             return DomainEvent::fromArray([
@@ -111,7 +114,8 @@ class EventStore
                 $from,
                 $to,
                 $length,
-                $offset
+                $offset,
+                $sortBy
             )
         );
     }

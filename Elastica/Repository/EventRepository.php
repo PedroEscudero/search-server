@@ -18,6 +18,7 @@ namespace Apisearch\Server\Elastica\Repository;
 
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository as BaseEventRepository;
+use Apisearch\Event\SortBy;
 use Apisearch\Event\Stats;
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
@@ -113,7 +114,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+            throw ResourceNotAvailableException::eventsIndexNotAvailable(
+                $exception->getMessage()
+            );
         }
     }
 
@@ -149,7 +152,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+            throw ResourceNotAvailableException::eventsIndexNotAvailable(
+                $exception->getMessage()
+            );
         }
     }
 
@@ -161,6 +166,7 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
      * @param int|null    $to
      * @param int|null    $length
      * @param int|null    $offset
+     * @param string|null $sortBy
      *
      * @return Event[]
      *
@@ -171,7 +177,8 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
         ? int $from = null,
         ? int $to = null,
         ? int $length = 10,
-        ? int $offset = 0
+        ? int $offset = 0,
+        ? string $sortBy = SortBy::OCCURRED_ON_DESC
     ): array {
         $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
@@ -195,6 +202,7 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
         }
 
         $mainQuery->setQuery($boolQuery);
+        $mainQuery->addSort(['occurred_on' => ['order' => $sortBy]]);
 
         try {
             $queryResult = $this
@@ -208,7 +216,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+            throw ResourceNotAvailableException::eventsIndexNotAvailable(
+                $exception->getMessage()
+            );
         }
 
         return $this->resultsToEvents($queryResult->getResults());
@@ -237,7 +247,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+            throw ResourceNotAvailableException::eventsIndexNotAvailable(
+                $exception->getMessage()
+            );
         }
 
         $results = $queryResult->getResults();
@@ -297,7 +309,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+            throw ResourceNotAvailableException::eventsIndexNotAvailable(
+                $exception->getMessage()
+            );
         }
 
         $nameAggregationResults = $queryResult->getAggregation('name');
@@ -347,7 +361,9 @@ class EventRepository extends RepositoryWithCredentials implements BaseEventRepo
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::eventsIndexNotAvailable();
+            throw ResourceNotAvailableException::eventsIndexNotAvailable(
+                $exception->getMessage()
+            );
         }
     }
 
