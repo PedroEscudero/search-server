@@ -26,15 +26,6 @@ config:
             localhost_9200:
                 host: localhost
                 port: 9200
-            localhost_9201:
-                host: localhost
-                port: 9201
-            localhost_9202:
-                host: localhost
-                port: 9202
-            localhost_9203:
-                host: localhost
-                port: 9203
         config:
             repository:
                 config_path: '/tmp/config_{app_id}_{index_id}'
