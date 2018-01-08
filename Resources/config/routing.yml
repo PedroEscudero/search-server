@@ -62,13 +62,7 @@ search_server_api_events:
     path: /v1/events
     methods: ["GET"]
     defaults:
-        _controller: apisearch_server.events_controller:list
-
-search_server_api_event_stats:
-    path: /v1/events/stats
-    methods: ["GET"]
-    defaults:
-        _controller: apisearch_server.events_controller:stats
+        _controller: apisearch_server.events_controller:query
 
 search_server_api_health:
     path: /health

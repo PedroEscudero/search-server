@@ -19,6 +19,7 @@ namespace Apisearch\Server\Domain\Event;
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository;
 use Apisearch\Event\SortBy;
+use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
 
 /**
@@ -77,46 +78,10 @@ class EventStore
                         '',
                         get_class($event)
                     ),
-                    json_encode($event->payloadToArray()),
+                    json_encode($event->readableOnlyToArray()),
+                    $event->indexableToArray(),
                     $event->occurredOn()
                 )
             );
-    }
-
-    /**
-     * Get all domain events.
-     *
-     * @param int|null    $from
-     * @param int|null    $to
-     * @param int|null    $length
-     * @param int|null    $offset
-     * @param string|null $sortBy
-     *
-     * @return DomainEvent[]
-     */
-    public function allDomainEvents(
-        ?int $from = null,
-        ?int $to = null,
-        ?int $length = 10,
-        ?int $offset = 0,
-        ?string $sortBy = SortBy::OCCURRED_ON_DESC
-    ): array {
-        return array_map(function (Event $event) {
-            return DomainEvent::fromArray([
-                'type' => $event->getName(),
-                'occurred_on' => $event->getOccurredOn(),
-                'payload' => $event->getPayload(),
-            ]);
-        }, $this
-            ->eventRepository
-            ->all(
-                null,
-                $from,
-                $to,
-                $length,
-                $offset,
-                $sortBy
-            )
-        );
     }
 }

@@ -30,11 +30,21 @@ class IndexWasReset extends DomainEvent
     }
 
     /**
-     * Payload to array.
+     * Indexable to array.
      *
      * @return array
      */
-    public function payloadToArray(): array
+    public function readableOnlyToArray(): array
+    {
+        return [];
+    }
+
+    /**
+     * Indexable to array.
+     *
+     * @return array
+     */
+    public function indexableToArray(): array
     {
         return [];
     }

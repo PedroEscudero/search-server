@@ -90,19 +90,12 @@ services:
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\Query }
 
-    apisearch_server.query_handler.list_events:
-        class: Apisearch\Server\Domain\QueryHandler\ListEventsHandler
+    apisearch_server.query_handler.query_events:
+        class: Apisearch\Server\Domain\QueryHandler\QueryEventsHandler
         arguments:
             - "@apisearch.event_repository_search.default"
         tags:
-            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\ListEvents }
-
-    apisearch_server.query_handler.stats_events:
-        class: Apisearch\Server\Domain\QueryHandler\StatsEventsHandler
-        arguments:
-            - "@apisearch.event_repository_search.default"
-        tags:
-            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\StatsEvents }
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\QueryEvents }
 
     apisearch_server.query_handler.check_health:
         class: Apisearch\Server\Domain\QueryHandler\CheckHealthHandler

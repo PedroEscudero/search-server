@@ -18,8 +18,8 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Http\Http;
 use Apisearch\Query\Query as QueryModel;
-use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Query\Query;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,12 +30,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class QueryController extends ControllerWithBusAndEventRepository
 {
-    /**
-     * @var string
-     *
-     * Purge Query object from response
-     */
-    const PURGE_QUERY_FROM_RESPONSE_FIELD = 'incl_query';
 
     /**
      * Make a query.
@@ -52,7 +46,7 @@ class QueryController extends ControllerWithBusAndEventRepository
         $this->configureEventRepository($request);
         $query = $request->query;
 
-        $plainQuery = $query->get(HttpRepository::QUERY_FIELD, null);
+        $plainQuery = $query->get(Http::QUERY_FIELD, null);
         if (!is_string($plainQuery)) {
             throw InvalidFormatException::queryFormatNotValid($plainQuery);
         }
@@ -61,14 +55,14 @@ class QueryController extends ControllerWithBusAndEventRepository
             ->commandBus
             ->handle(new Query(
                 RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
+                    $query->get(Http::APP_ID_FIELD),
+                    $query->get(Http::INDEX_FIELD)
                 ),
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))
             ->toArray();
 
-        if ($query->has(self::PURGE_QUERY_FROM_RESPONSE_FIELD)) {
+        if ($query->has(Http::PURGE_QUERY_FROM_RESPONSE_FIELD)) {
             unset($responseAsArray['query']);
         }
 

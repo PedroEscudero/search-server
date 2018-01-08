@@ -16,33 +16,34 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\QueryHandler;
 
-use Apisearch\Event\Stats;
-use Apisearch\Server\Domain\Query\StatsEvents;
+use Apisearch\Event\Event;
+use Apisearch\Server\Domain\Query\QueryEvents;
 use Apisearch\Server\Domain\WithEventRepository;
 
 /**
- * Class StatsEventsHandler.
+ * Class QueryEventsHandler.
  */
-class StatsEventsHandler extends WithEventRepository
+class QueryEventsHandler extends WithEventRepository
 {
     /**
-     * Reset the query.
+     * Query events
      *
-     * @param StatsEvents $statsEvents
+     * @param QueryEvents $queryEvents
      *
-     * @return Stats
+     * @return Event[]
      */
-    public function handle(StatsEvents $statsEvents)
+    public function handle(QueryEvents $queryEvents)
     {
         $this
             ->eventRepository
-            ->setRepositoryReference($statsEvents->getRepositoryReference());
+            ->setRepositoryReference($queryEvents->getRepositoryReference());
 
         return $this
             ->eventRepository
-            ->stats(
-                $statsEvents->getFrom(),
-                $statsEvents->getTo()
+            ->query(
+                $queryEvents->getQuery(),
+                $queryEvents->getFrom(),
+                $queryEvents->getTo()
             );
     }
 }

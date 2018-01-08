@@ -23,61 +23,15 @@ use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
 use Apisearch\Repository\Repository as BaseRepository;
-use Apisearch\Repository\RepositoryReference;
 use Apisearch\Result\Result;
-use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
+use Apisearch\Server\Elastica\WithRepositories;
 
 /**
  * Class Repository.
  */
 class Repository extends BaseRepository
 {
-    /**
-     * @var ElasticaWrapperWithRepositoryReference[]
-     *
-     * Repositories
-     */
-    private $repositories = [];
-
-    /**
-     * Add repository.
-     *
-     * @param ElasticaWrapperWithRepositoryReference $repository
-     */
-    public function addRepository(ElasticaWrapperWithRepositoryReference $repository)
-    {
-        $this->repositories[] = $repository;
-    }
-
-    /**
-     * Get repository by class.
-     *
-     * @param string $class
-     *
-     * @return ElasticaWrapperWithRepositoryReference
-     */
-    private function getRepository(string $class)
-    {
-        foreach ($this->repositories as $repository) {
-            if (get_class($repository) === $class) {
-                return $repository;
-            }
-        }
-    }
-
-    /**
-     * Set repository reference.
-     *
-     * @param RepositoryReference $repositoryReference
-     */
-    public function setRepositoryReference(RepositoryReference $repositoryReference)
-    {
-        parent::setRepositoryReference($repositoryReference);
-
-        foreach ($this->repositories as $repository) {
-            $repository->setRepositoryReference($repositoryReference);
-        }
-    }
+    use WithRepositories;
 
     /**
      * Flush items.

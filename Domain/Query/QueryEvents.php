@@ -16,23 +16,24 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Query;
 
+use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
 
 /**
- * Class ListEvents.
+ * Class QueryEvents.
  */
-class ListEvents implements WithRepositoryReference
+class QueryEvents implements WithRepositoryReference
 {
     use WithRepositoryReferenceTrait;
 
     /**
-     * @var string|null
+     * @var Query
      *
-     * Name
+     * Query
      */
-    private $name;
+    private $query;
 
     /**
      * @var int|null
@@ -49,53 +50,33 @@ class ListEvents implements WithRepositoryReference
     private $to;
 
     /**
-     * @var int
-     *
-     * Length
-     */
-    private $length;
-
-    /**
-     * @var int
-     *
-     * Offset
-     */
-    private $offset;
-
-    /**
      * DeleteCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param string|null         $name
+     * @param Query $query
      * @param int|null            $from
      * @param int|null            $to
-     * @param int|null            $length
-     * @param int|null            $offset
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        ?string $name,
+        Query $query,
         ?int $from,
-        ?int $to,
-        ?int $length,
-        ?int $offset
+        ?int $to
     ) {
         $this->repositoryReference = $repositoryReference;
-        $this->name = $name;
+        $this->query = $query;
         $this->from = $from;
         $this->to = $to;
-        $this->length = $length;
-        $this->offset = $offset;
     }
 
     /**
-     * Get Name.
+     * Get Query.
      *
-     * @return null|string
+     * @return Query
      */
-    public function getName(): ? string
+    public function getQuery(): ? Query
     {
-        return $this->name;
+        return $this->query;
     }
 
     /**
@@ -116,25 +97,5 @@ class ListEvents implements WithRepositoryReference
     public function getTo(): ? int
     {
         return $this->to;
-    }
-
-    /**
-     * Get Length.
-     *
-     * @return null|int
-     */
-    public function getLength(): ?int
-    {
-        return $this->length;
-    }
-
-    /**
-     * Get Offset.
-     *
-     * @return null|int
-     */
-    public function getOffset(): ?int
-    {
-        return $this->offset;
     }
 }

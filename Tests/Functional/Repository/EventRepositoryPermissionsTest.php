@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
+use Apisearch\Query\Query;
 
 /**
  * Class EventRepositoryPermissionsTest.
@@ -29,12 +30,10 @@ trait EventRepositoryPermissionsTest
      */
     public function testEventsBadPermissionsList($appId, $index)
     {
-        $this->listEvents(
-            null,
+        $this->queryEvents(
+            Query::createMatchAll(),
             1513470315000000,
             1513470315000000,
-            null,
-            null,
             $appId,
             $index
         );
@@ -48,7 +47,8 @@ trait EventRepositoryPermissionsTest
      */
     public function testEventsBadPermissionsStats($appId, $index)
     {
-        $this->statsEvents(
+        $this->queryEvents(
+            Query::createMatchAll(),
             1513470315000000,
             1513470315000000,
             $appId,

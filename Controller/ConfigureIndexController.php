@@ -19,6 +19,7 @@ namespace Apisearch\Server\Controller;
 use Apisearch\Config\Config;
 use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Http\Http;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\ConfigureIndex;
@@ -45,7 +46,7 @@ class ConfigureIndexController extends ControllerWithBusAndEventRepository
         $query = $request->query;
         $requestBody = $request->request;
 
-        $plainConfig = $requestBody->get(HttpRepository::CONFIG_FIELD, null);
+        $plainConfig = $requestBody->get(Http::CONFIG_FIELD, null);
         if (!is_string($plainConfig)) {
             throw InvalidFormatException::configFormatNotValid($plainConfig);
         }
@@ -54,8 +55,8 @@ class ConfigureIndexController extends ControllerWithBusAndEventRepository
             ->commandBus
             ->handle(new ConfigureIndex(
                 RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
+                    $query->get(Http::APP_ID_FIELD),
+                    $query->get(Http::INDEX_FIELD)
                 ),
                 Config::createFromArray(json_decode($plainConfig, true))
             ));

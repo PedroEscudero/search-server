@@ -16,13 +16,12 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
-use Apisearch\Event\Event;
-use Apisearch\Event\SortBy;
+use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
-use Apisearch\Repository\HttpRepository;
+use Apisearch\Http\Http;
+use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Query\ListEvents;
-use Apisearch\Server\Domain\Query\StatsEvents;
+use Apisearch\Server\Domain\Query\QueryEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 class EventsController extends ControllerWithBus
 {
     /**
-     * List events.
+     * Query events.
      *
      * @param Request $request
      *
@@ -41,70 +40,39 @@ class EventsController extends ControllerWithBus
      *
      * @throws InvalidTokenException
      */
-    public function list(Request $request)
+    public function query(Request $request)
     {
         $query = $request->query;
 
-        $events = $this
+        $plainQuery = $query->get(Http::QUERY_FIELD, null);
+        if (!is_string($plainQuery)) {
+            throw InvalidFormatException::queryFormatNotValid($plainQuery);
+        }
+
+        $eventsAsArray = $this
             ->commandBus
-            ->handle(new ListEvents(
+            ->handle(new QueryEvents(
                 RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
+                    $query->get(Http::APP_ID_FIELD),
+                    $query->get(Http::INDEX_FIELD)
                 ),
-                $query->get('name', ''),
-                $this->castToIntIfNotNull($query, 'from'),
-                $this->castToIntIfNotNull($query, 'to'),
-                $this->castToIntIfNotNull($query, 'length'),
-                $this->castToIntIfNotNull($query, 'offset'),
-                $query->get('sort_by', SortBy::OCCURRED_ON_DESC)
-            ));
+                Query::createFromArray(json_decode($plainQuery, true)),
+                $this->castToIntIfNotNull($query, Http::FROM_FIELD),
+                $this->castToIntIfNotNull($query, Http::TO_FIELD)
+            ))
+            ->toArray();
 
-        $events = array_map(function (Event $event) {
-            return $event->toArray();
-        }, $events);
-
-        return new JsonResponse(
-            $events,
+        $response = new JsonResponse(
+            $eventsAsArray,
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
             ]
         );
+
+        return $response;
     }
 
-    /**
-     * Stats events.
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
-     *
-     * @throws InvalidTokenException
-     */
-    public function stats(Request $request)
-    {
-        $query = $request->query;
-
-        $stats = $this
-            ->commandBus
-            ->handle(new StatsEvents(
-                RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
-                ),
-                $this->castToIntIfNotNull($query, 'from'),
-                $this->castToIntIfNotNull($query, 'to')
-            ));
-
-        return new JsonResponse(
-            $stats->toArray(),
-            200,
-            [
-                'Access-Control-Allow-Origin' => '*',
-            ]
-        );
-    }
 
     /**
      * Get query value and cast to int of not null.

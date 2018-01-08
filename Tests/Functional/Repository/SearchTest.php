@@ -22,6 +22,7 @@ use Apisearch\Query\Query;
 use Apisearch\Query\User;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Elastica\ElasticaWrapper;
+use Apisearch\Server\Elastica\Repository\ItemElasticaWrapper;
 
 /**
  * Class SearchTest.
@@ -38,13 +39,13 @@ trait SearchTest
         $this->assertSame(
             count($result->getItems()),
             $this
-                ->get('apisearch_server.elastica_wrapper')
+                ->get('apisearch_server.item_elastica_wrapper')
                 ->getType(
                     RepositoryReference::create(
                         self::$appId,
                         self::$index
                     ),
-                    ElasticaWrapper::ITEM_TYPE
+                    ItemElasticaWrapper::ITEM_TYPE
                 )->count()
         );
     }

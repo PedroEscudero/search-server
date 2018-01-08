@@ -42,11 +42,11 @@ class ItemsWereIndexed extends DomainEvent
     }
 
     /**
-     * Payload to array.
+     * Indexable to array.
      *
      * @return array
      */
-    public function payloadToArray(): array
+    public function readableOnlyToArray(): array
     {
         return [
             'items' => array_values(
@@ -55,6 +55,16 @@ class ItemsWereIndexed extends DomainEvent
                 }, $this->items)
             ),
         ];
+    }
+
+    /**
+     * Indexable to array.
+     *
+     * @return array
+     */
+    public function indexableToArray(): array
+    {
+        return [];
     }
 
     /**

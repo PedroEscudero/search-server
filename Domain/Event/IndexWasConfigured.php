@@ -42,15 +42,27 @@ class IndexWasConfigured extends DomainEvent
     }
 
     /**
-     * Payload to array.
+     * Indexable to array.
      *
      * @return array
      */
-    public function payloadToArray(): array
+    public function readableOnlyToArray(): array
     {
         return [
-            'config' => $this->config->toArray(),
+            'config' => $this
+                ->config
+                ->toArray(),
         ];
+    }
+
+    /**
+     * Indexable to array.
+     *
+     * @return array
+     */
+    public function indexableToArray(): array
+    {
+        return [];
     }
 
     /**

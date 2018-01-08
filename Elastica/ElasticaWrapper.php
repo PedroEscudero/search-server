@@ -31,15 +31,8 @@ use Elastica\Type\Mapping;
 /**
  * Class ElasticaWrapper.
  */
-class ElasticaWrapper
+abstract class ElasticaWrapper
 {
-    /**
-     * @var string
-     *
-     * Item type
-     */
-    const ITEM_TYPE = 'item';
-
     /**
      * @var Client
      *
@@ -58,17 +51,62 @@ class ElasticaWrapper
     }
 
     /**
+     * Get item type
+     *
+     * @return string
+     */
+    public abstract function getItemType() : string;
+
+    /**
+     * Get index name
+     *
+     * @param RepositoryReference $repositoryReference
+     *
+     * @return string
+     */
+    public abstract function getIndexName(RepositoryReference $repositoryReference): string;
+
+    /**
+     * Get index not available exception
+     *
+     * @param string $message
+     *
+     * @return ResourceNotAvailableException
+     */
+    public abstract function getIndexNotAvailableException(string $message) : ResourceNotAvailableException;
+
+    /**
+     * Get index configuration
+     *
+     * @param int $shards
+     * @param int $replicas
+     *
+     * @return array
+     */
+    public abstract function getIndexConfiguration(
+        int $shards,
+        int $replicas
+    ) : array;
+
+    /**
+     * Build index mapping
+     *
+     * @param Mapping $mapping
+     */
+    public abstract function buildIndexMapping(Mapping $mapping);
+
+    /**
      * Get search index.
      *
      * @param RepositoryReference $repositoryReference
      *
      * @return Index
      */
-    public function getSearchIndex(RepositoryReference $repositoryReference): Index
+    public function getIndex(RepositoryReference $repositoryReference): Index
     {
         return $this
             ->client
-            ->getIndex('apisearch_'.$repositoryReference->compose());
+            ->getIndex($this->getIndexName($repositoryReference));
     }
 
     /**
@@ -81,7 +119,7 @@ class ElasticaWrapper
     public function deleteIndex(RepositoryReference $repositoryReference)
     {
         try {
-            $searchIndex = $this->getSearchIndex($repositoryReference);
+            $searchIndex = $this->getIndex($repositoryReference);
             $searchIndex->clearCache();
             $searchIndex->delete();
         } catch (ResponseException $exception) {
@@ -89,7 +127,7 @@ class ElasticaWrapper
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::indexNotAvailable();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
 
@@ -103,7 +141,7 @@ class ElasticaWrapper
     public function resetIndex(RepositoryReference $repositoryReference)
     {
         try {
-            $searchIndex = $this->getSearchIndex($repositoryReference);
+            $searchIndex = $this->getIndex($repositoryReference);
             $searchIndex->clearCache();
             $searchIndex->deleteByQuery(new Query\MatchAll());
         } catch (ResponseException $exception) {
@@ -111,7 +149,7 @@ class ElasticaWrapper
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::indexNotAvailable();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
 
@@ -129,128 +167,19 @@ class ElasticaWrapper
         int $shards,
         int $replicas
     ) {
-        $searchIndex = $this->getSearchIndex($repositoryReference);
-        $indexConfiguration = [
-            'number_of_shards' => $shards,
-            'number_of_replicas' => $replicas,
-            'max_result_window' => 50000,
-            'analysis' => [
-                'analyzer' => [
-                    'default' => [
-                        'type' => 'custom',
-                        'tokenizer' => 'standard',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                            'ngram_filter',
-                        ],
-                    ],
-                    'search_analyzer' => [
-                        'type' => 'custom',
-                        'tokenizer' => 'standard',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                        ],
-                    ],
-                ],
-                'filter' => [
-                    'ngram_filter' => [
-                        'type' => 'edge_ngram',
-                        'min_gram' => 1,
-                        'max_gram' => 20,
-                        'token_chars' => [
-                            'letter',
-                        ],
-                    ],
-                ],
-                'normalizer' => [
-                    'exact_matching_normalizer' => [
-                        'type' => 'custom',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        $searchIndex = $this->getIndex($repositoryReference);
 
         try {
-            $searchIndex->create($indexConfiguration);
+            $searchIndex->create($this->getIndexConfiguration(
+                $shards,
+                $replicas
+            ));
         } catch (ResponseException $exception) {
             /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceExistsException::indexExists();
-        }
-    }
-
-    /**
-     * Update index configuration.
-     *
-     * @param RepositoryReference $repositoryReference
-     * @param string              $configPath
-     * @param null|string         $language
-     */
-    public function updateIndexSettings(
-        RepositoryReference $repositoryReference,
-        string $configPath,
-        ? string $language
-    ) {
-        $searchIndex = $this->getSearchIndex($repositoryReference);
-        $indexSettings = [
-            'analysis' => [
-                'analyzer' => [
-                    'search_analyzer' => [
-                        'type' => 'custom',
-                        'tokenizer' => 'standard',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                            'stop_words',
-                        ],
-                    ],
-                ],
-                'filter' => [
-                    'stop_words' => [
-                        'type' => 'stop',
-                        'stopwords' => ElasticaLanguages::getStopwordsLanguageByIso($language),
-                    ],
-                ],
-            ],
-        ];
-
-        $synonymPath = $configPath.'/synonyms.txt';
-        if (file_exists($synonymPath)) {
-            $indexSettings['analysis']['analyzer']['search_analyzer']['filter'][] = 'synonym';
-            $indexSettings['analysis']['filter']['synonym'] = [
-                'type' => 'synonym',
-                'synonyms_path' => $synonymPath,
-            ];
-        }
-
-        $stemmer = ElasticaLanguages::getStemmerLanguageByIso($language);
-        if (!is_null($stemmer)) {
-            $indexSettings['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
-            $indexSettings['analysis']['filter']['stemmer'] = [
-                'type' => 'stemmer',
-                'name' => $stemmer,
-            ];
-        }
-
-        try {
-            $searchIndex->close();
-            $searchIndex->setSettings($indexSettings);
-            $searchIndex->open();
-            sleep(1);
-        } catch (ResponseException $exception) {
-            /*
-             * The index resource cannot be deleted.
-             * This means that the resource is not available
-             */
-            throw ResourceExistsException::indexExists();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
 
@@ -267,7 +196,7 @@ class ElasticaWrapper
         string $typeName
     ) {
         return $this
-            ->getSearchIndex($repositoryReference)
+            ->getIndex($repositoryReference)
             ->getType($typeName);
     }
 
@@ -289,7 +218,7 @@ class ElasticaWrapper
     ): array {
         try {
             $queryResult = $this
-                ->getSearchIndex($repositoryReference)
+                ->getIndex($repositoryReference)
                 ->search($query, [
                     'from' => $from,
                     'size' => $size,
@@ -299,11 +228,11 @@ class ElasticaWrapper
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::indexNotAvailable();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
 
         return [
-            'items' => $queryResult->getResults(),
+            'results' => $queryResult->getResults(),
             'suggests' => $queryResult->getSuggests(),
             'aggregations' => $queryResult->getAggregations(),
             'total_hits' => $queryResult->getTotalHits(),
@@ -318,7 +247,7 @@ class ElasticaWrapper
     public function refresh(RepositoryReference $repositoryReference)
     {
         $this
-            ->getSearchIndex($repositoryReference)
+            ->getIndex($repositoryReference)
             ->refresh();
     }
 
@@ -333,73 +262,15 @@ class ElasticaWrapper
     {
         try {
             $itemMapping = new Mapping();
-            $itemMapping->setType($this->getType($repositoryReference, self::ITEM_TYPE));
-            $itemMapping->setParam('dynamic_templates', [
-                [
-                    'dynamic_metadata_as_keywords' => [
-                        'path_match' => 'indexed_metadata.*',
-                        'match_mapping_type' => 'string',
-                        'mapping' => [
-                            'type' => 'keyword',
-                        ],
-                    ],
-                ],
-                [
-                    'dynamic_searchable_metadata_as_text' => [
-                        'path_match' => 'searchable_metadata.*',
-                        'mapping' => [
-                            'type' => 'text',
-                            'analyzer' => 'default',
-                            'search_analyzer' => 'search_analyzer',
-                        ],
-                    ],
-                ],
-            ]);
-            $itemMapping->setProperties([
-                'uuid' => [
-                    'type' => 'object',
-                    'dynamic' => 'strict',
-                    'properties' => [
-                        'id' => [
-                            'type' => 'keyword',
-                        ],
-                        'type' => [
-                            'type' => 'keyword',
-                        ],
-                    ],
-                ],
-                'coordinate' => ['type' => 'geo_point'],
-                'metadata' => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'enabled' => false,
-                ],
-                'indexed_metadata' => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                ],
-                'searchable_metadata' => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                ],
-                'exact_matching_metadata' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'exact_matching_normalizer',
-                ],
-                'suggest' => [
-                    'type' => 'completion',
-                    'analyzer' => 'search_analyzer',
-                    'search_analyzer' => 'search_analyzer',
-                ],
-            ]);
-
+            $itemMapping->setType($this->getType($repositoryReference, $this->getItemType()));
+            $this->buildIndexMapping($itemMapping);
             $itemMapping->send();
         } catch (ResponseException $exception) {
             /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::indexNotAvailable();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
 
@@ -417,14 +288,14 @@ class ElasticaWrapper
     ) {
         try {
             $this
-                ->getType($repositoryReference, self::ITEM_TYPE)
+                ->getType($repositoryReference, $this->getItemType())
                 ->addDocuments($documents);
         } catch (BulkResponseException $exception) {
             /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::indexNotAvailable();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
 
@@ -442,14 +313,14 @@ class ElasticaWrapper
     ) {
         try {
             $this
-                ->getType($repositoryReference, self::ITEM_TYPE)
+                ->getType($repositoryReference, $this->getItemType())
                 ->deleteIds($documentsId);
         } catch (BulkResponseException $exception) {
             /*
              * The index resource cannot be deleted.
              * This means that the resource is not available
              */
-            throw ResourceNotAvailableException::indexNotAvailable();
+            throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
 }

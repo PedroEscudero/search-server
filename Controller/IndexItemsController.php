@@ -18,8 +18,8 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Http\Http;
 use Apisearch\Model\Item;
-use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\IndexItems;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,7 +46,7 @@ class IndexItemsController extends ControllerWithBusAndEventRepository
         $query = $request->query;
         $requestBody = $request->request;
 
-        $items = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
+        $items = $requestBody->get(Http::ITEMS_FIELD, null);
         if (!is_string($items)) {
             throw InvalidFormatException::itemsRepresentationNotValid($items);
         }
@@ -55,8 +55,8 @@ class IndexItemsController extends ControllerWithBusAndEventRepository
             ->commandBus
             ->handle(new IndexItems(
                 RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
+                    $query->get(Http::APP_ID_FIELD),
+                    $query->get(Http::INDEX_FIELD)
                 ),
                 array_map(function (array $object) {
                     return Item::createFromArray($object);

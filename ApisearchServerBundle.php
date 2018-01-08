@@ -20,6 +20,7 @@ use Apisearch\ApisearchBundle;
 use Apisearch\Server\DependencyInjection\ApisearchServerExtension;
 use Apisearch\Server\DependencyInjection\CompilerPass\DomainEventsMiddlewareCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\ElasticaConfigPathCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\ElasticsearchEventRepositoriesCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\ElasticsearchRepositoriesCompilerPass;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
@@ -75,6 +76,7 @@ class ApisearchServerBundle extends BaseBundle
     {
         return [
             new ElasticsearchRepositoriesCompilerPass(),
+            new ElasticsearchEventRepositoriesCompilerPass(),
             new ElasticaConfigPathCompilerPass(),
             new DomainEventsMiddlewareCompilerPass(),
         ];

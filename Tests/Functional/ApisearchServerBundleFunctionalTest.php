@@ -34,6 +34,7 @@ use Apisearch\Server\Domain\Command\IndexItems;
 use Apisearch\Server\Domain\Command\ResetIndex;
 use Apisearch\Server\Domain\Query\ListEvents;
 use Apisearch\Server\Domain\Query\Query;
+use Apisearch\Server\Domain\Query\QueryEvents;
 use Apisearch\Server\Domain\Query\StatsEvents;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
@@ -440,61 +441,29 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
-     * List all events using the bus.
+     * Query events
      *
-     * @param string|null $name
+     * @param QueryModel $query
      * @param int|null    $from
      * @param int|null    $to
-     * @param int|null    $length
-     * @param int|null    $offset
      * @param string      $appId
      * @param string      $index
      */
-    public function listEvents(
-        ?string $name = null,
+    public function queryEvents(
+        QueryModel $query,
         ?int $from = null,
         ?int $to = null,
-        ?int $length = null,
-        ?int $offset = null,
         string $appId = null,
         string $index = null
     ) {
         self::$container
             ->get('tactician.commandbus')
-            ->handle(new ListEvents(
+            ->handle(new QueryEvents(
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index
                 ),
-                $name,
-                $from,
-                $to,
-                $length,
-                $offset
-            ));
-    }
-
-    /**
-     * List all events stats using the bus.
-     *
-     * @param int|null $from
-     * @param int|null $to
-     * @param string   $appId
-     * @param string   $index
-     */
-    public function statsEvents(
-        int $from = null,
-        int $to = null,
-        string $appId = null,
-        string $index = null
-    ) {
-        self::$container
-            ->get('tactician.commandbus')
-            ->handle(new StatsEvents(
-                RepositoryReference::create(
-                    $appId ?? self::$appId,
-                    $index ?? self::$index
-                ),
+                $query,
                 $from,
                 $to
             ));

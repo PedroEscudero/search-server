@@ -38,13 +38,15 @@ class ConfigRepository extends ElasticaWrapperWithRepositoryReference
         $this->writeCampaigns($config);
         $this->writeSynonyms($config);
 
-        $this
-            ->elasticaWrapper
-            ->updateIndexSettings(
-                $this->getRepositoryReference(),
-                $this->getConfigPath(),
-                $config->getLanguage()
-            );
+        if ($this->elasticaWrapper instanceof ItemElasticaWrapper) {
+            $this
+                ->elasticaWrapper
+                ->updateIndexSettings(
+                    $this->getRepositoryReference(),
+                    $this->getConfigPath(),
+                    $config->getLanguage()
+                );
+        }
     }
 
     /**

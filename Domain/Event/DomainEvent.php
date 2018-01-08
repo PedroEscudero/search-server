@@ -79,7 +79,27 @@ abstract class DomainEvent
      *
      * @return array
      */
-    abstract public function payloadToArray(): array;
+    public function payloadToArray(): array
+    {
+        return array_merge(
+            $this->readableOnlyToArray(),
+            $this->indexableToArray()
+        );
+    }
+
+    /**
+     * Indexable to array.
+     *
+     * @return array
+     */
+    abstract public function readableOnlyToArray(): array;
+
+    /**
+     * Indexable to array.
+     *
+     * @return array
+     */
+    abstract public function indexableToArray(): array;
 
     /**
      * To payload.

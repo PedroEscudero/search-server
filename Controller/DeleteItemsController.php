@@ -18,8 +18,8 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Http\Http;
 use Apisearch\Model\ItemUUID;
-use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\DeleteItems;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,7 +46,7 @@ class DeleteItemsController extends ControllerWithBusAndEventRepository
         $query = $request->query;
         $requestBody = $request->request;
 
-        $itemsUUID = $requestBody->get(HttpRepository::ITEMS_FIELD, null);
+        $itemsUUID = $requestBody->get(Http::ITEMS_FIELD, null);
         if (!is_string($itemsUUID)) {
             throw InvalidFormatException::itemsUUIDRepresentationNotValid($itemsUUID);
         }
@@ -55,8 +55,8 @@ class DeleteItemsController extends ControllerWithBusAndEventRepository
             ->commandBus
             ->handle(new DeleteItems(
                 RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
+                    $query->get(Http::APP_ID_FIELD),
+                    $query->get(Http::INDEX_FIELD)
                 ),
                 array_map(function (array $object) {
                     return ItemUUID::createFromArray($object);

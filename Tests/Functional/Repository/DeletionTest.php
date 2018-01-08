@@ -20,6 +20,7 @@ use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Elastica\ElasticaWrapper;
+use Apisearch\Server\Elastica\Repository\ItemElasticaWrapper;
 
 /**
  * Class DeletionTest.
@@ -60,13 +61,13 @@ trait DeletionTest
     private function assertNbItems(int $nb)
     {
         $this->assertSame($nb, $this
-            ->get('apisearch_server.elastica_wrapper')
+            ->get('apisearch_server.item_elastica_wrapper')
             ->getType(
                 RepositoryReference::create(
                     self::$appId,
                     self::$index
                 ),
-                ElasticaWrapper::ITEM_TYPE
+                ItemElasticaWrapper::ITEM_TYPE
             )->count()
         );
     }

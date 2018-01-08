@@ -17,9 +17,10 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidTokenException;
+use Apisearch\Http\Http;
 use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Elastica\Repository\EventRepository;
+use Apisearch\Server\Elastica\EventRepository\Repository as EventRepository;
 use League\Tactician\CommandBus;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -64,8 +65,8 @@ abstract class ControllerWithBusAndEventRepository extends ControllerWithBus
             ->eventRepository
             ->setRepositoryReference(
                 RepositoryReference::create(
-                    $query->get(HttpRepository::APP_ID_FIELD),
-                    $query->get(HttpRepository::INDEX_FIELD)
+                    $query->get(Http::APP_ID_FIELD),
+                    $query->get(Http::INDEX_FIELD)
                 )
             );
     }

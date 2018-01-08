@@ -8,51 +8,86 @@ services:
         arguments:
             - "%apisearch_server.cluster%"
 
-    apisearch_server.elastica_wrapper:
-        class: Apisearch\Server\Elastica\ElasticaWrapper
-        arguments:
-            - "@apisearch_server.elastica_client"
+    apisearch_server.query_builder:
+        class: Apisearch\Server\Elastica\Builder\QueryBuilder
+
+    apisearch_server.result_builder:
+        class: Apisearch\Server\Elastica\Builder\ResultBuilder
 
     #
     # Elastica repositories
     #
-    apisearch_server.elastica_with_app_id_wrapper:
+    apisearch_server.item_elastica_wrapper:
+        class: Apisearch\Server\Elastica\Repository\ItemElasticaWrapper
+        arguments:
+            - "@apisearch_server.elastica_client"
+
+    apisearch_server.item_elastica_with_app_id_wrapper:
         class: Apisearch\Server\Elastica\ElasticaWithAppIdWrapper
         abstract: true
         public: false
         arguments:
-            - "@apisearch_server.elastica_wrapper"
+            - "@apisearch_server.item_elastica_wrapper"
             - "%apisearch_server.config.repository%"
 
     apisearch_server.elastica_query_repository:
         class: Apisearch\Server\Elastica\Repository\QueryRepository
-        parent: apisearch_server.elastica_with_app_id_wrapper
+        parent: apisearch_server.item_elastica_with_app_id_wrapper
+        arguments:
+            - "@apisearch_server.query_builder"
+            - "@apisearch_server.result_builder"
         tags:
             - {name: "apisearch_server.elastica_repository"}
 
     apisearch_server.elastica_index_repository:
         class: Apisearch\Server\Elastica\Repository\IndexRepository
-        parent: apisearch_server.elastica_with_app_id_wrapper
+        parent: apisearch_server.item_elastica_with_app_id_wrapper
         tags:
             - {name: "apisearch_server.elastica_repository"}
 
     apisearch_server.elastica_delete_repository:
         class: Apisearch\Server\Elastica\Repository\DeleteRepository
-        parent: apisearch_server.elastica_with_app_id_wrapper
+        parent: apisearch_server.item_elastica_with_app_id_wrapper
         tags:
             - {name: "apisearch_server.elastica_repository"}
 
     apisearch_server.elastica_config_repository:
         class: Apisearch\Server\Elastica\Repository\ConfigRepository
-        parent: apisearch_server.elastica_with_app_id_wrapper
+        parent: apisearch_server.item_elastica_with_app_id_wrapper
         tags:
             - {name: "apisearch_server.elastica_repository"}
 
-    apisearch_server.elastica_event_repository:
-        class: Apisearch\Server\Elastica\Repository\EventRepository
+
+    #
+    # Elastica event repositories
+    #
+    apisearch_server.event_elastica_wrapper:
+        class: Apisearch\Server\Elastica\EventRepository\EventElasticaWrapper
         arguments:
             - "@apisearch_server.elastica_client"
+
+    apisearch_server.event_elastica_with_app_id_wrapper:
+        class: Apisearch\Server\Elastica\ElasticaWithAppIdWrapper
+        abstract: true
+        public: false
+        arguments:
+            - "@apisearch_server.event_elastica_wrapper"
             - "%apisearch_server.config.event_repository%"
+
+    apisearch_server.elastica_query_event_repository:
+        class: Apisearch\Server\Elastica\EventRepository\QueryRepository
+        parent: apisearch_server.event_elastica_with_app_id_wrapper
+        arguments:
+            - "@apisearch_server.query_builder"
+            - "@apisearch_server.result_builder"
+        tags:
+            - {name: "apisearch_server.elastica_event_repository"}
+
+    apisearch_server.elastica_index_event_repository:
+        class: Apisearch\Server\Elastica\EventRepository\IndexRepository
+        parent: apisearch_server.event_elastica_with_app_id_wrapper
+        tags:
+            - {name: "apisearch_server.elastica_event_repository"}
 
 
     #
@@ -60,10 +95,9 @@ services:
     #
     apisearch_server.elastica_repository:
         class: Apisearch\Server\Elastica\Repository\Repository
-        arguments:
-            - "@apisearch_server.elastica_query_repository"
-            - "@apisearch_server.elastica_index_repository"
-            - "@apisearch_server.elastica_delete_repository"
+
+    apisearch_server.elastica_event_repository:
+        class: Apisearch\Server\Elastica\EventRepository\Repository
 
     #
     # Middlewares

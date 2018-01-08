@@ -104,14 +104,26 @@ class QueryWasMade extends DomainEvent
     }
 
     /**
-     * Payload to array.
+     * Indexable to array.
      *
      * @return array
      */
-    public function payloadToArray(): array
+    public function readableOnlyToArray(): array
     {
-        return array_filter([
+        return [];
+    }
+
+    /**
+     * Indexable to array.
+     *
+     * @return array
+     */
+    public function indexableToArray(): array
+    {
+        return [
             'q' => $this->queryText,
+            'q_empty' => empty($this->queryText),
+            'q_length' => strlen($this->queryText),
             'filters' => array_map(function (Filter $filter) {
                 return $filter->toArray();
             }, $this->appliedFilters),
@@ -122,13 +134,7 @@ class QueryWasMade extends DomainEvent
             'user' => ($this->user instanceof User)
                 ? $this->user->toArray()
                 : null,
-        ], function ($element) {
-            return
-            !(
-                is_null($element) ||
-                (is_array($element) && empty($element))
-            );
-        });
+        ];
     }
 
     /**
