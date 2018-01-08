@@ -1,6 +1,4 @@
 vendor
 /var
-/web/*
-!/web/FiniteServer.php
-!/web/server.php
-/bin
+/bin/console
+/web
