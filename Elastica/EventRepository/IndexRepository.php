@@ -18,9 +18,9 @@ namespace Apisearch\Server\Elastica\EventRepository;
 
 use Apisearch\Event\Event;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
+use DateTime;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
-use DateTime;
 
 /**
  * Class IndexRepository.
@@ -87,11 +87,11 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
         $itemDocument = [
             'uuid' => [
                 'id' => $event->getConsistencyHash(),
-                'type' => $event->getName()
+                'type' => $event->getName(),
             ],
             'payload' => $event->getPayload(),
             'indexed_metadata' => [
-                'occurred_on' => $formattedTime
+                'occurred_on' => $formattedTime,
             ] + $event->getIndexablePayload(),
         ];
 

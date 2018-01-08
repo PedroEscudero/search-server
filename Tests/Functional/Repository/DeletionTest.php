@@ -19,7 +19,6 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\Repository\ItemElasticaWrapper;
 
 /**

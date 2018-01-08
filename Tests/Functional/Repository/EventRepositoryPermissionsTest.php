@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
+
 use Apisearch\Query\Query;
 
 /**

@@ -33,11 +33,19 @@ abstract class DomainEvent
     private $occurredOn;
 
     /**
+     * @var Carbon;
+     *
+     * Now
+     */
+    private $now;
+
+    /**
      * Mark occurred on as now.
      */
     protected function setNow()
     {
         $now = Carbon::now('UTC');
+        $this->now = $now;
         $this->occurredOn = ($now->timestamp * 1000000) + ((int) ($now->micro / 1000) * 1000);
     }
 
@@ -49,6 +57,21 @@ abstract class DomainEvent
     public function occurredOn(): int
     {
         return $this->occurredOn;
+    }
+
+    /**
+     * Return specific occurred_on ranges.
+     *
+     * @return int[]
+     */
+    public function occurredOnRanges(): array
+    {
+        return [
+            'occurred_on_day' => $this->now->startOfDay()->timestamp,
+            'occurred_on_week' => $this->now->startOfWeek()->timestamp,
+            'occurred_on_month' => $this->now->startOfMonth()->timestamp,
+            'occurred_on_year' => $this->now->startOfYear()->timestamp,
+        ];
     }
 
     /**

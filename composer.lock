@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fac590d5367e7c335a304eaeeeb73cf4",
+    "content-hash": "5fe1f10cccc53b098c7e3ac865f0dabb",
     "packages": [
         {
             "name": "apisearch-io/apisearch-bundle",
-            "version": "dev-master",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/apisearch-bundle.git",
-                "reference": "f916fce5b7516cc8a2d384c28358a19433d77529"
+                "reference": "1ebd522b1601f392343b92cb13584d2f69e5ce30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/f916fce5b7516cc8a2d384c28358a19433d77529",
-                "reference": "f916fce5b7516cc8a2d384c28358a19433d77529",
+                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/1ebd522b1601f392343b92cb13584d2f69e5ce30",
+                "reference": "1ebd522b1601f392343b92cb13584d2f69e5ce30",
                 "shasum": ""
             },
             "require": {
-                "apisearch-io/php-client": "dev-master",
+                "apisearch-io/php-client": "^0.1.0",
                 "mmoreram/base-bundle": "^1.0.7",
                 "mmoreram/symfony-bundle-dependencies": "^2.0.0",
                 "php": ">=7.1",
@@ -53,27 +53,28 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2017-12-26T18:42:02+00:00"
+            "time": "2018-01-08T17:15:57+00:00"
         },
         {
             "name": "apisearch-io/php-client",
-            "version": "dev-master",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/php-client.git",
-                "reference": "e8f72aeb982ac6900317638937ee9ed6c386031a"
+                "reference": "1808ce5f6acd93d59ec8679fddafb56ce60ce686"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/e8f72aeb982ac6900317638937ee9ed6c386031a",
-                "reference": "e8f72aeb982ac6900317638937ee9ed6c386031a",
+                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/1808ce5f6acd93d59ec8679fddafb56ce60ce686",
+                "reference": "1808ce5f6acd93d59ec8679fddafb56ce60ce686",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.0",
                 "php": ">=7.1",
                 "psr/http-message": "^1.0.1",
-                "symfony/event-dispatcher": "^3.3|^4.0"
+                "symfony/event-dispatcher": "^3.3|^4.0",
+                "symfony/yaml": "^3.3|^4.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.5.0",
@@ -100,7 +101,47 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2017-12-29T17:08:44+00:00"
+            "time": "2018-01-08T17:12:56+00:00"
+        },
+        {
+            "name": "apisearch-io/react-socket-middleware-finite-server",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/apisearch-io/finite-server.git",
+                "reference": "51d1531831acb3f33a927c8b84350a5cc267a515"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apisearch-io/finite-server/zipball/51d1531831acb3f33a927c8b84350a5cc267a515",
+                "reference": "51d1531831acb3f33a927c8b84350a5cc267a515",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "react/socket": "^0.8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Apisearch\\Socket\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Marc Morera",
+                    "email": "yuhu@mmoreram.com"
+                },
+                {
+                    "name": "Apisearch Team",
+                    "email": "hello@puntmig.com"
+                }
+            ],
+            "time": "2018-01-08T12:42:53+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -2041,16 +2082,16 @@
         },
         {
             "name": "react/socket",
-            "version": "v0.8.7",
+            "version": "v0.8.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/socket.git",
-                "reference": "49bca29df739f4e288ba2abfed9cac93de1bfff6"
+                "reference": "e9e206b6277023bf4afd910a764f0cd3d470e7ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/socket/zipball/49bca29df739f4e288ba2abfed9cac93de1bfff6",
-                "reference": "49bca29df739f4e288ba2abfed9cac93de1bfff6",
+                "url": "https://api.github.com/repos/reactphp/socket/zipball/e9e206b6277023bf4afd910a764f0cd3d470e7ed",
+                "reference": "e9e206b6277023bf4afd910a764f0cd3d470e7ed",
                 "shasum": ""
             },
             "require": {
@@ -2084,7 +2125,7 @@
                 "reactphp",
                 "stream"
             ],
-            "time": "2017-12-24T11:28:59+00:00"
+            "time": "2018-01-06T12:13:20+00:00"
         },
         {
             "name": "react/stream",
@@ -4540,8 +4581,6 @@
     "stability-flags": {
         "league/tactician-bundle": 5,
         "one-bundle-app/one-bundle-app": 20,
-        "apisearch-io/php-client": 20,
-        "apisearch-io/apisearch-bundle": 20,
         "rsqueue/rsqueue": 20,
         "rsqueue/rsqueue-bundle": 20
     },

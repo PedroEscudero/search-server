@@ -20,7 +20,6 @@ use Apisearch\Config\Config;
 use Apisearch\Exception\InvalidFormatException;
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
-use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\ConfigureIndex;
 use Symfony\Component\HttpFoundation\JsonResponse;

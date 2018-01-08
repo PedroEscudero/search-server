@@ -131,6 +131,7 @@ class QueryWasMade extends DomainEvent
             'sort_direction' => $this->sortDirection,
             'size' => $this->size,
             'result_ids' => $this->resultIds,
+            'result_length' => count($this->resultIds),
             'user' => ($this->user instanceof User)
                 ? $this->user->toArray()
                 : null,

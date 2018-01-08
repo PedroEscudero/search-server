@@ -1,7 +1,18 @@
 <?php
-/**
- * File header placeholder
+
+/*
+ * This file is part of the Apisearch Server
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
+
+declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\EventRepository;
 
@@ -11,7 +22,7 @@ use Apisearch\Server\Elastica\ElasticaWrapper;
 use Elastica\Type\Mapping;
 
 /**
- * Class EventElasticaWrapper
+ * Class EventElasticaWrapper.
  */
 class EventElasticaWrapper extends ElasticaWrapper
 {
@@ -23,17 +34,17 @@ class EventElasticaWrapper extends ElasticaWrapper
     const ITEM_TYPE = 'event';
 
     /**
-     * Get item type
+     * Get item type.
      *
      * @return string
      */
-    public function getItemType() : string
+    public function getItemType(): string
     {
         return self::ITEM_TYPE;
     }
 
     /**
-     * Get index name
+     * Get index name.
      *
      * @param RepositoryReference $repositoryReference
      *
@@ -41,23 +52,23 @@ class EventElasticaWrapper extends ElasticaWrapper
      */
     public function getIndexName(RepositoryReference $repositoryReference): string
     {
-        return 'apisearch_' . $repositoryReference->compose() . '_events';
+        return 'apisearch_'.$repositoryReference->compose().'_events';
     }
 
     /**
-     * Get index not available exception
+     * Get index not available exception.
      *
      * @param string $message
      *
      * @return ResourceNotAvailableException
      */
-    public function getIndexNotAvailableException(string $message) : ResourceNotAvailableException
+    public function getIndexNotAvailableException(string $message): ResourceNotAvailableException
     {
         return ResourceNotAvailableException::eventsIndexNotAvailable($message);
     }
 
     /**
-     * Get index configuration
+     * Get index configuration.
      *
      * @param int $shards
      * @param int $replicas
@@ -67,8 +78,7 @@ class EventElasticaWrapper extends ElasticaWrapper
     public function getIndexConfiguration(
         int $shards,
         int $replicas
-    ) : array
-    {
+    ): array {
         return [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
@@ -76,7 +86,7 @@ class EventElasticaWrapper extends ElasticaWrapper
     }
 
     /**
-     * Build index mapping
+     * Build index mapping.
      *
      * @param Mapping $mapping
      */

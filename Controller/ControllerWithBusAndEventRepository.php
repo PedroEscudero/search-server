@@ -18,7 +18,6 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
-use Apisearch\Repository\HttpRepository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Elastica\EventRepository\Repository as EventRepository;
 use League\Tactician\CommandBus;

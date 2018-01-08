@@ -32,10 +32,8 @@ use Apisearch\Server\Domain\Command\DeleteIndex;
 use Apisearch\Server\Domain\Command\DeleteItems;
 use Apisearch\Server\Domain\Command\IndexItems;
 use Apisearch\Server\Domain\Command\ResetIndex;
-use Apisearch\Server\Domain\Query\ListEvents;
 use Apisearch\Server\Domain\Query\Query;
 use Apisearch\Server\Domain\Query\QueryEvents;
-use Apisearch\Server\Domain\Query\StatsEvents;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
@@ -441,13 +439,13 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
-     * Query events
+     * Query events.
      *
      * @param QueryModel $query
-     * @param int|null    $from
-     * @param int|null    $to
-     * @param string      $appId
-     * @param string      $index
+     * @param int|null   $from
+     * @param int|null   $to
+     * @param string     $appId
+     * @param string     $index
      */
     public function queryEvents(
         QueryModel $query,

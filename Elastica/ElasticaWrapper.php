@@ -51,49 +51,49 @@ abstract class ElasticaWrapper
     }
 
     /**
-     * Get item type
+     * Get item type.
      *
      * @return string
      */
-    public abstract function getItemType() : string;
+    abstract public function getItemType(): string;
 
     /**
-     * Get index name
+     * Get index name.
      *
      * @param RepositoryReference $repositoryReference
      *
      * @return string
      */
-    public abstract function getIndexName(RepositoryReference $repositoryReference): string;
+    abstract public function getIndexName(RepositoryReference $repositoryReference): string;
 
     /**
-     * Get index not available exception
+     * Get index not available exception.
      *
      * @param string $message
      *
      * @return ResourceNotAvailableException
      */
-    public abstract function getIndexNotAvailableException(string $message) : ResourceNotAvailableException;
+    abstract public function getIndexNotAvailableException(string $message): ResourceNotAvailableException;
 
     /**
-     * Get index configuration
+     * Get index configuration.
      *
      * @param int $shards
      * @param int $replicas
      *
      * @return array
      */
-    public abstract function getIndexConfiguration(
+    abstract public function getIndexConfiguration(
         int $shards,
         int $replicas
-    ) : array;
+    ): array;
 
     /**
-     * Build index mapping
+     * Build index mapping.
      *
      * @param Mapping $mapping
      */
-    public abstract function buildIndexMapping(Mapping $mapping);
+    abstract public function buildIndexMapping(Mapping $mapping);
 
     /**
      * Get search index.

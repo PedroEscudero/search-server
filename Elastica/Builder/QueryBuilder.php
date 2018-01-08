@@ -29,23 +29,22 @@ use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 
 /**
- * File header placeholder
+ * File header placeholder.
  */
 class QueryBuilder
 {
     /**
-     * Creates an elastic query given a model query
+     * Creates an elastic query given a model query.
      *
-     * @param Query $query
-     * @param ElasticaQuery $mainQuery
+     * @param Query                   $query
+     * @param ElasticaQuery           $mainQuery
      * @param ElasticaQuery\BoolQuery $boolQuery
      */
     public function buildQuery(
         Query $query,
         ElasticaQuery &$mainQuery,
         ElasticaQuery\BoolQuery $boolQuery
-    )
-    {
+    ) {
         $this->addFilters(
             $boolQuery,
             $query->getFilters(),

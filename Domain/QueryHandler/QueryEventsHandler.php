@@ -26,7 +26,7 @@ use Apisearch\Server\Domain\WithEventRepository;
 class QueryEventsHandler extends WithEventRepository
 {
     /**
-     * Query events
+     * Query events.
      *
      * @param QueryEvents $queryEvents
      *

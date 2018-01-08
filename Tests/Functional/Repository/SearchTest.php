@@ -21,7 +21,6 @@ use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
 use Apisearch\Query\User;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\Repository\ItemElasticaWrapper;
 
 /**

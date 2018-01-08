@@ -18,8 +18,6 @@ namespace Apisearch\Server\Domain\Event;
 
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository;
-use Apisearch\Event\SortBy;
-use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
 
 /**
@@ -79,7 +77,10 @@ class EventStore
                         get_class($event)
                     ),
                     json_encode($event->readableOnlyToArray()),
-                    $event->indexableToArray(),
+                    array_merge(
+                        $event->indexableToArray(),
+                        $event->occurredOnRanges()
+                    ),
                     $event->occurredOn()
                 )
             );

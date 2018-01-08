@@ -1,6 +1,4 @@
 {
-    "name": "apisearch/server",
-    "type": "project",
     "authors": [
         {
             "name": "Marc Morera",
@@ -23,9 +21,10 @@
         "mmoreram/base-bundle": "^1.0.7",
         "mmoreram/symfony-bundle-dependencies": "^2.0.0",
         "one-bundle-app/one-bundle-app": "dev-master",
-        "apisearch-io/php-client": "dev-master",
-        "apisearch-io/apisearch-bundle": "dev-master",
+        "apisearch-io/php-client": "^0.1.0",
+        "apisearch-io/apisearch-bundle": "^0.1.0",
         "react/http": "0.7.4",
+        "apisearch-io/react-socket-middleware-finite-server": "^1.0.0",
         "rsqueue/rsqueue": "dev-master",
         "rsqueue/rsqueue-bundle": "dev-master"
     },

@@ -53,7 +53,7 @@ class QueryEvents implements WithRepositoryReference
      * DeleteCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
-     * @param Query $query
+     * @param Query               $query
      * @param int|null            $from
      * @param int|null            $to
      */

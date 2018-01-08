@@ -1,7 +1,18 @@
 <?php
-/**
- * File header placeholder
+
+/*
+ * This file is part of the Apisearch Server
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
+
+declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\EventRepository;
 
@@ -12,13 +23,12 @@ use Apisearch\Server\Elastica\Builder\QueryBuilder;
 use Apisearch\Server\Elastica\Builder\ResultBuilder;
 use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
-use Elastica\Aggregation as ElasticaAggregation;
+use DateTime;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
-use DateTime;
 
 /**
- * Class QueryRepository
+ * Class QueryRepository.
  */
 class QueryRepository extends ElasticaWrapperWithRepositoryReference
 {
@@ -41,8 +51,8 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
      *
      * @param ElasticaWrapper $elasticaWrapper
      * @param array           $repositoryConfig
-     * @param QueryBuilder $queryBuilder
-     * @param ResultBuilder $resultBuilder
+     * @param QueryBuilder    $queryBuilder
+     * @param ResultBuilder   $resultBuilder
      */
     public function __construct(
         ElasticaWrapper $elasticaWrapper,
@@ -60,11 +70,11 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
     }
 
     /**
-     * Make a query and return an Events instance
+     * Make a query and return an Events instance.
      *
-     * @param Query $query
-     * @param int|null            $from
-     * @param int|null            $to
+     * @param Query    $query
+     * @param int|null $from
+     * @param int|null $to
      *
      * @return Events
      */
@@ -72,8 +82,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
         Query $query,
         ?int $from,
         ?int $to
-    ): Events
-    {
+    ): Events {
         $mainQuery = new ElasticaQuery();
         $boolQuery = new ElasticaQuery\BoolQuery();
         $this
@@ -129,10 +138,9 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
         Query $query,
         array $elasticaResults
     ): Events {
-
         $resultAggregations = [];
 
-        /**
+        /*
          * Aggregations extraction
          */
         if ($query->areAggregationsEnabled()) {
@@ -145,8 +153,8 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
             $elasticaResults['total_hits']
         );
 
-        /**
-         * @var ElasticaResult $elasticaResult
+        /*
+         * @var ElasticaResult
          */
         foreach ($elasticaResults['results'] as $elasticaResult) {
             $events->addEvent($this->elasticResultToEvent(
@@ -172,13 +180,13 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference
     }
 
     /**
-     * Create an Event from an elastic result
+     * Create an Event from an elastic result.
      *
      * @param array $result
      *
      * @return Event
      */
-    private function elasticResultToEvent(array $result) : Event
+    private function elasticResultToEvent(array $result): Event
     {
         $indexedMetadata = $result['indexed_metadata'];
         $occurredOn = DateTime::createFromFormat(

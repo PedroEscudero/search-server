@@ -30,7 +30,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class QueryController extends ControllerWithBusAndEventRepository
 {
-
     /**
      * Make a query.
      *

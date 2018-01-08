@@ -1,7 +1,18 @@
 <?php
-/**
- * File header placeholder
+
+/*
+ * This file is part of the Apisearch Server
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Feel free to edit as you please, and have fun.
+ *
+ * @author Marc Morera <yuhu@mmoreram.com>
+ * @author PuntMig Technologies
  */
+
+declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\Builder;
 
@@ -11,12 +22,12 @@ use Apisearch\Result\Aggregation as ResultAggregation;
 use Apisearch\Result\Aggregations as ResultAggregations;
 
 /**
- * Class ResultBuilder
+ * Class ResultBuilder.
  */
 class ResultBuilder
 {
     /**
-     * Build result aggregations
+     * Build result aggregations.
      *
      * @param Query $query
      * @param array $resultAggregations
@@ -26,8 +37,7 @@ class ResultBuilder
     public function buildResultAggregations(
         Query $query,
         array $resultAggregations
-    ) : ResultAggregations
-    {
+    ): ResultAggregations {
         $aggregations = new ResultAggregations($resultAggregations['doc_count']);
         unset($resultAggregations['doc_count']);
         foreach ($resultAggregations as $aggregationName => $resultAggregation) {

@@ -25,7 +25,6 @@ use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryWithCredentials;
 use Apisearch\Result\Events;
 use Apisearch\Server\Elastica\WithRepositories;
-use Elastica\Query as ElasticaQuery;
 
 /**
  * Class Repository.
@@ -73,7 +72,7 @@ class Repository extends RepositoryWithCredentials implements BaseEventRepositor
     }
 
     /**
-     * Query over events
+     * Query over events.
      *
      * @param Query    $query
      * @param int|null $from

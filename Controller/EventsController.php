@@ -73,7 +73,6 @@ class EventsController extends ControllerWithBus
         return $response;
     }
 
-
     /**
      * Get query value and cast to int of not null.
      *
