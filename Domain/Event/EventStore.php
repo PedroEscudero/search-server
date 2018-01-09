@@ -19,6 +19,7 @@ namespace Apisearch\Server\Domain\Event;
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository;
 use Apisearch\Repository\RepositoryReference;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class EventStore.
@@ -57,20 +58,15 @@ class EventStore
     /**
      * Append event.
      *
-     * @param DomainEvent      $event
-     * @param null|DomainEvent $previousEvent
+     * @param DomainEvent $event
      */
-    public function append(
-        DomainEvent $event,
-        ? DomainEvent $previousEvent = null
-    ) {
+    public function append(DomainEvent $event)
+    {
         $this
             ->eventRepository
             ->save(
-                Event::createByPreviousEvent(
-                    $previousEvent ?? $this
-                        ->eventRepository
-                        ->last(),
+                Event::createByPlainData(
+                    Uuid::uuid4()->toString(),
                     str_replace(
                         'Apisearch\Server\Domain\Event\\',
                         '',

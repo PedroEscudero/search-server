@@ -18,7 +18,6 @@ namespace Apisearch\Server\Elastica\EventRepository;
 
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository as BaseEventRepository;
-use Apisearch\Event\SortBy;
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Query\Query;
@@ -94,23 +93,5 @@ class Repository extends RepositoryWithCredentials implements BaseEventRepositor
                 $from,
                 $to
             );
-    }
-
-    /**
-     * Get last event.
-     *
-     * @return Event|null
-     *
-     * @throws ResourceNotAvailableException
-     */
-    public function last(): ? Event
-    {
-        $query = Query::create('', 0, 1);
-        $query->sortBy(SortBy::OCCURRED_ON_DESC);
-
-        return $this
-            ->getRepository(QueryRepository::class)
-            ->query($query, null, null)
-            ->getFirstEvent();
     }
 }
