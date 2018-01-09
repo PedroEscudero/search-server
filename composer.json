@@ -25,6 +25,7 @@
         "apisearch-io/apisearch-bundle": "^0.1.0",
         "react/http": "0.7.4",
         "apisearch-io/react-socket-middleware-finite-server": "^1.0.0",
+        "ramsey/uuid": "^3.7.1",
         "rsqueue/rsqueue": "dev-master",
         "rsqueue/rsqueue-bundle": "dev-master"
     },
