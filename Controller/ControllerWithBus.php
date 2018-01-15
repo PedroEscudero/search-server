@@ -21,7 +21,7 @@ use League\Tactician\CommandBus;
 /**
  * Class ControllerWithBus.
  */
-abstract class ControllerWithBus
+abstract class ControllerWithBus extends BaseController
 {
     /**
      * @var CommandBus

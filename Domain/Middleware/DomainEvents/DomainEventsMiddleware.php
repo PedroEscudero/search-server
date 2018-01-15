@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Domain\Middleware;
+namespace Apisearch\Server\Domain\Middleware\DomainEvents;
 
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Server\Domain\Event\CollectInMemoryDomainEventSubscriber;

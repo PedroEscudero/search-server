@@ -45,7 +45,7 @@ class IndexItemsController extends ControllerWithBusAndEventRepository
         $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
-
+        var_dump($requestBody);
         $items = $requestBody->get(Http::ITEMS_FIELD, null);
         if (!is_string($items)) {
             throw InvalidFormatException::itemsRepresentationNotValid($items);

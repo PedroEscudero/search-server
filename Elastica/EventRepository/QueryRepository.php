@@ -25,7 +25,6 @@ use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use DateTime;
 use Elastica\Query as ElasticaQuery;
-use Elastica\Result as ElasticaResult;
 
 /**
  * Class QueryRepository.

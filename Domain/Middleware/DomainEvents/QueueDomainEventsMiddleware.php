@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Domain\Middleware;
+namespace Apisearch\Server\Domain\Middleware\DomainEvents;
 
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Server\Domain\Event\DomainEvent;
@@ -63,10 +63,10 @@ class QueueDomainEventsMiddleware extends DomainEventsMiddleware implements Midd
         $this
             ->queueProducer
             ->produce(
-                'search-server:domain-events',
+                'apisearch:server:domain-events',
                 [
                     'app_id' => $repositoryReference->getAppId(),
-                    'index' => $repositoryReference->getIndex(),
+                    'index_id' => $repositoryReference->getIndex(),
                     'event' => $event->toArray(),
                 ]
             );

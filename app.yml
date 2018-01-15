@@ -38,15 +38,18 @@ config:
         config:
             repository:
                 config_path: '/tmp/config_{app_id}_{index_id}'
-                shards: 4
-                replicas: 4
+                shards: 3
+                replicas: 3
             event_repository:
-                shards: 4
-                replicas: 4
+                shards: 3
+                replicas: 3
+            log_repository:
+                shards: 3
+                replicas: 3
 
     apisearch:
         repositories:
-            search:
+            main:
                 http: false
                 search:
                     repository_service: "apisearch_server.elastica_repository"
@@ -54,23 +57,8 @@ config:
                 event:
                     repository_service: "apisearch_server.elastica_event_repository"
                     in_memory: false
-                indexes:
-                    default: default
-
-            music_prod:
-                endpoint: http://api.apisear.ch
-                app_id: music
-                #
-                # secret: 1cc7a3e0-bda5-11e7-abc4-cec278b6b50a
-                # Uncomment this line to really make actions on production
-                #
-                token: 64f64f7c-7ca6-46aa-8223-1051f8599f84
-                indexes:
-                    default: default
-
-            music_dev:
-                endpoint: http://localhost:81
-                app_id: music
-                token: 64f64f7c-7ca6-46aa-8223-1051f8599f84
+                log:
+                    repository_service: "apisearch_server.elastica_log_repository"
+                    in_memory: false
                 indexes:
                     default: default

@@ -64,7 +64,9 @@ class ItemsWereDeleted extends DomainEvent
      */
     public function indexableToArray(): array
     {
-        return [];
+        return [
+            'nb_items' => count($this->itemsUUID),
+        ];
     }
 
     /**

@@ -20,11 +20,13 @@ use Apisearch\Config\Config;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Server\Domain\LoggableCommand;
+use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class ConfigureIndex.
  */
-class ConfigureIndex implements WithRepositoryReference
+class ConfigureIndex implements WithRepositoryReference, WriteCommand, LoggableCommand
 {
     use WithRepositoryReferenceTrait;
 

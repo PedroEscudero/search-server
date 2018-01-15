@@ -32,7 +32,7 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
      */
     public function createIndex()
     {
-        mkdir($this->getConfigPath(), 0755, true);
+        @mkdir($this->getConfigPath(), 0755, true);
         $this
             ->elasticaWrapper
             ->createIndex(

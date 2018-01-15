@@ -17,10 +17,12 @@ declare(strict_types=1);
 namespace Apisearch\Server\Domain\Command;
 
 use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\LoggableCommand;
+use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class CreateIndex.
  */
-class CreateIndex extends CommandWithRepositoryReference
+class CreateIndex extends CommandWithRepositoryReference implements WriteCommand, LoggableCommand
 {
 }

@@ -29,6 +29,16 @@ services:
         arguments:
             - "@tactician.commandbus.command"
 
+    apisearch_server.create_logs_index_controller:
+        class: Apisearch\Server\Controller\CreateLogsIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    apisearch_server.delete_logs_index_controller:
+        class: Apisearch\Server\Controller\DeleteLogsIndexController
+        arguments:
+            - "@tactician.commandbus.command"
+
     #
     # Controllers with query bus
     #
@@ -52,6 +62,11 @@ services:
 
     apisearch_server.events_controller:
         class: Apisearch\Server\Controller\EventsController
+        arguments:
+            - "@tactician.commandbus.query"
+
+    apisearch_server.logs_controller:
+        class: Apisearch\Server\Controller\LogsController
         arguments:
             - "@tactician.commandbus.query"
 

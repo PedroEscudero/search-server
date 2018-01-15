@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\QueryHandler;
 
-use Apisearch\Event\Event;
+use Apisearch\Result\Events;
 use Apisearch\Server\Domain\Query\QueryEvents;
 use Apisearch\Server\Domain\WithEventRepository;
 
@@ -30,9 +30,9 @@ class QueryEventsHandler extends WithEventRepository
      *
      * @param QueryEvents $queryEvents
      *
-     * @return Event[]
+     * @return Events
      */
-    public function handle(QueryEvents $queryEvents)
+    public function handle(QueryEvents $queryEvents): Events
     {
         $this
             ->eventRepository

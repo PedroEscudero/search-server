@@ -20,11 +20,12 @@ use Apisearch\Query\Query as SearchQuery;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Server\Domain\LoggableCommand;
 
 /**
  * Class Query.
  */
-class Query implements WithRepositoryReference
+class Query implements WithRepositoryReference, LoggableCommand
 {
     use WithRepositoryReferenceTrait;
 

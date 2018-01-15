@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica\Middleware;
 
 use Apisearch\Repository\Repository;
+use Apisearch\Server\Domain\WriteCommand;
 use League\Tactician\Middleware;
 
 /**
@@ -51,9 +52,11 @@ class TransactionElasticaMiddleware implements Middleware
     {
         $result = $next($command);
 
-        $this
-            ->repository
-            ->flush();
+        if ($command instanceof WriteCommand) {
+            $this
+                ->repository
+                ->flush();
+        }
 
         return $result;
     }

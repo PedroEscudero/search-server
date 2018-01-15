@@ -1,0 +1,15 @@
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$connectionsPool = new \Apisearch\Server\Socket\ConnectionsPool();
+$server = \Apisearch\Server\Socket\ServerFactory::create(
+    new \Apisearch\Server\Socket\App(
+        $connectionsPool,
+        'event'
+    ),
+    8050,
+    'apisearch:domain-events:reduced'
+);
+
+$server->run();
