@@ -8,7 +8,7 @@ $server = \Apisearch\Server\Socket\ServerFactory::create(
         $connectionsPool,
         'log'
     ),
-    8051,
+    $argv[1],
     'apisearch:logs'
 );
 

@@ -8,7 +8,7 @@ $server = \Apisearch\Server\Socket\ServerFactory::create(
         $connectionsPool,
         'event'
     ),
-    8050,
+    $argv[1],
     'apisearch:domain-events:reduced'
 );
 
