@@ -21,6 +21,7 @@ use Apisearch\Model\Item;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
+use Elastica\Index\Stats;
 
 /**
  * Class IndexRepository.
@@ -71,6 +72,18 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
             ->resetIndex($this->getRepositoryReference());
 
         $this->refresh();
+    }
+
+    /**
+     * Get the index stats.
+     *
+     * @return Stats
+     */
+    public function getIndexStats(): Stats
+    {
+        return $this
+            ->elasticaWrapper
+            ->getIndexStats($this->getRepositoryReference());
     }
 
     /**

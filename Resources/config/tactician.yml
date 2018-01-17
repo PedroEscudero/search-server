@@ -11,8 +11,6 @@ tactician:
 
         query:
             middleware:
-                - tactician.middleware.locking
                 - apisearch_server.middleware.logs
-                - apisearch_server.middleware.transaction
                 - apisearch_server.middleware.domain_events
                 - tactician.middleware.command_handler

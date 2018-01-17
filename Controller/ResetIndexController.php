@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\ResetIndex;
@@ -34,10 +33,8 @@ class ResetIndexController extends ControllerWithBusAndEventRepository
      * @param Request $request
      *
      * @return JsonResponse
-     *
-     * @throws InvalidTokenException
      */
-    public function resetIndex(Request $request)
+    public function resetIndex(Request $request): JsonResponse
     {
         $this->configureEventRepository($request);
         $query = $request->query;

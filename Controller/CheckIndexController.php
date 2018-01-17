@@ -18,35 +18,37 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Http\Http;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\Command\DeleteLogsIndex;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Apisearch\Server\Domain\Query\CheckIndex;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class DeleteLogsIndexController.
+ * Class CheckIndexController.
  */
-class DeleteLogsIndexController extends ControllerWithBus
+class CheckIndexController extends ControllerWithBus
 {
     /**
-     * Delete the logs index.
+     * Create an index.
      *
      * @param Request $request
      *
-     * @return JsonResponse
+     * @return Response
      */
-    public function deleteLogsIndex(Request $request): JsonResponse
+    public function checkIndex(Request $request): Response
     {
         $query = $request->query;
 
-        $this
+        $alive = $this
             ->commandBus
-            ->handle(new DeleteLogsIndex(
+            ->handle(new CheckIndex(
                 RepositoryReference::create(
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 )
             ));
 
-        return new JsonResponse('Logs index deleted', 200);
+        return true === $alive
+            ? new Response('', Response::HTTP_OK)
+            : new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

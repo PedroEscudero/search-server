@@ -135,6 +135,23 @@ class HttpRepositoryTest extends RepositoryTest
     }
 
     /**
+     * Check index.
+     *
+     * @param string $appId
+     * @param string $index
+     *
+     * @return bool
+     */
+    public function checkIndex(
+        string $appId = null,
+        string $index = null
+    ): bool {
+        return $this
+            ->configureRepository($appId, $index)
+            ->checkIndex();
+    }
+
+    /**
      * Delete index using the bus.
      *
      * @param string $appId
@@ -207,28 +224,6 @@ class HttpRepositoryTest extends RepositoryTest
                 $to,
                 $length,
                 $offset
-            );
-    }
-
-    /**
-     * List all events stats using the bus.
-     *
-     * @param int|null $from
-     * @param int|null $to
-     * @param string   $appId
-     * @param string   $index
-     */
-    public function statsEvents(
-        int $from = null,
-        int $to = null,
-        string $appId = null,
-        string $index = null
-    ) {
-        $this
-            ->configureEventsRepository($appId, $index)
-            ->stats(
-                $from,
-                $to
             );
     }
 

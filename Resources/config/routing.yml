@@ -82,6 +82,15 @@ search_server_api_logs:
     defaults:
         _controller: apisearch_server.logs_controller:query
 
+#
+# Check
+#
+search_server_api_check_index:
+    path: /v1/index
+    methods: ["HEAD"]
+    defaults:
+        _controller: apisearch_server.check_index_controller:checkIndex
+
 search_server_api_health:
     path: /health
     methods: ["GET"]

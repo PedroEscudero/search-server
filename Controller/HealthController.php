@@ -30,9 +30,9 @@ class HealthController extends ControllerWithBus
     /**
      * Health controller.
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function check()
+    public function check(): JsonResponse
     {
         /**
          * @var Health
@@ -49,13 +49,13 @@ class HealthController extends ControllerWithBus
      *
      * @return Response
      */
-    public function ping()
+    public function ping(): Response
     {
-        $status = $this
+        $alive = $this
             ->commandBus
             ->handle(new Ping());
 
-        return true === $status
+        return true === $alive
             ? new Response('', Response::HTTP_OK)
             : new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
     }

@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
@@ -36,10 +35,8 @@ class LogsController extends ControllerWithBus
      * @param Request $request
      *
      * @return JsonResponse
-     *
-     * @throws InvalidTokenException
      */
-    public function query(Request $request)
+    public function query(Request $request): JsonResponse
     {
         $query = $request->query;
 
@@ -61,14 +58,12 @@ class LogsController extends ControllerWithBus
             ))
             ->toArray();
 
-        $response = new JsonResponse(
+        return new JsonResponse(
             $eventsAsArray,
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
             ]
         );
-
-        return $response;
     }
 }

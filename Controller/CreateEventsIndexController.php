@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\CreateEventsIndex;
@@ -34,10 +33,8 @@ class CreateEventsIndexController extends ControllerWithBus
      * @param Request $request
      *
      * @return JsonResponse
-     *
-     * @throws InvalidTokenException
      */
-    public function createEventsIndex(Request $request)
+    public function createEventsIndex(Request $request): JsonResponse
     {
         $query = $request->query;
 

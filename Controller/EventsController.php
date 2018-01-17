@@ -39,7 +39,7 @@ class EventsController extends ControllerWithBus
      *
      * @throws InvalidTokenException
      */
-    public function query(Request $request)
+    public function query(Request $request): JsonResponse
     {
         $query = $request->query;
 
@@ -61,14 +61,12 @@ class EventsController extends ControllerWithBus
             ))
             ->toArray();
 
-        $response = new JsonResponse(
+        return new JsonResponse(
             $eventsAsArray,
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
             ]
         );
-
-        return $response;
     }
 }

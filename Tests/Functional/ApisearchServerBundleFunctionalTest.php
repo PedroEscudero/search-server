@@ -34,6 +34,7 @@ use Apisearch\Server\Domain\Command\DeleteItems;
 use Apisearch\Server\Domain\Command\DeleteLogsIndex;
 use Apisearch\Server\Domain\Command\IndexItems;
 use Apisearch\Server\Domain\Command\ResetIndex;
+use Apisearch\Server\Domain\Query\CheckIndex;
 use Apisearch\Server\Domain\Query\Query;
 use Apisearch\Server\Domain\Query\QueryEvents;
 use Apisearch\Server\Domain\Query\QueryLogs;
@@ -401,6 +402,28 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
+     * Check index.
+     *
+     * @param string $appId
+     * @param string $index
+     *
+     * @return bool
+     */
+    public function checkIndex(
+        string $appId = null,
+        string $index = null
+    ): bool {
+        return self::$container
+            ->get('tactician.commandbus')
+            ->handle(new CheckIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
      * Delete index using the bus.
      *
      * @param string $appId
@@ -476,7 +499,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         string $appId = null,
         string $index = null
     ) {
-        self::$container
+        return self::$container
             ->get('tactician.commandbus')
             ->handle(new QueryEvents(
                 RepositoryReference::create(
@@ -545,7 +568,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         string $appId = null,
         string $index = null
     ) {
-        self::$container
+        return self::$container
             ->get('tactician.commandbus')
             ->handle(new QueryLogs(
                 RepositoryReference::create(

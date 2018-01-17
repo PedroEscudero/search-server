@@ -18,7 +18,6 @@ namespace Apisearch\Server\Controller;
 
 use Apisearch\Config\Config;
 use Apisearch\Exception\InvalidFormatException;
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\ConfigureIndex;
@@ -36,10 +35,8 @@ class ConfigureIndexController extends ControllerWithBusAndEventRepository
      * @param Request $request
      *
      * @return JsonResponse
-     *
-     * @throws InvalidTokenException
      */
-    public function configureIndex(Request $request)
+    public function configureIndex(Request $request): JsonResponse
     {
         $this->configureEventRepository($request);
         $query = $request->query;

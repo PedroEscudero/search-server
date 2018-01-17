@@ -110,6 +110,13 @@ services:
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\Query }
 
+    apisearch_server.query_handler.check_index:
+        class: Apisearch\Server\Domain\QueryHandler\CheckIndexHandler
+        arguments:
+            - "@apisearch.repository_main.default"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\CheckIndex }
+
     apisearch_server.query_handler.query_events:
         class: Apisearch\Server\Domain\QueryHandler\QueryEventsHandler
         arguments:
