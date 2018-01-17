@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Console;
 
+use Apisearch\Exception\TransportableException;
 use Apisearch\Log\Log;
 use Apisearch\Log\LogRepository;
 use Apisearch\Repository\RepositoryReference;
@@ -106,10 +107,14 @@ class LogsConsumer extends ConsumerCommand
             );
 
         $log = Log::createFromArray($data['log']);
-        var_dump($log);
-        $this
-            ->logRepository
-            ->save($log);
+
+        try {
+            $this
+                ->logRepository
+                ->save($log);
+        } catch (TransportableException $exception) {
+            // Silent pass
+        }
 
         $this->publishLog(
             $data['app_id'],

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Console;
 
+use Apisearch\Exception\TransportableException;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Event\DomainEvent;
 use Apisearch\Server\Domain\Event\EventStore;
@@ -107,9 +108,13 @@ class EventStoreConsumer extends ConsumerCommand
 
         $domainEvent = DomainEvent::fromArray($data['event']);
 
-        $this
-            ->eventStore
-            ->append($domainEvent);
+        try {
+            $this
+                ->eventStore
+                ->append($domainEvent);
+        } catch (TransportableException $exception) {
+            // Silent pass
+        }
 
         $this->publishExtendedDomainEvent(
             $data['app_id'],
