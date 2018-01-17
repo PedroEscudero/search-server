@@ -90,6 +90,6 @@ search_server_api_health:
 
 search_server_api_ping:
     path: /ping
-    methods: ["HEAD"]
+    methods: ["HEAD", "GET"]
     defaults:
         _controller: apisearch_server.health_controller:ping
