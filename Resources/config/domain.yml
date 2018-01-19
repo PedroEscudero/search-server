@@ -15,12 +15,18 @@ services:
         class: Apisearch\Server\Domain\Event\EventPublisher
 
     #
+    # Logs
+    #
+    apisearch_server.log_repository:
+        alias: "apisearch_server.elastica_log_repository"
+
+    #
     # Command handlers
     #
     apisearch_server.comand_handler.create_index:
         class: Apisearch\Server\Domain\CommandHandler\CreateIndexHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\CreateIndex }
@@ -28,7 +34,7 @@ services:
     apisearch_server.comand_handler.delete_index:
         class: Apisearch\Server\Domain\CommandHandler\DeleteIndexHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteIndex }
@@ -36,7 +42,7 @@ services:
     apisearch_server.comand_handler.reset_index:
         class: Apisearch\Server\Domain\CommandHandler\ResetIndexHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\ResetIndex }
@@ -44,7 +50,7 @@ services:
     apisearch_server.comand_handler.configure_index:
         class: Apisearch\Server\Domain\CommandHandler\ConfigureIndexHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\ConfigureIndex }
@@ -52,7 +58,7 @@ services:
     apisearch_server.comand_handler.delete_items:
         class: Apisearch\Server\Domain\CommandHandler\DeleteItemsHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteItems }
@@ -60,7 +66,7 @@ services:
     apisearch_server.comand_handler.index_items:
         class: Apisearch\Server\Domain\CommandHandler\IndexItemsHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\IndexItems }
@@ -79,23 +85,51 @@ services:
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteEventsIndex }
 
+    apisearch_server.comand_handler.create_logs_index:
+        class: Apisearch\Server\Domain\CommandHandler\CreateLogsIndexHandler
+        arguments:
+            - "@apisearch_server.log_repository"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\CreateLogsIndex }
+
+    apisearch_server.comand_handler.delete_logs_index:
+        class: Apisearch\Server\Domain\CommandHandler\DeleteLogsIndexHandler
+        arguments:
+            - "@apisearch_server.log_repository"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteLogsIndex }
+
     #
     # Query handlers
     #
     apisearch_server.query_handler.query:
         class: Apisearch\Server\Domain\QueryHandler\QueryHandler
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"
             - "@apisearch_server.event_publisher"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\Query }
 
+    apisearch_server.query_handler.check_index:
+        class: Apisearch\Server\Domain\QueryHandler\CheckIndexHandler
+        arguments:
+            - "@apisearch.repository_main.default"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\CheckIndex }
+
     apisearch_server.query_handler.query_events:
         class: Apisearch\Server\Domain\QueryHandler\QueryEventsHandler
         arguments:
-            - "@apisearch.event_repository_search.default"
+            - "@apisearch.event_repository_main.default"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\QueryEvents }
+
+    apisearch_server.query_handler.query_logs:
+        class: Apisearch\Server\Domain\QueryHandler\QueryLogsHandler
+        arguments:
+            - "@apisearch.log_repository_main.default"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\QueryLogs }
 
     apisearch_server.query_handler.check_health:
         class: Apisearch\Server\Domain\QueryHandler\CheckHealthHandler
@@ -104,25 +138,51 @@ services:
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Query\CheckHealth }
 
+    apisearch_server.query_handler.ping:
+        class: Apisearch\Server\Domain\QueryHandler\PingHandler
+        arguments:
+            - "@apisearch_server.elastica_client"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Query\Ping }
+
     #
-    # Middlewares
+    # Middlewares Domain Events
     #
     apisearch_server.middleware.ignore_events:
-        class: Apisearch\Server\Domain\Middleware\IgnoreDomainEventsMiddleware
+        class: Apisearch\Server\Domain\Middleware\DomainEvents\IgnoreDomainEventsMiddleware
         arguments:
             - "@apisearch_server.event_publisher"
         public: false
 
     apisearch_server.middleware.inline_events:
-        class: Apisearch\Server\Domain\Middleware\InlineDomainEventsMiddleware
+        class: Apisearch\Server\Domain\Middleware\DomainEvents\InlineDomainEventsMiddleware
         arguments:
             - "@apisearch_server.event_publisher"
             - "@apisearch_server.event_store"
         public: false
 
     apisearch_server.middleware.queue_events:
-        class: Apisearch\Server\Domain\Middleware\QueueDomainEventsMiddleware
+        class: Apisearch\Server\Domain\Middleware\DomainEvents\QueueDomainEventsMiddleware
         arguments:
             - "@apisearch_server.event_publisher"
+            - "@rs_queue.producer"
+        public: false
+
+    #
+    # Middlewares Logs
+    #
+    apisearch_server.middleware.ignore_logs:
+        class: Apisearch\Server\Domain\Middleware\Logs\IgnoreLogsMiddleware
+        public: false
+
+    apisearch_server.middleware.inline_logs:
+        class: Apisearch\Server\Domain\Middleware\Logs\InlineLogsMiddleware
+        arguments:
+            - "@apisearch.log_repository_main.default"
+        public: false
+
+    apisearch_server.middleware.queue_logs:
+        class: Apisearch\Server\Domain\Middleware\Logs\QueueLogsMiddleware
+        arguments:
             - "@rs_queue.producer"
         public: false

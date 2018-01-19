@@ -19,6 +19,7 @@ namespace Apisearch\Server\Elastica\Repository;
 use Apisearch\Config\Config;
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
+use Apisearch\Exception\TransportableException;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
@@ -106,6 +107,24 @@ class Repository extends BaseRepository
         $this
             ->getRepository(IndexRepository::class)
             ->resetIndex();
+    }
+
+    /**
+     * Checks the index.
+     *
+     * @return bool
+     */
+    public function checkIndex(): bool
+    {
+        try {
+            $this
+                ->getRepository(IndexRepository::class)
+                ->getIndexStats();
+        } catch (TransportableException $exception) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

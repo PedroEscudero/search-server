@@ -23,7 +23,6 @@ use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Query\QueryEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -40,7 +39,7 @@ class EventsController extends ControllerWithBus
      *
      * @throws InvalidTokenException
      */
-    public function query(Request $request)
+    public function query(Request $request): JsonResponse
     {
         $query = $request->query;
 
@@ -62,34 +61,12 @@ class EventsController extends ControllerWithBus
             ))
             ->toArray();
 
-        $response = new JsonResponse(
+        return new JsonResponse(
             $eventsAsArray,
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
             ]
         );
-
-        return $response;
-    }
-
-    /**
-     * Get query value and cast to int of not null.
-     *
-     * @param ParameterBag $parameters
-     * @param string       $paramName
-     *
-     * @return int|null
-     */
-    private function castToIntIfNotNull(
-        ParameterBag $parameters,
-        string $paramName
-    ): ? int {
-        $param = $parameters->get($paramName, null);
-        if (!is_null($param)) {
-            $param = intval($param);
-        }
-
-        return $param;
     }
 }

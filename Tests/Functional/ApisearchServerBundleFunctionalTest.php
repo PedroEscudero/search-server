@@ -27,13 +27,17 @@ use Apisearch\Server\ApisearchServerBundle;
 use Apisearch\Server\Domain\Command\ConfigureIndex;
 use Apisearch\Server\Domain\Command\CreateEventsIndex;
 use Apisearch\Server\Domain\Command\CreateIndex;
+use Apisearch\Server\Domain\Command\CreateLogsIndex;
 use Apisearch\Server\Domain\Command\DeleteEventsIndex;
 use Apisearch\Server\Domain\Command\DeleteIndex;
 use Apisearch\Server\Domain\Command\DeleteItems;
+use Apisearch\Server\Domain\Command\DeleteLogsIndex;
 use Apisearch\Server\Domain\Command\IndexItems;
 use Apisearch\Server\Domain\Command\ResetIndex;
+use Apisearch\Server\Domain\Query\CheckIndex;
 use Apisearch\Server\Domain\Query\Query;
 use Apisearch\Server\Domain\Query\QueryEvents;
+use Apisearch\Server\Domain\Query\QueryLogs;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
@@ -74,6 +78,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 ],
                 'apisearch_server' => [
                     'middleware_domain_events_service' => 'apisearch_server.middleware.inline_events',
+                    'middleware_logs_service' => 'apisearch_server.middleware.inline_logs',
                     'config' => [
                         'repository' => [
                             'config_path' => '/tmp/config_{app_id}_{index_id}',
@@ -84,11 +89,15 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             'shards' => 1,
                             'replicas' => 0,
                         ],
+                        'log_repository' => [
+                            'shards' => 1,
+                            'replicas' => 0,
+                        ],
                     ],
                 ],
                 'apisearch' => [
                     'repositories' => [
-                        'search' => [
+                        'main' => [
                             'endpoint' => 'xxx',
                             'app_id' => self::$appId,
                             'token' => 'xxx',
@@ -105,6 +114,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                                 'repository_service' => 'apisearch_server.elastica_event_repository',
                                 'in_memory' => false,
                             ],
+                            'log' => [
+                                'repository_service' => 'apisearch_server.elastica_log_repository',
+                                'in_memory' => false,
+                            ],
                         ],
                         'search_http' => [
                             'endpoint' => 'xxx',
@@ -119,6 +132,9 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                                 'in_memory' => false,
                             ],
                             'event' => [
+                                'in_memory' => false,
+                            ],
+                            'log' => [
                                 'in_memory' => false,
                             ],
                         ],
@@ -204,8 +220,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         self::deleteEverything();
         self::createIndex(self::$appId);
         self::createEventsIndex(self::$appId);
+        self::createLogsIndex(self::$appId);
         self::createIndex(self::$anotherAppId);
         self::createEventsIndex(self::$anotherAppId);
+        self::createLogsIndex(self::$anotherAppId);
 
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
@@ -224,20 +242,27 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      */
     public static function deleteEverything()
     {
+        self::deleteAppIdIndexes(self::$appId);
+        self::deleteAppIdIndexes(self::$anotherAppId);
+    }
+
+    /**
+     * Delete index and catch.
+     *
+     * @param string $appId
+     */
+    private static function deleteAppIdIndexes(string $appId)
+    {
         try {
-            self::deleteIndex(self::$appId);
+            self::deleteIndex($appId);
         } catch (ResourceNotAvailableException $e) {
         }
         try {
-            self::deleteEventsIndex(self::$appId);
+            self::deleteEventsIndex($appId);
         } catch (ResourceNotAvailableException $e) {
         }
         try {
-            self::deleteIndex(self::$anotherAppId);
-        } catch (ResourceNotAvailableException $e) {
-        }
-        try {
-            self::deleteEventsIndex(self::$anotherAppId);
+            self::deleteLogsIndex($appId);
         } catch (ResourceNotAvailableException $e) {
         }
     }
@@ -377,6 +402,28 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
+     * Check index.
+     *
+     * @param string $appId
+     * @param string $index
+     *
+     * @return bool
+     */
+    public function checkIndex(
+        string $appId = null,
+        string $index = null
+    ): bool {
+        return self::$container
+            ->get('tactician.commandbus')
+            ->handle(new CheckIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
      * Delete index using the bus.
      *
      * @param string $appId
@@ -412,9 +459,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index
-                ),
-                3,
-                2
+                )
             ));
     }
 
@@ -454,9 +499,78 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         string $appId = null,
         string $index = null
     ) {
-        self::$container
+        return self::$container
             ->get('tactician.commandbus')
             ->handle(new QueryEvents(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                ),
+                $query,
+                $from,
+                $to
+            ));
+    }
+
+    /**
+     * Create log index using the bus.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    public function createLogsIndex(
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new CreateLogsIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
+     * Delete log index using the bus.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    public function deleteLogsIndex(
+        string $appId = null,
+        string $index = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new DeleteLogsIndex(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    $index ?? self::$index
+                )
+            ));
+    }
+
+    /**
+     * Query logs.
+     *
+     * @param QueryModel $query
+     * @param int|null   $from
+     * @param int|null   $to
+     * @param string     $appId
+     * @param string     $index
+     */
+    public function queryLogs(
+        QueryModel $query,
+        ?int $from = null,
+        ?int $to = null,
+        string $appId = null,
+        string $index = null
+    ) {
+        return self::$container
+            ->get('tactician.commandbus')
+            ->handle(new QueryLogs(
                 RepositoryReference::create(
                     $appId ?? self::$appId,
                     $index ?? self::$index

@@ -24,6 +24,8 @@
         "apisearch-io/php-client": "^0.1.0",
         "apisearch-io/apisearch-bundle": "^0.1.0",
         "react/http": "0.7.4",
+        "cboden/ratchet": "*",
+        "clue/redis-react": "*",
         "apisearch-io/react-socket-middleware-finite-server": "^1.0.0",
         "ramsey/uuid": "^3.7.1",
         "rsqueue/rsqueue": "dev-master",

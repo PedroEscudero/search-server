@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Domain\Middleware;
+namespace Apisearch\Server\Domain\Middleware\DomainEvents;
 
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Server\Domain\Event\DomainEvent;
@@ -59,6 +59,10 @@ class InlineDomainEventsMiddleware extends DomainEventsMiddleware implements Mid
         WithRepositoryReference $command,
         DomainEvent $event
     ) {
+        $this
+            ->eventStore
+            ->setRepositoryReference($command->getRepositoryReference());
+
         $this
             ->eventStore
             ->append($event);

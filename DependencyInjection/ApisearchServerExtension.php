@@ -94,8 +94,10 @@ class ApisearchServerExtension extends BaseExtension
     {
         return [
             'apisearch_server.middleware_domain_events_service' => $config['middleware_domain_events_service'],
+            'apisearch_server.middleware_logs_service' => $config['middleware_logs_service'],
             'apisearch_server.config.repository' => $config['config']['repository'],
             'apisearch_server.config.event_repository' => $config['config']['event_repository'],
+            'apisearch_server.config.log_repository' => $config['config']['log_repository'],
             'apisearch_server.cluster' => ['servers' => $config['cluster']],
         ];
     }

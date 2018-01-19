@@ -110,6 +110,29 @@ abstract class ElasticaWrapper
     }
 
     /**
+     * Get index stats.
+     *
+     * @param RepositoryReference $repositoryReference
+     *
+     * @return Index\Stats
+     */
+    public function getIndexStats(RepositoryReference $repositoryReference): Index\Stats
+    {
+        try {
+            return $this
+                ->client
+                ->getIndex($this->getIndexName($repositoryReference))
+                ->getStats();
+        } catch (ResponseException $exception) {
+            /*
+             * The index resource cannot be deleted.
+             * This means that the resource is not available
+             */
+            throw $this->getIndexNotAvailableException($exception->getMessage());
+        }
+    }
+
+    /**
      * Delete index.
      *
      * @param RepositoryReference $repositoryReference

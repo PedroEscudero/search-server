@@ -14,26 +14,26 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Domain\Middleware;
+namespace Apisearch\Server\Domain\Middleware\Logs;
 
+use Apisearch\Log\Log;
 use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Server\Domain\Event\DomainEvent;
 use League\Tactician\Middleware;
 
 /**
- * Class IgnoreDomainEventsMiddleware.
+ * Class IgnoreLogsMiddleware.
  */
-class IgnoreDomainEventsMiddleware extends DomainEventsMiddleware implements Middleware
+class IgnoreLogsMiddleware extends LogsMiddleware implements Middleware
 {
     /**
-     * Process events.
+     * Process log.
      *
      * @param WithRepositoryReference $command
-     * @param DomainEvent             $event
+     * @param Log                     $log
      */
-    public function processEvent(
+    public function processLog(
         WithRepositoryReference $command,
-        DomainEvent $event
+        Log $log
     ) {
         // Silent pass
     }

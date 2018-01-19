@@ -8,5 +8,15 @@ services:
         arguments:
             - "@rs_queue.consumer"
             - "@apisearch_server.event_store"
+            - "@rs_queue.publisher"
+        tags:
+            -  { name: console.command }
+
+    apisearch_server.logs_consumer:
+        class: Apisearch\Server\Console\LogsConsumer
+        arguments:
+            - "@rs_queue.consumer"
+            - "@apisearch.log_repository_main.default"
+            - "@rs_queue.publisher"
         tags:
             -  { name: console.command }

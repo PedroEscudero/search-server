@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Model\Item;
 use Apisearch\Repository\RepositoryReference;
@@ -38,14 +37,12 @@ class IndexItemsController extends ControllerWithBusAndEventRepository
      * @return JsonResponse
      *
      * @throws InvalidFormatException
-     * @throws InvalidTokenException
      */
-    public function indexItems(Request $request)
+    public function indexItems(Request $request): JsonResponse
     {
         $this->configureEventRepository($request);
         $query = $request->query;
         $requestBody = $request->request;
-
         $items = $requestBody->get(Http::ITEMS_FIELD, null);
         if (!is_string($items)) {
             throw InvalidFormatException::itemsRepresentationNotValid($items);

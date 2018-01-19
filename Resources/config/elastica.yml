@@ -14,6 +14,9 @@ services:
     apisearch_server.result_builder:
         class: Apisearch\Server\Elastica\Builder\ResultBuilder
 
+    apisearch_server.time_format_builder:
+        class: Apisearch\Server\Elastica\Builder\TimeFormatBuilder
+
     #
     # Elastica repositories
     #
@@ -86,8 +89,44 @@ services:
     apisearch_server.elastica_index_event_repository:
         class: Apisearch\Server\Elastica\EventRepository\IndexRepository
         parent: apisearch_server.event_elastica_with_app_id_wrapper
+        arguments:
+            - "@apisearch_server.time_format_builder"
         tags:
             - {name: "apisearch_server.elastica_event_repository"}
+
+
+    #
+    # Elastica log repositories
+    #
+    apisearch_server.log_elastica_wrapper:
+        class: Apisearch\Server\Elastica\LogRepository\LogElasticaWrapper
+        arguments:
+            - "@apisearch_server.elastica_client"
+
+    apisearch_server.log_elastica_with_app_id_wrapper:
+        class: Apisearch\Server\Elastica\ElasticaWithAppIdWrapper
+        abstract: true
+        public: false
+        arguments:
+            - "@apisearch_server.log_elastica_wrapper"
+            - "%apisearch_server.config.log_repository%"
+
+    apisearch_server.elastica_query_log_repository:
+        class: Apisearch\Server\Elastica\LogRepository\QueryRepository
+        parent: apisearch_server.log_elastica_with_app_id_wrapper
+        arguments:
+            - "@apisearch_server.query_builder"
+            - "@apisearch_server.result_builder"
+        tags:
+            - {name: "apisearch_server.elastica_log_repository"}
+
+    apisearch_server.elastica_index_log_repository:
+        class: Apisearch\Server\Elastica\LogRepository\IndexRepository
+        parent: apisearch_server.log_elastica_with_app_id_wrapper
+        arguments:
+            - "@apisearch_server.time_format_builder"
+        tags:
+            - {name: "apisearch_server.elastica_log_repository"}
 
 
     #
@@ -98,6 +137,9 @@ services:
 
     apisearch_server.elastica_event_repository:
         class: Apisearch\Server\Elastica\EventRepository\Repository
+
+    apisearch_server.elastica_log_repository:
+        class: Apisearch\Server\Elastica\LogRepository\Repository
 
     #
     # Middlewares
@@ -112,4 +154,4 @@ services:
     apisearch_server.middleware.transaction:
         class: Apisearch\Server\Elastica\Middleware\TransactionElasticaMiddleware
         arguments:
-            - "@apisearch.repository_search.default"
+            - "@apisearch.repository_main.default"

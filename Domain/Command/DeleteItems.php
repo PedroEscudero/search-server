@@ -20,11 +20,13 @@ use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Server\Domain\LoggableCommand;
+use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class DeleteItems.
  */
-class DeleteItems implements WithRepositoryReference
+class DeleteItems implements WithRepositoryReference, WriteCommand, LoggableCommand
 {
     use WithRepositoryReferenceTrait;
 

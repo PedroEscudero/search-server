@@ -64,7 +64,9 @@ class ItemsWereIndexed extends DomainEvent
      */
     public function indexableToArray(): array
     {
-        return [];
+        return [
+            'nb_items' => count($this->items),
+        ];
     }
 
     /**

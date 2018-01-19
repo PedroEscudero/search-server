@@ -43,7 +43,7 @@ class CheckHealthHandler
     }
 
     /**
-     * Reset the query.
+     * Check the cluster.
      *
      * @param CheckHealth $checkHealth
      *

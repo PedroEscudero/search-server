@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Repository\RepositoryReference;
@@ -38,9 +37,8 @@ class DeleteItemsController extends ControllerWithBusAndEventRepository
      * @return JsonResponse
      *
      * @throws InvalidFormatException
-     * @throws InvalidTokenException
      */
-    public function deleteItems(Request $request)
+    public function deleteItems(Request $request): JsonResponse
     {
         $this->configureEventRepository($request);
         $query = $request->query;

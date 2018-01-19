@@ -17,8 +17,9 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica\EventRepository;
 
 use Apisearch\Event\Event;
+use Apisearch\Server\Elastica\Builder\TimeFormatBuilder;
+use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
-use DateTime;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
 
@@ -27,6 +28,33 @@ use Elastica\Document as ElasticaDocument;
  */
 class IndexRepository extends ElasticaWrapperWithRepositoryReference
 {
+    /**
+     * @var TimeFormatBuilder
+     *
+     * Time format builder
+     */
+    private $timeFormatBuilder;
+
+    /**
+     * ElasticaSearchRepository constructor.
+     *
+     * @param ElasticaWrapper   $elasticaWrapper
+     * @param array             $repositoryConfig
+     * @param TimeFormatBuilder $timeFormatBuilder
+     */
+    public function __construct(
+        ElasticaWrapper $elasticaWrapper,
+        array $repositoryConfig,
+        TimeFormatBuilder $timeFormatBuilder
+    ) {
+        parent::__construct(
+            $elasticaWrapper,
+            $repositoryConfig
+        );
+
+        $this->timeFormatBuilder = $timeFormatBuilder;
+    }
+
     /**
      * Create the index.
      */
@@ -83,7 +111,12 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
      */
     private function createEventDocument(Event $event): Document
     {
-        $formattedTime = $this->formatTimeFromMillisecondsToBasicDateTime($event->getOccurredOn());
+        $formattedTime = $this
+            ->timeFormatBuilder
+            ->formatTimeFromMillisecondsToBasicDateTime(
+                $event->getOccurredOn()
+            );
+
         $itemDocument = [
             'uuid' => [
                 'id' => $event->getConsistencyHash(),
@@ -99,29 +132,5 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference
             $event->getConsistencyHash(),
             $itemDocument
         );
-    }
-
-    /**
-     * Format date from epoch_time with microseconds to elasticsearch
-     * basic_date_time.
-     *
-     * @param int $time
-     *
-     * @return string
-     */
-    private function formatTimeFromMillisecondsToBasicDateTime(int $time): string
-    {
-        $formattedDatetime = (string) ($time / 1000000);
-        if (10 === strlen($formattedDatetime)) {
-            $formattedDatetime .= '.';
-        }
-
-        $formattedDatetime = str_pad($formattedDatetime, 17, '0', STR_PAD_RIGHT);
-        $datetime = DateTime::createFromFormat('U.u', $formattedDatetime);
-
-        return
-            $datetime->format('Ymd\THis').'.'.
-            str_pad(((string) (int) (((int) $datetime->format('u')) / 1000)), 3, '0', STR_PAD_LEFT).
-            $datetime->format('P');
     }
 }

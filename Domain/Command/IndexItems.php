@@ -20,11 +20,13 @@ use Apisearch\Model\Item;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Server\Domain\LoggableCommand;
+use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class IndexItems.
  */
-class IndexItems implements WithRepositoryReference
+class IndexItems implements WithRepositoryReference, WriteCommand, LoggableCommand
 {
     use WithRepositoryReferenceTrait;
 

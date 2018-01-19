@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Exception\InvalidFormatException;
-use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Query\Query as QueryModel;
 use Apisearch\Repository\RepositoryReference;
@@ -38,9 +37,8 @@ class QueryController extends ControllerWithBusAndEventRepository
      * @return JsonResponse
      *
      * @throws InvalidFormatException
-     * @throws InvalidTokenException
      */
-    public function query(Request $request)
+    public function query(Request $request): JsonResponse
     {
         $this->configureEventRepository($request);
         $query = $request->query;
@@ -65,14 +63,12 @@ class QueryController extends ControllerWithBusAndEventRepository
             unset($responseAsArray['query']);
         }
 
-        $response = new JsonResponse(
+        return new JsonResponse(
             $responseAsArray,
             200,
             [
                 'Access-Control-Allow-Origin' => '*',
             ]
         );
-
-        return $response;
     }
 }

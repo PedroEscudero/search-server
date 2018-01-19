@@ -37,6 +37,18 @@ search_server_api_delete_events_index:
     defaults:
         _controller: apisearch_server.delete_events_index_controller:deleteEventsIndex
 
+search_server_api_create_logs_index:
+    path: /v1/logs
+    methods: ["POST"]
+    defaults:
+        _controller: apisearch_server.create_logs_index_controller:createLogsIndex
+
+search_server_api_delete_logs_index:
+    path: /v1/logs
+    methods: ["DELETE"]
+    defaults:
+        _controller: apisearch_server.delete_logs_index_controller:deleteLogsIndex
+
 #
 # Read endpoints
 #
@@ -64,8 +76,29 @@ search_server_api_events:
     defaults:
         _controller: apisearch_server.events_controller:query
 
+search_server_api_logs:
+    path: /v1/logs
+    methods: ["GET"]
+    defaults:
+        _controller: apisearch_server.logs_controller:query
+
+#
+# Check
+#
+search_server_api_check_index:
+    path: /v1/index
+    methods: ["HEAD"]
+    defaults:
+        _controller: apisearch_server.check_index_controller:checkIndex
+
 search_server_api_health:
     path: /health
-    methods: ["HEAD", "GET"]
+    methods: ["GET"]
     defaults:
         _controller: apisearch_server.health_controller:check
+
+search_server_api_ping:
+    path: /ping
+    methods: ["HEAD", "GET"]
+    defaults:
+        _controller: apisearch_server.health_controller:ping

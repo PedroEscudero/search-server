@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Apisearch\Server\Controller;
 
 use Apisearch\Server\Domain\Query\CheckHealth;
+use Apisearch\Server\Domain\Query\Ping;
 use Elastica\Cluster\Health;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,9 +30,9 @@ class HealthController extends ControllerWithBus
     /**
      * Health controller.
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function check()
+    public function check(): JsonResponse
     {
         /**
          * @var Health
@@ -41,5 +42,21 @@ class HealthController extends ControllerWithBus
             ->handle(new CheckHealth());
 
         return new JsonResponse($health->getData());
+    }
+
+    /**
+     * Ping.
+     *
+     * @return Response
+     */
+    public function ping(): Response
+    {
+        $alive = $this
+            ->commandBus
+            ->handle(new Ping());
+
+        return true === $alive
+            ? new Response('', Response::HTTP_OK)
+            : new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

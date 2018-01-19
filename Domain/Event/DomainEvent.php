@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Event;
 
+use Apisearch\Server\Domain\Now;
 use Carbon\Carbon;
 use Exception;
 use ReflectionClass;
@@ -44,9 +45,8 @@ abstract class DomainEvent
      */
     protected function setNow()
     {
-        $now = Carbon::now('UTC');
-        $this->now = $now;
-        $this->occurredOn = ($now->timestamp * 1000000) + ((int) ($now->micro / 1000) * 1000);
+        $this->now = Carbon::now('UTC');
+        $this->occurredOn = Now::epochTimeWithMicroseconds($this->now);
     }
 
     /**
@@ -166,6 +166,20 @@ abstract class DomainEvent
             'type' => str_replace('Apisearch\Server\Domain\Event\\', '', get_class($this)),
             'occurred_on' => $this->occurredOn(),
             'payload' => json_encode($this->payloadToArray()),
+        ];
+    }
+
+    /**
+     * To plan values with only reduced values.
+     *
+     * @return array
+     */
+    public function toReducedArray(): array
+    {
+        return [
+            'type' => str_replace('Apisearch\Server\Domain\Event\\', '', get_class($this)),
+            'occurred_on' => $this->occurredOn(),
+            'payload' => json_encode($this->indexableToArray()),
         ];
     }
 }
