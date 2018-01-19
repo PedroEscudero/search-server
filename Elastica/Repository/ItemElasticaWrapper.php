@@ -21,6 +21,7 @@ use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Elastica\ElasticaLanguages;
 use Apisearch\Server\Elastica\ElasticaWrapper;
+use Apisearch\Server\Exception\ParsedResourceNotAvailableException;
 use Elastica\Exception\ResponseException;
 use Elastica\Type\Mapping;
 
@@ -70,7 +71,7 @@ class ItemElasticaWrapper extends ElasticaWrapper
      */
     public function getIndexNotAvailableException(string $message): ResourceNotAvailableException
     {
-        return ResourceNotAvailableException::indexNotAvailable($message);
+        return ParsedResourceNotAvailableException::parsedIndexNotAvailable($message);
     }
 
     /**
