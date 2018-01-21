@@ -29,13 +29,13 @@ config:
         config:
             repository:
                 config_path: '/tmp/config_{app_id}_{index_id}'
-                shards: 3
+                shards: 2
                 replicas: 3
             event_repository:
-                shards: 3
+                shards: 2
                 replicas: 3
             log_repository:
-                shards: 3
+                shards: 2
                 replicas: 3
 
     apisearch:

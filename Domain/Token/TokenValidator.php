@@ -51,7 +51,7 @@ class TokenValidator
     public function validateTokenOnKernelRequest(GetResponseEvent $event)
     {
         return;
-        
+
         $request = $event->getRequest();
         $query = $request->query;
         $appId = $query->get('app_id');
