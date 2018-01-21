@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
 
+use Apisearch\App\AppRepository;
 use Apisearch\Config\Config;
 use Apisearch\Event\EventRepository;
 use Apisearch\Model\Item;
@@ -24,28 +25,34 @@ use Apisearch\Query\Query as QueryModel;
 use Apisearch\Repository\Repository;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Result\Result;
+use Apisearch\Token\Token;
+use Apisearch\Token\TokenUUID;
 
 /**
  * Class HttpRepositoryTest.
  */
 class HttpRepositoryTest extends RepositoryTest
 {
+    use TokenTest;
+
     /**
      * Query using the bus.
      *
      * @param QueryModel $query
      * @param string     $appId
      * @param string     $index
+     * @param string     $token
      *
      * @return Result
      */
     public function query(
         QueryModel $query,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         return $this
-            ->configureRepository($appId, $index)
+            ->configureRepository($appId, $index, $token)
             ->query($query);
     }
 
@@ -55,13 +62,15 @@ class HttpRepositoryTest extends RepositoryTest
      * @param ItemUUID[] $itemsUUID
      * @param string     $appId
      * @param string     $index
+     * @param string     $token
      */
     public function deleteItems(
         array $itemsUUID,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
-        $repository = $this->configureRepository($appId, $index);
+        $repository = $this->configureRepository($appId, $index, $token);
         foreach ($itemsUUID as $itemUUID) {
             $repository->deleteItem($itemUUID);
         }
@@ -74,13 +83,15 @@ class HttpRepositoryTest extends RepositoryTest
      * @param Item[] $items
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function indexItems(
         array $items,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
-        $repository = $this->configureRepository($appId, $index);
+        $repository = $this->configureRepository($appId, $index, $token);
         foreach ($items as $item) {
             $repository->addItem($item);
         }
@@ -92,13 +103,15 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function resetIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureRepository($appId, $index)
+            ->configureRepository($appId, $index, $token)
             ->resetIndex();
     }
 
@@ -107,13 +120,15 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function createIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureRepository($appId, $index)
+            ->configureRepository($appId, $index, $token)
             ->createIndex();
     }
 
@@ -123,14 +138,16 @@ class HttpRepositoryTest extends RepositoryTest
      * @param Config $config
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function configureIndex(
         Config $config,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureRepository($appId, $index)
+            ->configureRepository($appId, $index, $token)
             ->configureIndex($config);
     }
 
@@ -139,15 +156,17 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      *
      * @return bool
      */
     public function checkIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ): bool {
         return $this
-            ->configureRepository($appId, $index)
+            ->configureRepository($appId, $index, $token)
             ->checkIndex();
     }
 
@@ -156,14 +175,50 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function deleteIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureRepository($appId, $index)
+            ->configureRepository($appId, $index, $token)
             ->deleteIndex();
+    }
+
+    /**
+     * Add token.
+     *
+     * @param Token  $newToken
+     * @param string $appId
+     * @param string $token
+     */
+    public function addToken(
+        Token $newToken,
+        string $appId = null,
+        string $token = null
+    ) {
+        $this
+            ->configureAppRepository($appId, $token)
+            ->addToken($newToken);
+    }
+
+    /**
+     * Delete token.
+     *
+     * @param TokenUUID $tokenUUID
+     * @param string    $appId
+     * @param string    $token
+     */
+    public function deleteToken(
+        TokenUUID $tokenUUID,
+        string $appId = null,
+        string $token = null
+    ) {
+        $this
+            ->configureAppRepository($appId, $token)
+            ->deleteToken($tokenUUID);
     }
 
     /**
@@ -171,13 +226,15 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function createEventsIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureEventsRepository($appId, $index)
+            ->configureEventsRepository($appId, $index, $token)
             ->createIndex(3, 2);
     }
 
@@ -186,13 +243,15 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function deleteEventsIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureEventsRepository($appId, $index)
+            ->configureEventsRepository($appId, $index, $token)
             ->deleteIndex();
     }
 
@@ -206,6 +265,7 @@ class HttpRepositoryTest extends RepositoryTest
      * @param int|null    $offset
      * @param string      $appId
      * @param string      $index
+     * @param string      $token
      */
     public function listEvents(
         string $name = null,
@@ -214,10 +274,11 @@ class HttpRepositoryTest extends RepositoryTest
         int $length = null,
         int $offset = null,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $this
-            ->configureEventsRepository($appId, $index)
+            ->configureEventsRepository($appId, $index, $token)
             ->all(
                 $name,
                 $from,
@@ -232,12 +293,14 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      *
      * @return Repository
      */
     public function configureRepository(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $index = $index ?? self::$index;
         $repository = $this->get('apisearch.repository_search_http.'.$index);
@@ -246,7 +309,31 @@ class HttpRepositoryTest extends RepositoryTest
                 $appId ?? self::$appId,
                 $index
             ),
-            'xxx'
+            ($token ?? 'xxx')
+        );
+
+        return $repository;
+    }
+
+    /**
+     * Configure app repository.
+     *
+     * @param string $appId
+     * @param string $token
+     *
+     * @return AppRepository
+     */
+    private function configureAppRepository(
+        string $appId = null,
+        string $token = null
+    ) {
+        $repository = $this->get('apisearch.app_repository_search_http');
+        $repository->setCredentials(
+            RepositoryReference::create(
+                $appId ?? self::$appId,
+                ''
+            ),
+            ($token ?? 'xxx')
         );
 
         return $repository;
@@ -257,12 +344,14 @@ class HttpRepositoryTest extends RepositoryTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      *
      * @return EventRepository
      */
     private function configureEventsRepository(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         $index = $index ?? self::$index;
         $repository = $this->get('apisearch.event_repository_search_http.'.$index);
@@ -271,7 +360,7 @@ class HttpRepositoryTest extends RepositoryTest
                 $appId ?? self::$appId,
                 $index
             ),
-            'xxx'
+            ($token ?? 'xxx')
         );
 
         return $repository;

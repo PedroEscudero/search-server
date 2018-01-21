@@ -346,4 +346,29 @@ abstract class ElasticaWrapper
             throw $this->getIndexNotAvailableException($exception->getMessage());
         }
     }
+
+    /**
+     * Build specific index reference.
+     *
+     * @param RepositoryReference $repositoryReference
+     * @param string              $prefix
+     *
+     * @return string
+     */
+    protected function buildIndexReference(
+        RepositoryReference $repositoryReference,
+        string $prefix
+    ) {
+        $appId = $repositoryReference->getAppId();
+        $indexId = $repositoryReference->getIndex();
+        if ('*' === $indexId) {
+            return "{$prefix}_{$appId}_*";
+        }
+
+        $splittedIndexId = explode(',', $indexId);
+
+        return implode(',', array_map(function (string $indexId) use ($prefix, $appId) {
+            return "{$prefix}_{$appId}_$indexId";
+        }, $splittedIndexId));
+    }
 }

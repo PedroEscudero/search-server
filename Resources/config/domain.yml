@@ -3,22 +3,13 @@ services:
     #
     # Events
     #
-    apisearch_server.event_repository:
-        alias: "apisearch_server.elastica_event_repository"
-
     apisearch_server.event_store:
         class: Apisearch\Server\Domain\Event\EventStore
         arguments:
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
 
     apisearch_server.event_publisher:
         class: Apisearch\Server\Domain\Event\EventPublisher
-
-    #
-    # Logs
-    #
-    apisearch_server.log_repository:
-        alias: "apisearch_server.elastica_log_repository"
 
     #
     # Command handlers
@@ -74,30 +65,46 @@ services:
     apisearch_server.comand_handler.create_events_index:
         class: Apisearch\Server\Domain\CommandHandler\CreateEventsIndexHandler
         arguments:
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\CreateEventsIndex }
 
     apisearch_server.comand_handler.delete_events_index:
         class: Apisearch\Server\Domain\CommandHandler\DeleteEventsIndexHandler
         arguments:
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteEventsIndex }
 
     apisearch_server.comand_handler.create_logs_index:
         class: Apisearch\Server\Domain\CommandHandler\CreateLogsIndexHandler
         arguments:
-            - "@apisearch_server.log_repository"
+            - "@apisearch_server.logs_repository"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\CreateLogsIndex }
 
     apisearch_server.comand_handler.delete_logs_index:
         class: Apisearch\Server\Domain\CommandHandler\DeleteLogsIndexHandler
         arguments:
-            - "@apisearch_server.log_repository"
+            - "@apisearch_server.logs_repository"
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteLogsIndex }
+
+    apisearch_server.comand_handler.add_token:
+        class: Apisearch\Server\Domain\CommandHandler\AddTokenHandler
+        arguments:
+            - "@apisearch.app_repository_main"
+            - "@apisearch_server.event_publisher"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\AddToken }
+
+    apisearch_server.comand_handler.delete_token:
+        class: Apisearch\Server\Domain\CommandHandler\DeleteTokenHandler
+        arguments:
+            - "@apisearch.app_repository_main"
+            - "@apisearch_server.event_publisher"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteToken }
 
     #
     # Query handlers
@@ -186,3 +193,28 @@ services:
         arguments:
             - "@rs_queue.producer"
         public: false
+
+    #
+    # Repositories
+    #
+    apisearch_server.items_repository:
+        class: Apisearch\Server\Domain\Repository\Repository\Repository
+
+    apisearch_server.events_repository:
+        class: Apisearch\Server\Domain\Repository\EventRepository\Repository
+
+    apisearch_server.logs_repository:
+        class: Apisearch\Server\Domain\Repository\LogRepository\Repository
+
+    apisearch_server.app_repository:
+        class: Apisearch\Server\Domain\Repository\AppRepository\Repository
+
+    #
+    # Token
+    #
+    apisearch_server.token_validator:
+        class: Apisearch\Server\Domain\Token\TokenValidator
+        arguments:
+            - "@apisearch_server.token_locator"
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: validateTokenOnKernelRequest }

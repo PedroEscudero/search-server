@@ -19,6 +19,7 @@ namespace Apisearch\Server\Elastica\LogRepository;
 use Apisearch\Log\Log;
 use Apisearch\Query\Query;
 use Apisearch\Result\Logs;
+use Apisearch\Server\Domain\Repository\LogRepository\QueryRepository as QueryRepositoryInterface;
 use Apisearch\Server\Elastica\Builder\QueryBuilder;
 use Apisearch\Server\Elastica\Builder\ResultBuilder;
 use Apisearch\Server\Elastica\ElasticaWrapper;
@@ -29,7 +30,7 @@ use Elastica\Query as ElasticaQuery;
 /**
  * Class QueryRepository.
  */
-class QueryRepository extends ElasticaWrapperWithRepositoryReference
+class QueryRepository extends ElasticaWrapperWithRepositoryReference implements QueryRepositoryInterface
 {
     /**
      * @var QueryBuilder

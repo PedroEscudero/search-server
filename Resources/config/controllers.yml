@@ -17,7 +17,7 @@ services:
         class: Apisearch\Server\Controller\ResetIndexController
         arguments:
             - "@tactician.commandbus.command"
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
 
     apisearch_server.create_events_index_controller:
         class: Apisearch\Server\Controller\CreateEventsIndexController
@@ -39,6 +39,16 @@ services:
         arguments:
             - "@tactician.commandbus.command"
 
+    apisearch_server.add_token_controller:
+        class: Apisearch\Server\Controller\AddTokenController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    apisearch_server.delete_token_controller:
+        class: Apisearch\Server\Controller\DeleteTokenController
+        arguments:
+            - "@tactician.commandbus.command"
+
     #
     # Controllers with query bus
     #
@@ -46,19 +56,19 @@ services:
         class: Apisearch\Server\Controller\QueryController
         arguments:
             - "@tactician.commandbus.query"
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
 
     apisearch_server.index_items_controller:
         class: Apisearch\Server\Controller\IndexItemsController
         arguments:
             - "@tactician.commandbus.command"
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
 
     apisearch_server.delete_items_controller:
         class: Apisearch\Server\Controller\DeleteItemsController
         arguments:
             - "@tactician.commandbus.command"
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
 
     apisearch_server.events_controller:
         class: Apisearch\Server\Controller\EventsController
@@ -74,7 +84,7 @@ services:
         class: Apisearch\Server\Controller\ConfigureIndexController
         arguments:
             - "@tactician.commandbus.query"
-            - "@apisearch_server.event_repository"
+            - "@apisearch_server.events_repository"
 
     apisearch_server.health_controller:
         class: Apisearch\Server\Controller\HealthController

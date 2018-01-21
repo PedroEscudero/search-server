@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Event\EventRepository;
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Http\Http;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Elastica\EventRepository\Repository as EventRepository;
 use League\Tactician\CommandBus;
 use Symfony\Component\HttpFoundation\Request;
 

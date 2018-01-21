@@ -55,7 +55,10 @@ class ItemElasticaWrapper extends ElasticaWrapper
      */
     public function getIndexName(RepositoryReference $repositoryReference): string
     {
-        return 'apisearch_'.$repositoryReference->compose();
+        return $this->buildIndexReference(
+            $repositoryReference,
+            'apisearch_item'
+        );
     }
 
     /**

@@ -40,25 +40,25 @@ services:
             - "@apisearch_server.query_builder"
             - "@apisearch_server.result_builder"
         tags:
-            - {name: "apisearch_server.elastica_repository"}
+            - {name: "apisearch_server.items_repository"}
 
     apisearch_server.elastica_index_repository:
         class: Apisearch\Server\Elastica\Repository\IndexRepository
         parent: apisearch_server.item_elastica_with_app_id_wrapper
         tags:
-            - {name: "apisearch_server.elastica_repository"}
+            - {name: "apisearch_server.items_repository"}
 
     apisearch_server.elastica_delete_repository:
         class: Apisearch\Server\Elastica\Repository\DeleteRepository
         parent: apisearch_server.item_elastica_with_app_id_wrapper
         tags:
-            - {name: "apisearch_server.elastica_repository"}
+            - {name: "apisearch_server.items_repository"}
 
     apisearch_server.elastica_config_repository:
         class: Apisearch\Server\Elastica\Repository\ConfigRepository
         parent: apisearch_server.item_elastica_with_app_id_wrapper
         tags:
-            - {name: "apisearch_server.elastica_repository"}
+            - {name: "apisearch_server.items_repository"}
 
 
     #
@@ -84,7 +84,7 @@ services:
             - "@apisearch_server.query_builder"
             - "@apisearch_server.result_builder"
         tags:
-            - {name: "apisearch_server.elastica_event_repository"}
+            - {name: "apisearch_server.events_repository"}
 
     apisearch_server.elastica_index_event_repository:
         class: Apisearch\Server\Elastica\EventRepository\IndexRepository
@@ -92,7 +92,7 @@ services:
         arguments:
             - "@apisearch_server.time_format_builder"
         tags:
-            - {name: "apisearch_server.elastica_event_repository"}
+            - {name: "apisearch_server.events_repository"}
 
 
     #
@@ -118,7 +118,7 @@ services:
             - "@apisearch_server.query_builder"
             - "@apisearch_server.result_builder"
         tags:
-            - {name: "apisearch_server.elastica_log_repository"}
+            - {name: "apisearch_server.logs_repository"}
 
     apisearch_server.elastica_index_log_repository:
         class: Apisearch\Server\Elastica\LogRepository\IndexRepository
@@ -126,20 +126,8 @@ services:
         arguments:
             - "@apisearch_server.time_format_builder"
         tags:
-            - {name: "apisearch_server.elastica_log_repository"}
+            - {name: "apisearch_server.logs_repository"}
 
-
-    #
-    # Adapters
-    #
-    apisearch_server.elastica_repository:
-        class: Apisearch\Server\Elastica\Repository\Repository
-
-    apisearch_server.elastica_event_repository:
-        class: Apisearch\Server\Elastica\EventRepository\Repository
-
-    apisearch_server.elastica_log_repository:
-        class: Apisearch\Server\Elastica\LogRepository\Repository
 
     #
     # Middlewares

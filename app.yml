@@ -43,13 +43,16 @@ config:
             main:
                 http: false
                 search:
-                    repository_service: "apisearch_server.elastica_repository"
+                    repository_service: "apisearch_server.items_repository"
+                    in_memory: false
+                app:
+                    repository_service: "apisearch_server.app_repository"
                     in_memory: false
                 event:
-                    repository_service: "apisearch_server.elastica_event_repository"
+                    repository_service: "apisearch_server.events_repository"
                     in_memory: false
                 log:
-                    repository_service: "apisearch_server.elastica_log_repository"
+                    repository_service: "apisearch_server.logs_repository"
                     in_memory: false
                 indexes:
                     default: default

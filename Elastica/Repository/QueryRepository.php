@@ -23,6 +23,7 @@ use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Filter;
 use Apisearch\Query\Query;
 use Apisearch\Result\Result;
+use Apisearch\Server\Domain\Repository\Repository\QueryRepository as QueryRepositoryInterface;
 use Apisearch\Server\Elastica\Builder\QueryBuilder;
 use Apisearch\Server\Elastica\Builder\ResultBuilder;
 use Apisearch\Server\Elastica\ElasticaWrapper;
@@ -37,7 +38,7 @@ use Exception;
 /**
  * Class QueryRepository.
  */
-class QueryRepository extends ElasticaWrapperWithRepositoryReference
+class QueryRepository extends ElasticaWrapperWithRepositoryReference implements QueryRepositoryInterface
 {
     /**
      * @var QueryBuilder

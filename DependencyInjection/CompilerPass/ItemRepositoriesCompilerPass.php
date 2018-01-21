@@ -19,9 +19,9 @@ namespace Apisearch\Server\DependencyInjection\CompilerPass;
 use Mmoreram\BaseBundle\CompilerPass\TagCompilerPass;
 
 /**
- * Class ElasticsearchRepositoriesCompilerPass.
+ * Class ItemRepositoriesCompilerPass.
  */
-class ElasticsearchRepositoriesCompilerPass extends TagCompilerPass
+class ItemRepositoriesCompilerPass extends TagCompilerPass
 {
     /**
      * Get collector service name.
@@ -30,7 +30,7 @@ class ElasticsearchRepositoriesCompilerPass extends TagCompilerPass
      */
     public function getCollectorServiceName(): string
     {
-        return 'apisearch_server.elastica_repository';
+        return 'apisearch_server.items_repository';
     }
 
     /**
@@ -50,6 +50,6 @@ class ElasticsearchRepositoriesCompilerPass extends TagCompilerPass
      */
     public function getTagName(): string
     {
-        return 'apisearch_server.elastica_repository';
+        return 'apisearch_server.items_repository';
     }
 }

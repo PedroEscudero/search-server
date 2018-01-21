@@ -49,6 +49,18 @@ search_server_api_delete_logs_index:
     defaults:
         _controller: apisearch_server.delete_logs_index_controller:deleteLogsIndex
 
+search_server_api_add_token:
+    path: /v1/token
+    methods: ["POST"]
+    defaults:
+        _controller: apisearch_server.add_token_controller:addToken
+
+search_server_api_delete_token:
+    path: /v1/token
+    methods: ["DELETE"]
+    defaults:
+        _controller: apisearch_server.delete_token_controller:deleteToken
+
 #
 # Read endpoints
 #

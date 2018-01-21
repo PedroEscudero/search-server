@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Elastica\LogRepository;
+namespace Apisearch\Server\Domain\Repository\LogRepository;
 
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
@@ -23,7 +23,7 @@ use Apisearch\Log\LogRepository as BaseLogRepository;
 use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryWithCredentials;
 use Apisearch\Result\Logs;
-use Apisearch\Server\Elastica\WithRepositories;
+use Apisearch\Server\Domain\Repository\WithRepositories;
 
 /**
  * Class Repository.

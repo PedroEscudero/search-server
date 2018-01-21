@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica\EventRepository;
 
 use Apisearch\Event\Event;
+use Apisearch\Server\Domain\Repository\EventRepository\IndexRepository as IndexRepositoryInterface;
 use Apisearch\Server\Elastica\Builder\TimeFormatBuilder;
 use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
@@ -26,7 +27,7 @@ use Elastica\Document as ElasticaDocument;
 /**
  * Class IndexRepository.
  */
-class IndexRepository extends ElasticaWrapperWithRepositoryReference
+class IndexRepository extends ElasticaWrapperWithRepositoryReference implements IndexRepositoryInterface
 {
     /**
      * @var TimeFormatBuilder

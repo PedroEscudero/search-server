@@ -24,6 +24,7 @@ use Apisearch\Query\Query as QueryModel;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Result\Result;
 use Apisearch\Server\ApisearchServerBundle;
+use Apisearch\Server\Domain\Command\AddToken;
 use Apisearch\Server\Domain\Command\ConfigureIndex;
 use Apisearch\Server\Domain\Command\CreateEventsIndex;
 use Apisearch\Server\Domain\Command\CreateIndex;
@@ -32,12 +33,15 @@ use Apisearch\Server\Domain\Command\DeleteEventsIndex;
 use Apisearch\Server\Domain\Command\DeleteIndex;
 use Apisearch\Server\Domain\Command\DeleteItems;
 use Apisearch\Server\Domain\Command\DeleteLogsIndex;
+use Apisearch\Server\Domain\Command\DeleteToken;
 use Apisearch\Server\Domain\Command\IndexItems;
 use Apisearch\Server\Domain\Command\ResetIndex;
 use Apisearch\Server\Domain\Query\CheckIndex;
 use Apisearch\Server\Domain\Query\Query;
 use Apisearch\Server\Domain\Query\QueryEvents;
 use Apisearch\Server\Domain\Query\QueryLogs;
+use Apisearch\Token\Token;
+use Apisearch\Token\TokenUUID;
 use Mmoreram\BaseBundle\BaseBundle;
 use Mmoreram\BaseBundle\Kernel\BaseKernel;
 use Mmoreram\BaseBundle\Tests\BaseFunctionalTest;
@@ -107,15 +111,19 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                                 self::$anotherIndex => self::$anotherIndex,
                             ],
                             'search' => [
-                                'repository_service' => 'apisearch_server.elastica_repository',
+                                'repository_service' => 'apisearch_server.items_repository',
+                                'in_memory' => false,
+                            ],
+                            'app' => [
+                                'repository_service' => 'apisearch_server.app_repository',
                                 'in_memory' => false,
                             ],
                             'event' => [
-                                'repository_service' => 'apisearch_server.elastica_event_repository',
+                                'repository_service' => 'apisearch_server.events_repository',
                                 'in_memory' => false,
                             ],
                             'log' => [
-                                'repository_service' => 'apisearch_server.elastica_log_repository',
+                                'repository_service' => 'apisearch_server.logs_repository',
                                 'in_memory' => false,
                             ],
                         ],
@@ -129,6 +137,9 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                                 self::$anotherIndex => self::$anotherIndex,
                             ],
                             'search' => [
+                                'in_memory' => false,
+                            ],
+                            'app' => [
                                 'in_memory' => false,
                             ],
                             'event' => [
@@ -218,12 +229,27 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     public static function resetScenario()
     {
         self::deleteEverything();
+
+        self::createIndex(self::$appId, '');
         self::createIndex(self::$appId);
+        self::createEventsIndex(self::$appId, '');
         self::createEventsIndex(self::$appId);
         self::createLogsIndex(self::$appId);
+        self::createLogsIndex(self::$appId, '');
+        self::addToken(new Token(TokenUUID::createById('xxx')), self::$appId);
+
         self::createIndex(self::$anotherAppId);
+        self::createIndex(self::$anotherAppId, '');
         self::createEventsIndex(self::$anotherAppId);
+        self::createEventsIndex(self::$anotherAppId, '');
         self::createLogsIndex(self::$anotherAppId);
+        self::createLogsIndex(self::$anotherAppId, '');
+        self::addToken(new Token(TokenUUID::createById('xxx')), self::$anotherAppId);
+
+        try {
+            self::addToken(new Token(TokenUUID::createById('xxx')), self::$anotherInexistentAppId);
+        } catch (ResourceNotAvailableException $e) {
+        }
 
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
@@ -244,6 +270,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     {
         self::deleteAppIdIndexes(self::$appId);
         self::deleteAppIdIndexes(self::$anotherAppId);
+        try {
+            self::deleteToken(TokenUUID::createById('xxx'), self::$anotherInexistentAppId);
+        } catch (ResourceNotAvailableException $e) {
+        }
     }
 
     /**
@@ -254,11 +284,27 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     private static function deleteAppIdIndexes(string $appId)
     {
         try {
+            self::deleteToken(TokenUUID::createById('xxx'), $appId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteIndex($appId, '');
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
             self::deleteIndex($appId);
         } catch (ResourceNotAvailableException $e) {
         }
         try {
+            self::deleteEventsIndex($appId, '');
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
             self::deleteEventsIndex($appId);
+        } catch (ResourceNotAvailableException $e) {
+        }
+        try {
+            self::deleteLogsIndex($appId, '');
         } catch (ResourceNotAvailableException $e) {
         }
         try {
@@ -273,13 +319,15 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param QueryModel $query
      * @param string     $appId
      * @param string     $index
+     * @param string     $token
      *
      * @return Result
      */
     public function query(
         QueryModel $query,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         return self::$container
             ->get('tactician.commandbus')
@@ -298,11 +346,13 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param ItemUUID[] $itemsUUID
      * @param string     $appId
      * @param string     $index
+     * @param string     $token
      */
     public function deleteItems(
         array $itemsUUID,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -321,11 +371,13 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param Item[] $items
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function indexItems(
         array $items,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -343,10 +395,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function resetIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -363,10 +417,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function createIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -384,11 +440,13 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param Config $config
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function configureIndex(
         Config $config,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -406,12 +464,14 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      *
      * @return bool
      */
     public function checkIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ): bool {
         return self::$container
             ->get('tactician.commandbus')
@@ -428,10 +488,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function deleteIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -444,14 +506,62 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     }
 
     /**
+     * Add token.
+     *
+     * @param Token  $newToken
+     * @param string $appId
+     * @param string $token
+     */
+    public function addToken(
+        Token $newToken,
+        string $appId = null,
+        string $token = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new AddToken(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    ''
+                ),
+                $newToken
+            ));
+    }
+
+    /**
+     * Delete token.
+     *
+     * @param TokenUUID $tokenUUID
+     * @param string    $appId
+     * @param string    $token
+     */
+    public function deleteToken(
+        TokenUUID $tokenUUID,
+        string $appId = null,
+        string $token = null
+    ) {
+        self::$container
+            ->get('tactician.commandbus')
+            ->handle(new DeleteToken(
+                RepositoryReference::create(
+                    $appId ?? self::$appId,
+                    ''
+                ),
+                $tokenUUID
+            ));
+    }
+
+    /**
      * Create event index using the bus.
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function createEventsIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -468,10 +578,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function deleteEventsIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -491,13 +603,15 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param int|null   $to
      * @param string     $appId
      * @param string     $index
+     * @param string     $token
      */
     public function queryEvents(
         QueryModel $query,
         ?int $from = null,
         ?int $to = null,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         return self::$container
             ->get('tactician.commandbus')
@@ -517,10 +631,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function createLogsIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -537,10 +653,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      *
      * @param string $appId
      * @param string $index
+     * @param string $token
      */
     public function deleteLogsIndex(
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         self::$container
             ->get('tactician.commandbus')
@@ -560,13 +678,15 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @param int|null   $to
      * @param string     $appId
      * @param string     $index
+     * @param string     $token
      */
     public function queryLogs(
         QueryModel $query,
         ?int $from = null,
         ?int $to = null,
         string $appId = null,
-        string $index = null
+        string $index = null,
+        string $token = null
     ) {
         return self::$container
             ->get('tactician.commandbus')

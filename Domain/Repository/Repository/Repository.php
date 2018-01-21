@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Elastica\Repository;
+namespace Apisearch\Server\Domain\Repository\Repository;
 
 use Apisearch\Config\Config;
 use Apisearch\Exception\ResourceExistsException;
@@ -25,7 +25,7 @@ use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
 use Apisearch\Repository\Repository as BaseRepository;
 use Apisearch\Result\Result;
-use Apisearch\Server\Elastica\WithRepositories;
+use Apisearch\Server\Domain\Repository\WithRepositories;
 
 /**
  * Class Repository.

@@ -17,12 +17,13 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica\Repository;
 
 use Apisearch\Model\ItemUUID;
+use Apisearch\Server\Domain\Repository\Repository\DeleteRepository as DeleteRepositoryInterface;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 
 /**
  * Class DeleteRepository.
  */
-class DeleteRepository extends ElasticaWrapperWithRepositoryReference
+class DeleteRepository extends ElasticaWrapperWithRepositoryReference implements DeleteRepositoryInterface
 {
     /**
      * Delete items.

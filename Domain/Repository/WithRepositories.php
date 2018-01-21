@@ -14,9 +14,10 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Elastica;
+namespace Apisearch\Server\Domain\Repository;
 
 use Apisearch\Repository\RepositoryReference;
+use Apisearch\Repository\WithRepositoryReference;
 
 /**
  * Class WithRepositories.
@@ -24,7 +25,7 @@ use Apisearch\Repository\RepositoryReference;
 trait WithRepositories
 {
     /**
-     * @var ElasticaWrapperWithRepositoryReference[]
+     * @var WithRepositoryReference[]
      *
      * Repositories
      */
@@ -33,9 +34,9 @@ trait WithRepositories
     /**
      * Add repository.
      *
-     * @param ElasticaWrapperWithRepositoryReference $repository
+     * @param WithRepositoryReference $repository
      */
-    public function addRepository(ElasticaWrapperWithRepositoryReference $repository)
+    public function addRepository(WithRepositoryReference $repository)
     {
         $this->repositories[] = $repository;
     }
@@ -45,12 +46,12 @@ trait WithRepositories
      *
      * @param string $class
      *
-     * @return ElasticaWrapperWithRepositoryReference
+     * @return WithRepositoryReference
      */
     private function getRepository(string $class)
     {
         foreach ($this->repositories as $repository) {
-            if (get_class($repository) === $class) {
+            if ($repository instanceof $class) {
                 return $repository;
             }
         }

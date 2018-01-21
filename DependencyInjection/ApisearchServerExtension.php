@@ -74,6 +74,7 @@ class ApisearchServerExtension extends BaseExtension
             'controllers',
             'console',
             'elastica',
+            'redis',
         ];
     }
 

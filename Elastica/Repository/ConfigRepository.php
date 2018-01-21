@@ -19,12 +19,13 @@ namespace Apisearch\Server\Elastica\Repository;
 use Apisearch\Config\Config;
 use Apisearch\Config\Synonym;
 use Apisearch\Exception\ResourceNotAvailableException;
+use Apisearch\Server\Domain\Repository\Repository\ConfigRepository as ConfigRepositoryInterface;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 
 /**
  * Class ConfigRepository.
  */
-class ConfigRepository extends ElasticaWrapperWithRepositoryReference
+class ConfigRepository extends ElasticaWrapperWithRepositoryReference implements ConfigRepositoryInterface
 {
     /**
      * Config the index.

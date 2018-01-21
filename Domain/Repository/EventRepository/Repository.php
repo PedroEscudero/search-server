@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Elastica\EventRepository;
+namespace Apisearch\Server\Domain\Repository\EventRepository;
 
 use Apisearch\Event\Event;
 use Apisearch\Event\EventRepository as BaseEventRepository;
@@ -23,7 +23,7 @@ use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryWithCredentials;
 use Apisearch\Result\Events;
-use Apisearch\Server\Elastica\WithRepositories;
+use Apisearch\Server\Domain\Repository\WithRepositories;
 
 /**
  * Class Repository.

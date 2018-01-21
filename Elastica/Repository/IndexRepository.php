@@ -18,6 +18,7 @@ namespace Apisearch\Server\Elastica\Repository;
 
 use Apisearch\Model\Coordinate;
 use Apisearch\Model\Item;
+use Apisearch\Server\Domain\Repository\Repository\IndexRepository as IndexRepositoryInterface;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use Elastica\Document;
 use Elastica\Document as ElasticaDocument;
@@ -26,7 +27,7 @@ use Elastica\Index\Stats;
 /**
  * Class IndexRepository.
  */
-class IndexRepository extends ElasticaWrapperWithRepositoryReference
+class IndexRepository extends ElasticaWrapperWithRepositoryReference implements IndexRepositoryInterface
 {
     /**
      * Create the index.

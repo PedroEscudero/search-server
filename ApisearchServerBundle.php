@@ -18,11 +18,12 @@ namespace Apisearch\Server;
 
 use Apisearch\ApisearchBundle;
 use Apisearch\Server\DependencyInjection\ApisearchServerExtension;
+use Apisearch\Server\DependencyInjection\CompilerPass\AppRepositoriesCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\DomainEventsMiddlewareCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\ElasticaConfigPathCompilerPass;
-use Apisearch\Server\DependencyInjection\CompilerPass\ElasticsearchEventRepositoriesCompilerPass;
-use Apisearch\Server\DependencyInjection\CompilerPass\ElasticsearchLogRepositoriesCompilerPass;
-use Apisearch\Server\DependencyInjection\CompilerPass\ElasticsearchRepositoriesCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\EventRepositoriesCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\ItemRepositoriesCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\LogRepositoriesCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\LogsMiddlewareCompilerPass;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
@@ -77,12 +78,13 @@ class ApisearchServerBundle extends BaseBundle
     public function getCompilerPasses(): array
     {
         return [
-            new ElasticsearchRepositoriesCompilerPass(),
-            new ElasticsearchEventRepositoriesCompilerPass(),
-            new ElasticsearchLogRepositoriesCompilerPass(),
+            new ItemRepositoriesCompilerPass(),
+            new EventRepositoriesCompilerPass(),
+            new LogRepositoriesCompilerPass(),
             new ElasticaConfigPathCompilerPass(),
             new DomainEventsMiddlewareCompilerPass(),
             new LogsMiddlewareCompilerPass(),
+            new AppRepositoriesCompilerPass(),
         ];
     }
 }

@@ -1,0 +1,11 @@
+services:
+
+    apisearch_server.redis_token_repository:
+        class: Apisearch\Server\Redis\Token\TokenRedisRepository
+        arguments:
+            - "@rs_queue.redis"
+        tags:
+            - {name: "apisearch_server.app_repository"}
+
+    apisearch_server.token_locator:
+        alias: apisearch_server.redis_token_repository

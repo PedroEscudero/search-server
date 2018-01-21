@@ -40,7 +40,7 @@ class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
      */
     public function testEventPersistence()
     {
-        $eventRepository = self::get('apisearch_server.event_repository');
+        $eventRepository = self::get('apisearch_server.events_repository');
         $this->assertCount(1, $eventRepository->query(Query::createMatchAll())->getEvents());
 
         $this->deleteItems([new ItemUUID('1', 'product')]);
