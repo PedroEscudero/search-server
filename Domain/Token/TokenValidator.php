@@ -51,13 +51,39 @@ class TokenValidator
     public function validateTokenOnKernelRequest(GetResponseEvent $event)
     {
         return;
-
+        
         $request = $event->getRequest();
         $query = $request->query;
-        $appId = $query->get('app_id');
-        $indexId = $query->get('index_id');
-        $tokenReference = $query->get('token');
-        $endpoint = strtolower($request->getMethod().'~~'.trim($request->getPathInfo(), '/'));
+
+        self::validateToken(
+            $query->get('app_id'),
+            $query->get('index_id', ''),
+            $query->get('token'),
+            $request->headers->get('Origin', ''),
+            $request->getPathInfo(),
+            $request->getMethod()
+        );
+    }
+
+    /**
+     * Validate token given basic fields.
+     *
+     * @param string $appId
+     * @param string $indexId
+     * @param string $tokenReference
+     * @param string $referrer
+     * @param string $path
+     * @param string $verb
+     */
+    public function validateToken(
+        string $appId,
+        string $indexId,
+        string $tokenReference,
+        string $referrer,
+        string $path,
+        string $verb
+    ) {
+        $endpoint = strtolower($verb.'~~'.trim($path, '/'));
         $token = $this
             ->tokenLocator
             ->getTokenByReference(
@@ -68,8 +94,11 @@ class TokenValidator
         if (
             (!$token instanceof Token) ||
             (
+                $appId !== $token->getAppId()
+            ) ||
+            (
                 !empty($token->getHttpReferrers()) &&
-                !in_array($request->headers->get('referer'), $token->getHttpReferrers())
+                !in_array($referrer, $token->getHttpReferrers())
             ) ||
             (
                 !empty($token->getIndices()) &&
@@ -81,7 +110,7 @@ class TokenValidator
             ) ||
             (
                 $token->getSecondsValid() > 0 &&
-                $token->getUpdatedAt() + $token->getSecondsValid() >= Carbon::now('UTC')->timestamp
+                $token->getUpdatedAt() + $token->getSecondsValid() < Carbon::now('UTC')->timestamp
             )
         ) {
             throw InvalidTokenException::createInvalidTokenPermissions($tokenReference);

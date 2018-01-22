@@ -30,7 +30,7 @@ trait TokenTest
      */
     public function testTokenCreation()
     {
-        $token = new Token(TokenUUID::createById('12345'));
+        $token = new Token(TokenUUID::createById('12345'), self::$appId);
         $this->addToken($token);
         $this->deleteToken(TokenUUID::createById('12345'));
     }
@@ -44,6 +44,7 @@ trait TokenTest
     {
         $token = new Token(
             TokenUUID::createById('12345'),
+            self::$appId,
             [self::$anotherIndex]
         );
         $this->addToken($token, self::$appId);
@@ -64,7 +65,11 @@ trait TokenTest
      */
     public function testTokenWithoutEndpointPermissionsFailing(array $routes)
     {
-        $token = new Token(TokenUUID::createById('12345'));
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
+
         $token->setEndpoints($routes);
         $this->addToken($token, self::$appId);
 
@@ -99,7 +104,11 @@ trait TokenTest
      */
     public function testTokenWithoutEndpointPermissionsAccepted(array $routes)
     {
-        $token = new Token(TokenUUID::createById('12345'));
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
+
         $token->setEndpoints($routes);
         $this->addToken($token, self::$appId);
 
@@ -138,10 +147,13 @@ trait TokenTest
      */
     public function testSecondsAvailableFailing()
     {
-        $token = new Token(TokenUUID::createById('12345'));
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
         $token->setSecondsValid(1);
         $this->addToken($token, self::$appId);
-        sleep(1);
+        sleep(2);
         $this->query(
             Query::createMatchAll(),
             self::$appId,
@@ -155,13 +167,36 @@ trait TokenTest
      */
     public function testSecondsAvailableAccepted()
     {
-        $token = new Token(TokenUUID::createById('12345'));
-        $token->setSecondsValid(1);
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
+        $token->setSecondsValid(2);
         $this->addToken($token, self::$appId);
-        sleep(2);
+        sleep(1);
         $this->query(
             Query::createMatchAll(),
             self::$appId,
+            self::$index,
+            '12345'
+        );
+    }
+
+    /**
+     * Test diferent app id.
+     *
+     * @expectedException \Apisearch\Exception\InvalidTokenException
+     */
+    public function testInvalidAppId()
+    {
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
+        $this->addToken($token, self::$appId);
+        $this->query(
+            Query::createMatchAll(),
+            self::$anotherAppId,
             self::$index,
             '12345'
         );

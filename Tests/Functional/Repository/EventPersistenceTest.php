@@ -19,6 +19,8 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 use Apisearch\Model\ItemUUID;
 use Apisearch\Query\Query;
 use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
+use Apisearch\Token\Token;
+use Apisearch\Token\TokenUUID;
 
 /**
  * Class EventPersistenceTest.
@@ -53,5 +55,23 @@ class EventPersistenceTest extends ApisearchServerBundleFunctionalTest
         $this->assertCount(5, $eventRepository->query(Query::createMatchAll())->getEvents());
         $this->resetIndex();
         $this->assertCount(6, $eventRepository->query(Query::createMatchAll())->getEvents());
+    }
+
+    /**
+     * Test token events persistence.
+     */
+    public function testTokensEventPersistence()
+    {
+        $this->resetScenario();
+        $eventRepository = self::get('apisearch_server.events_repository');
+        $this->assertCount(1, $eventRepository->query(Query::createMatchAll())->getEvents());
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
+        $this->addToken($token);
+        $this->assertCount(2, $eventRepository->query(Query::createMatchAll())->getEvents());
+        $this->deleteToken(TokenUUID::createById('12345'));
+        $this->assertCount(3, $eventRepository->query(Query::createMatchAll())->getEvents());
     }
 }

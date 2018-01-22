@@ -47,7 +47,9 @@ class TokenWasDeleted extends DomainEvent
     public function readableOnlyToArray(): array
     {
         return [
-            'token' => json_encode($this->tokenUUID->toArray()),
+            'token' => $this
+                ->tokenUUID
+                ->toArray(),
         ];
     }
 
@@ -70,6 +72,8 @@ class TokenWasDeleted extends DomainEvent
      */
     public static function stringToPayload(string $data): array
     {
-        return [];
+        return [
+            TokenUUID::createFromArray(json_decode($data, true)['token']),
+        ];
     }
 }

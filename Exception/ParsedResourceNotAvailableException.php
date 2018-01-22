@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Apisearch PHP Client.
+ * This file is part of the Apisearch Server
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -36,19 +36,18 @@ class ParsedResourceNotAvailableException
     }
 
     /**
-     * Parse message and transform to a more human format
+     * Parse message and transform to a more human format.
      *
      * @param string $message
      *
      * @return string
      */
-    private static function transformToHumanFormat(string $message) : string
+    private static function transformToHumanFormat(string $message): string
     {
-        if (preg_match(
+        if (1 === preg_match(
             '#/apisearch_(?P<app_id>.*?)_(?P<index_id>.*?)/item/(?P<id>.*?)~(?P<type>.*?)caused failed to parse \[(?P<group>\w*?)\.(?P<field>\w*?)\]#i',
             $message,
-            $match) === 1) {
-
+            $match)) {
             return sprintf('Error while indexing item [id: %s, type: %s]. Field %s in %s is malformed',
                 $match['id'],
                 $match['type'],

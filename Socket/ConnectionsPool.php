@@ -63,7 +63,18 @@ class ConnectionsPool
     public function removeConnection(ConnectionInterface $connection)
     {
         $connectionKey = spl_object_hash($connection);
+        if (!array_key_exists($connectionKey, $this->connectionReferences)) {
+            return;
+        }
+
         $key = $this->connectionReferences[$connectionKey];
+        if (
+            !array_key_exists($key, $this->connections) ||
+            !array_key_exists($connectionKey, $this->connections[$key])
+        ) {
+            return;
+        }
+
         $this->connections[$key][$connectionKey] = null;
         unset($this->connections[$key][$connectionKey]);
     }

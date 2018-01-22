@@ -3,10 +3,13 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 $connectionsPool = new \Apisearch\Server\Socket\ConnectionsPool();
+
 $server = \Apisearch\Server\Socket\ServerFactory::create(
     new \Apisearch\Server\Socket\App(
         $connectionsPool,
-        'event'
+        \Apisearch\Server\Socket\TokenValidatorFactory::create(),
+        'event',
+        'v1/events/stream'
     ),
     $argv[1],
     'apisearch:domain-events:reduced'

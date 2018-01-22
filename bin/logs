@@ -6,7 +6,9 @@ $connectionsPool = new \Apisearch\Server\Socket\ConnectionsPool();
 $server = \Apisearch\Server\Socket\ServerFactory::create(
     new \Apisearch\Server\Socket\App(
         $connectionsPool,
-        'log'
+        \Apisearch\Server\Socket\TokenValidatorFactory::create(),
+        'log',
+        'v1/logs/stream'
     ),
     $argv[1],
     'apisearch:logs'

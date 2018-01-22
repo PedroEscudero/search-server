@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Socket;
 
+use Apisearch\Server\Domain\Token\TokenValidator;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 
@@ -32,6 +33,13 @@ class App implements MessageComponentInterface
     private $connectionsPool;
 
     /**
+     * @var TokenValidator
+     *
+     * Token validator
+     */
+    private $tokenValidator;
+
+    /**
      * @var string
      *
      * Element key
@@ -39,17 +47,30 @@ class App implements MessageComponentInterface
     private $elementKey;
 
     /**
+     * @var string
+     *
+     * Endpoint
+     */
+    private $endpoint;
+
+    /**
      * App constructor.
      *
      * @param ConnectionsPool $connectionsPool
+     * @param TokenValidator  $tokenValidator
      * @param string          $elementKey
+     * @param string          $endpoint
      */
     public function __construct(
         ConnectionsPool $connectionsPool,
-        string $elementKey
+        TokenValidator $tokenValidator,
+        string $elementKey,
+        string $endpoint
     ) {
         $this->connectionsPool = $connectionsPool;
+        $this->tokenValidator = $tokenValidator;
         $this->elementKey = $elementKey;
+        $this->endpoint = $endpoint;
     }
 
     /**
@@ -61,12 +82,22 @@ class App implements MessageComponentInterface
      */
     public function onOpen(ConnectionInterface $conn)
     {
-        $queryString = $conn
-            ->httpRequest
-            ->getUri()
-            ->getQuery();
-
+        $request = $conn->httpRequest;
+        $uri = $request->getUri();
+        $queryString = $uri->getQuery();
         parse_str($queryString, $query);
+
+        $this
+            ->tokenValidator
+            ->validateToken(
+                $query['app_id'],
+                $query['index_id'],
+                $query['token'],
+                $request->getHeader('Origin')[0],
+                $this->endpoint,
+                'get'
+            );
+
         $this
             ->connectionsPool
             ->addConnection(
@@ -118,6 +149,9 @@ class App implements MessageComponentInterface
     /**
      * Write data into pool.
      *
+     * We must ensure that both users connected to specific index and users
+     * connected to all indices will receive this item properly
+     *
      * @param array $payload
      */
     public function write(array $payload)
@@ -127,6 +161,14 @@ class App implements MessageComponentInterface
             ->write(
                 $payload['app_id'],
                 $payload['index_id'],
+                $payload[$this->elementKey]
+            );
+
+        $this
+            ->connectionsPool
+            ->write(
+                $payload['app_id'],
+                '*',
                 $payload[$this->elementKey]
             );
     }

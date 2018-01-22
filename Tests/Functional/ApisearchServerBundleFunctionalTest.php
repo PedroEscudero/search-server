@@ -236,7 +236,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         self::createEventsIndex(self::$appId);
         self::createLogsIndex(self::$appId);
         self::createLogsIndex(self::$appId, '');
-        self::addToken(new Token(TokenUUID::createById('xxx')), self::$appId);
+        self::addToken(new Token(TokenUUID::createById('xxx'), self::$appId), self::$appId);
 
         self::createIndex(self::$anotherAppId);
         self::createIndex(self::$anotherAppId, '');
@@ -244,10 +244,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         self::createEventsIndex(self::$anotherAppId, '');
         self::createLogsIndex(self::$anotherAppId);
         self::createLogsIndex(self::$anotherAppId, '');
-        self::addToken(new Token(TokenUUID::createById('xxx')), self::$anotherAppId);
+        self::addToken(new Token(TokenUUID::createById('xxx'), self::$anotherAppId), self::$anotherAppId);
 
         try {
-            self::addToken(new Token(TokenUUID::createById('xxx')), self::$anotherInexistentAppId);
+            self::addToken(new Token(TokenUUID::createById('xxx'), self::$anotherInexistentAppId), self::$anotherInexistentAppId);
         } catch (ResourceNotAvailableException $e) {
         }
 

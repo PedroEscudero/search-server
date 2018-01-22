@@ -47,7 +47,9 @@ class TokenWasAdded extends DomainEvent
     public function readableOnlyToArray(): array
     {
         return [
-            'token' => json_encode($this->token->toArray()),
+            'token' => $this
+                ->token
+                ->toArray(),
         ];
     }
 
@@ -70,6 +72,8 @@ class TokenWasAdded extends DomainEvent
      */
     public static function stringToPayload(string $data): array
     {
-        return [];
+        return [
+            Token::createFromArray(json_decode($data, true)['token']),
+        ];
     }
 }
