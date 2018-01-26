@@ -55,6 +55,7 @@ class QueryController extends ControllerWithBusAndEventRepository
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 ),
+                $query->get('token'),
                 QueryModel::createFromArray(json_decode($plainQuery, true))
             ))
             ->toArray();

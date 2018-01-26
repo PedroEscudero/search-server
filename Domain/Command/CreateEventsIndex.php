@@ -16,13 +16,13 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Command;
 
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReferenceAndToken;
 use Apisearch\Server\Domain\LoggableCommand;
 use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class CreateEventsIndex.
  */
-class CreateEventsIndex extends CommandWithRepositoryReference implements WriteCommand, LoggableCommand
+class CreateEventsIndex extends CommandWithRepositoryReferenceAndToken implements WriteCommand, LoggableCommand
 {
 }

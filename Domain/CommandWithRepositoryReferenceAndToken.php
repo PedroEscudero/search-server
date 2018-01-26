@@ -19,21 +19,28 @@ namespace Apisearch\Server\Domain;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Repository\WithTokenTrait;
+use Apisearch\Token\Token;
 
 /**
- * Class CommandWithRepositoryReference.
+ * Class CommandWithRepositoryReferenceAndToken.
  */
-class CommandWithRepositoryReference implements WithRepositoryReference
+class CommandWithRepositoryReferenceAndToken implements WithRepositoryReference
 {
     use WithRepositoryReferenceTrait;
+    use WithTokenTrait;
 
     /**
      * ResetCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
+     * @param Token               $token
      */
-    public function __construct(RepositoryReference $repositoryReference)
-    {
+    public function __construct(
+        RepositoryReference $repositoryReference,
+        Token $token
+    ) {
         $this->repositoryReference = $repositoryReference;
+        $this->token = $token;
     }
 }

@@ -106,6 +106,22 @@ services:
         tags:
             - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteToken }
 
+    apisearch_server.comand_handler.add_interaction:
+        class: Apisearch\Server\Domain\CommandHandler\AddInteractionHandler
+        arguments:
+            - "@apisearch.user_repository_main"
+            - "@apisearch_server.event_publisher"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\AddInteraction }
+
+    apisearch_server.comand_handler.delete_all_interaction:
+        class: Apisearch\Server\Domain\CommandHandler\DeleteAllInteractionsHandler
+        arguments:
+            - "@apisearch.user_repository_main"
+            - "@apisearch_server.event_publisher"
+        tags:
+            - { name: tactician.handler, command: Apisearch\Server\Domain\Command\DeleteAllInteractions }
+
     #
     # Query handlers
     #
@@ -195,6 +211,19 @@ services:
         public: false
 
     #
+    # Domain Middlewares
+    #
+    apisearch_server.middleware.interactions:
+        class: Apisearch\Server\Domain\Middleware\InteractionsMiddleware
+        arguments:
+            - "@apisearch.user_repository_main"
+        public: false
+
+    apisearch_server.middleware.token:
+        class: Apisearch\Server\Domain\Middleware\TokenMiddleware
+        public: false
+
+    #
     # Repositories
     #
     apisearch_server.items_repository:
@@ -209,6 +238,9 @@ services:
     apisearch_server.app_repository:
         class: Apisearch\Server\Domain\Repository\AppRepository\Repository
 
+    apisearch_server.user_repository:
+        class: Apisearch\Server\Domain\Repository\UserRepository\Repository
+
     #
     # Token
     #
@@ -216,5 +248,4 @@ services:
         class: Apisearch\Server\Domain\Token\TokenValidator
         arguments:
             - "@apisearch_server.token_locator"
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, method: validateTokenOnKernelRequest }
+            - "%apisearch_server.god_token%"

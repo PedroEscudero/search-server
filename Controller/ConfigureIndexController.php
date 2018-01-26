@@ -54,6 +54,7 @@ class ConfigureIndexController extends ControllerWithBusAndEventRepository
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 ),
+                $query->get('token'),
                 Config::createFromArray(json_decode($plainConfig, true))
             ));
 

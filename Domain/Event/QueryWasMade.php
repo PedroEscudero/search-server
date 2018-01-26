@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Event;
 
+use Apisearch\Model\User;
 use Apisearch\Query\Filter;
-use Apisearch\Query\User;
 
 /**
  * Class QueryWasMade.

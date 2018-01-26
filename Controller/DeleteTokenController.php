@@ -47,6 +47,7 @@ class DeleteTokenController extends ControllerWithBus
                     $query->get(Http::APP_ID_FIELD),
                     ''
                 ),
+                $query->get('token'),
                 TokenUUID::createFromArray(json_decode($requestBody->get('token'), true))
             ));
 

@@ -1,0 +1,35 @@
+services:
+
+    apisearch_server.neo4j_client_builder:
+        class: GraphAware\Neo4j\Client\ClientBuilder
+        factory: 'GraphAware\Neo4j\Client\ClientBuilder::create'
+        calls:
+            - ['addConnection', ['', 'bolt://neo4j:1234@localhost:7687']]
+
+    apisearch_server.neo4j_client:
+        class: GraphAware\Neo4j\Client\ClientInterface
+        factory:
+            - '@apisearch_server.neo4j_client_builder'
+            - 'build'
+
+    #
+    # Neo4j repositories
+    #
+
+    apisearch_server.neo4j_repository:
+        class: Apisearch\Server\Neo4j\UserRepository\Neo4jRepository
+        abstract: true
+        arguments:
+            - '@apisearch_server.neo4j_client'
+
+    apisearch_server.neo4j_index_user_repository:
+        class: Apisearch\Server\Neo4j\UserRepository\IndexRepository
+        parent: apisearch_server.neo4j_repository
+        tags:
+            - {name: "apisearch_server.user_repository"}
+
+    apisearch_server.neo4j_query_user_repository:
+        class: Apisearch\Server\Neo4j\UserRepository\QueryRepository
+        parent: apisearch_server.neo4j_repository
+        tags:
+            - {name: "apisearch_server.user_repository"}

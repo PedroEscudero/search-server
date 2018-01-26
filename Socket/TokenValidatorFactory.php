@@ -18,7 +18,8 @@ namespace Apisearch\Server\Socket;
 
 use Apisearch\Server\Domain\Token\TokenValidator;
 use Apisearch\Server\Redis\Token\TokenRedisRepository;
-use Redis;
+use RedisCluster;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class TokenValidatorFactory.
@@ -32,11 +33,12 @@ class TokenValidatorFactory
      */
     public static function create(): TokenValidator
     {
-        $redis = new Redis();
-        $redis->pconnect('127.0.0.1');
+        $appConfig = Yaml::parse(file_get_contents(__DIR__.'/../app.yml'))['config'];
+        $redis = new RedisCluster(null, ['127.0.0.1:'.$appConfig['rs_queue']['server']['redis']['port']]);
 
         return new TokenValidator(
-            new TokenRedisRepository($redis)
+            new TokenRedisRepository($redis),
+            $appConfig['apisearch_server']['god_token']
         );
     }
 }

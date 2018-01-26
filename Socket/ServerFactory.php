@@ -21,6 +21,7 @@ use Clue\React\Redis\Factory as ReactRedisFactory;
 use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class ServerFactory.
@@ -48,9 +49,10 @@ class ServerFactory
             $port
         );
 
+        $appConfig = Yaml::parse(file_get_contents(__DIR__.'/../app.yml'))['config'];
         $redisFactory = new ReactRedisFactory($server->loop);
         $redisFactory
-            ->createClient('127.0.0.1')
+            ->createClient('127.0.0.1:'.$appConfig['rs_queue']['server']['redis']['port'])
             ->then(function (ReactRedisClient $client) use ($app, $queueName) {
                 $client->subscribe($queueName);
                 $client->on('message', function ($channel, $payload) use ($app) {

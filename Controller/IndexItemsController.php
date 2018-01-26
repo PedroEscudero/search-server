@@ -55,6 +55,7 @@ class IndexItemsController extends ControllerWithBusAndEventRepository
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 ),
+                $query->get('token'),
                 array_map(function (array $object) {
                     return Item::createFromArray($object);
                 }, json_decode($items, true))

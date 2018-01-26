@@ -14,11 +14,17 @@
 
 declare(strict_types=1);
 
-namespace Apisearch\Server\Tests\Functional\Repository;
+namespace Apisearch\Server\Domain;
 
 /**
- * Class AServiceRepositoryTest.
+ * Class Plugins.
  */
-class AServiceRepositoryTest extends RepositoryTest
+class Plugins
 {
+    /**
+     * @var string
+     *
+     * Machine learning basic
+     */
+    const MACHINE_LEARNING_BASIC = 'machine_learning_basic';
 }

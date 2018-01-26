@@ -49,6 +49,16 @@ services:
         arguments:
             - "@tactician.commandbus.command"
 
+    apisearch_server.add_interaction_controller:
+        class: Apisearch\Server\Controller\AddInteractionController
+        arguments:
+            - "@tactician.commandbus.command"
+
+    apisearch_server.delete_all_interactions_controller:
+        class: Apisearch\Server\Controller\DeleteAllInteractionsController
+        arguments:
+            - "@tactician.commandbus.command"
+
     #
     # Controllers with query bus
     #
@@ -103,3 +113,10 @@ services:
         class: Apisearch\Server\Controller\Listener\PHPExceptionToJsonResponse
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+    apisearch_server.token_validation_over_http:
+        class: Apisearch\Server\Controller\Listener\TokenValidationOverHTTP
+        arguments:
+            - "@apisearch_server.token_validator"
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: validateTokenOnKernelRequest }

@@ -47,6 +47,7 @@ class AddTokenController extends ControllerWithBus
                     $query->get(Http::APP_ID_FIELD),
                     ''
                 ),
+                $query->get('token'),
                 Token::createFromArray(json_decode($requestBody->get('token'), true))
             ));
 

@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Command;
 
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReferenceAndToken;
 use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class CreateLogsIndex.
  */
-class CreateLogsIndex extends CommandWithRepositoryReference implements WriteCommand
+class CreateLogsIndex extends CommandWithRepositoryReferenceAndToken implements WriteCommand
 {
 }

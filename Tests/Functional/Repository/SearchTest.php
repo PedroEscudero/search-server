@@ -18,8 +18,8 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
+use Apisearch\Model\User;
 use Apisearch\Query\Query;
-use Apisearch\Query\User;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Elastica\Repository\ItemElasticaWrapper;
 

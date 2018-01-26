@@ -74,6 +74,7 @@ class ApisearchServerExtension extends BaseExtension
             'controllers',
             'console',
             'elastica',
+            'neo4j',
             'redis',
         ];
     }
@@ -100,6 +101,7 @@ class ApisearchServerExtension extends BaseExtension
             'apisearch_server.config.event_repository' => $config['config']['event_repository'],
             'apisearch_server.config.log_repository' => $config['config']['log_repository'],
             'apisearch_server.cluster' => ['servers' => $config['cluster']],
+            'apisearch_server.god_token' => $config['god_token'],
         ];
     }
 

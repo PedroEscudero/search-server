@@ -44,7 +44,8 @@ class CheckIndexController extends ControllerWithBus
                 RepositoryReference::create(
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
-                )
+                ),
+                $query->get('token')
             ));
 
         return true === $alive

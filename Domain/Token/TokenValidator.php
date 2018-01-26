@@ -18,8 +18,8 @@ namespace Apisearch\Server\Domain\Token;
 
 use Apisearch\Exception\InvalidTokenException;
 use Apisearch\Token\Token;
+use Apisearch\Token\TokenUUID;
 use Carbon\Carbon;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 /**
  * Class TokenValidator.
@@ -34,39 +34,30 @@ class TokenValidator
     private $tokenLocator;
 
     /**
+     * @var string
+     *
+     * God token
+     */
+    private $godToken;
+
+    /**
      * TokenValidator constructor.
      *
      * @param TokenLocator $tokenLocator
+     * @param string       $godToken
      */
-    public function __construct(TokenLocator $tokenLocator)
-    {
+    public function __construct(
+        TokenLocator $tokenLocator,
+        string $godToken
+    ) {
         $this->tokenLocator = $tokenLocator;
-    }
-
-    /**
-     * Validate token given a Request.
-     *
-     * @param GetResponseEvent $event
-     */
-    public function validateTokenOnKernelRequest(GetResponseEvent $event)
-    {
-        return;
-        
-        $request = $event->getRequest();
-        $query = $request->query;
-
-        self::validateToken(
-            $query->get('app_id'),
-            $query->get('index_id', ''),
-            $query->get('token'),
-            $request->headers->get('Origin', ''),
-            $request->getPathInfo(),
-            $request->getMethod()
-        );
+        $this->godToken = $godToken;
     }
 
     /**
      * Validate token given basic fields.
+     *
+     * If is valid, return valid Token
      *
      * @param string $appId
      * @param string $indexId
@@ -74,6 +65,8 @@ class TokenValidator
      * @param string $referrer
      * @param string $path
      * @param string $verb
+     *
+     * @return Token $token
      */
     public function validateToken(
         string $appId,
@@ -83,6 +76,10 @@ class TokenValidator
         string $path,
         string $verb
     ) {
+        if ($tokenReference === $this->godToken) {
+            return $this->createGodToken($appId);
+        }
+
         $endpoint = strtolower($verb.'~~'.trim($path, '/'));
         $token = $this
             ->tokenLocator
@@ -115,5 +112,22 @@ class TokenValidator
         ) {
             throw InvalidTokenException::createInvalidTokenPermissions($tokenReference);
         }
+
+        return $token;
+    }
+
+    /**
+     * Create god token instance.
+     *
+     * @param string $appId
+     *
+     * @return Token
+     */
+    private function createGodToken(string $appId): Token
+    {
+        return new Token(
+            TokenUUID::createById($this->godToken),
+            $appId
+        );
     }
 }

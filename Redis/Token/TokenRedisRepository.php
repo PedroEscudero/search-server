@@ -23,6 +23,7 @@ use Apisearch\Server\Domain\Token\TokenLocator;
 use Apisearch\Token\Token;
 use Apisearch\Token\TokenUUID;
 use Redis;
+use RedisCluster;
 
 /**
  * Class TokenRedisRepository.
@@ -39,7 +40,7 @@ class TokenRedisRepository implements TokenRepository, TokenLocator, WithReposit
     const REDIS_KEY = 'apisearch_tokens';
 
     /**
-     * @var Redis
+     * @var Redis|RedisCluster
      *
      * redis client
      */
@@ -48,9 +49,9 @@ class TokenRedisRepository implements TokenRepository, TokenLocator, WithReposit
     /**
      * TokenRedisRepository constructor.
      *
-     * @param Redis $redisClient
+     * @param Redis|RedisCluster $redisClient
      */
-    public function __construct(Redis $redisClient)
+    public function __construct($redisClient)
     {
         $this->redisClient = $redisClient;
     }

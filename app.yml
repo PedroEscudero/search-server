@@ -21,7 +21,14 @@ config:
                 path: '%kernel.logs_dir%/%kernel.environment%.log'
                 level: debug
 
+    rs_queue:
+        server:
+            redis:
+                cluster: true
+                port: 6379
+
     apisearch_server:
+        god_token: '0e4d75ba-c640-44c1-a745-06ee51db4e93'
         cluster:
             localhost_9200:
                 host: localhost
@@ -30,13 +37,13 @@ config:
             repository:
                 config_path: '/tmp/config_{app_id}_{index_id}'
                 shards: 2
-                replicas: 3
+                replicas: 2
             event_repository:
                 shards: 2
-                replicas: 3
+                replicas: 2
             log_repository:
                 shards: 2
-                replicas: 3
+                replicas: 2
 
     apisearch:
         repositories:
@@ -47,6 +54,9 @@ config:
                     in_memory: false
                 app:
                     repository_service: "apisearch_server.app_repository"
+                    in_memory: false
+                user:
+                    repository_service: "apisearch_server.user_repository"
                     in_memory: false
                 event:
                     repository_service: "apisearch_server.events_repository"

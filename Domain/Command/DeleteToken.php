@@ -17,14 +17,15 @@ declare(strict_types=1);
 namespace Apisearch\Server\Domain\Command;
 
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReferenceAndToken;
 use Apisearch\Server\Domain\LoggableCommand;
+use Apisearch\Token\Token;
 use Apisearch\Token\TokenUUID;
 
 /**
  * Class DeleteToken.
  */
-class DeleteToken extends CommandWithRepositoryReference implements LoggableCommand
+class DeleteToken extends CommandWithRepositoryReferenceAndToken implements LoggableCommand
 {
     /**
      * @var TokenUUID
@@ -38,13 +39,18 @@ class DeleteToken extends CommandWithRepositoryReference implements LoggableComm
      *
      *
      * @param RepositoryReference $repositoryReference
+     * @param Token               $token
      * @param TokenUUID           $tokenUUID
      */
     public function __construct(
         RepositoryReference $repositoryReference,
+        Token              $token,
         TokenUUID $tokenUUID
     ) {
-        parent::__construct($repositoryReference);
+        parent::__construct(
+            $repositoryReference,
+            $token
+        );
 
         $this->tokenUUID = $tokenUUID;
     }

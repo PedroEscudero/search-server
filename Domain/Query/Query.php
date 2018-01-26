@@ -18,17 +18,15 @@ namespace Apisearch\Server\Domain\Query;
 
 use Apisearch\Query\Query as SearchQuery;
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Repository\WithRepositoryReference;
-use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Server\Domain\CommandWithRepositoryReferenceAndToken;
 use Apisearch\Server\Domain\LoggableCommand;
+use Apisearch\Token\Token;
 
 /**
  * Class Query.
  */
-class Query implements WithRepositoryReference, LoggableCommand
+class Query extends CommandWithRepositoryReferenceAndToken implements LoggableCommand
 {
-    use WithRepositoryReferenceTrait;
-
     /**
      * @var SearchQuery
      *
@@ -40,13 +38,19 @@ class Query implements WithRepositoryReference, LoggableCommand
      * DeleteCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
+     * @param Token               $token
      * @param SearchQuery         $query
      */
     public function __construct(
         RepositoryReference $repositoryReference,
+        Token              $token,
         SearchQuery $query
     ) {
-        $this->repositoryReference = $repositoryReference;
+        parent::__construct(
+            $repositoryReference,
+            $token
+        );
+
         $this->query = $query;
     }
 

@@ -25,6 +25,7 @@ use Apisearch\Server\DependencyInjection\CompilerPass\EventRepositoriesCompilerP
 use Apisearch\Server\DependencyInjection\CompilerPass\ItemRepositoriesCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\LogRepositoriesCompilerPass;
 use Apisearch\Server\DependencyInjection\CompilerPass\LogsMiddlewareCompilerPass;
+use Apisearch\Server\DependencyInjection\CompilerPass\UserRepositoriesCompilerPass;
 use League\Tactician\Bundle\TacticianBundle;
 use Mmoreram\BaseBundle\BaseBundle;
 use RSQueueBundle\RSQueueBundle;
@@ -85,6 +86,7 @@ class ApisearchServerBundle extends BaseBundle
             new DomainEventsMiddlewareCompilerPass(),
             new LogsMiddlewareCompilerPass(),
             new AppRepositoriesCompilerPass(),
+            new UserRepositoriesCompilerPass(),
         ];
     }
 }

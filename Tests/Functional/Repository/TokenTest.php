@@ -53,7 +53,7 @@ trait TokenTest
             Query::createMatchAll(),
             self::$appId,
             self::$index,
-            '12345'
+            $token
         );
     }
 
@@ -77,7 +77,7 @@ trait TokenTest
             Query::createMatchAll(),
             self::$appId,
             self::$index,
-            '12345'
+            $token
         );
     }
 
@@ -116,7 +116,7 @@ trait TokenTest
             Query::createMatchAll(),
             self::$appId,
             self::$index,
-            '12345'
+            $token
         );
     }
 
@@ -158,7 +158,7 @@ trait TokenTest
             Query::createMatchAll(),
             self::$appId,
             self::$index,
-            '12345'
+            $token
         );
     }
 
@@ -178,12 +178,12 @@ trait TokenTest
             Query::createMatchAll(),
             self::$appId,
             self::$index,
-            '12345'
+            $token
         );
     }
 
     /**
-     * Test diferent app id.
+     * Test different app id.
      *
      * @expectedException \Apisearch\Exception\InvalidTokenException
      */
@@ -198,7 +198,30 @@ trait TokenTest
             Query::createMatchAll(),
             self::$anotherAppId,
             self::$index,
-            '12345'
+            $token
         );
+    }
+
+    /**
+     * Test max hits per query.
+     *
+     * @expectedException \Apisearch\Exception\InvalidTokenException
+     * @expectedExceptionMessage Token 12345 not valid. Max 2 hits allowed
+     */
+    public function testMaxHitsPerQuery()
+    {
+        $token = new Token(
+            TokenUUID::createById('12345'),
+            self::$appId
+        );
+        $token->setMaxHitsPerQuery(2);
+        $this->addToken($token, self::$appId);
+        $this->query(
+            Query::createMatchAll(),
+            self::$appId,
+            self::$index,
+            $token
+        );
+        die();
     }
 }

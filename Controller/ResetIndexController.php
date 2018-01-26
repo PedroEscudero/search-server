@@ -45,7 +45,8 @@ class ResetIndexController extends ControllerWithBusAndEventRepository
                 RepositoryReference::create(
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
-                )
+                ),
+                $query->get('token')
             ));
 
         return new JsonResponse('Index created', 200);

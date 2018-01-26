@@ -20,6 +20,8 @@ use Apisearch\Query\Query;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Repository\WithTokenTrait;
+use Apisearch\Token\Token;
 
 /**
  * Class QueryLogs.
@@ -27,6 +29,7 @@ use Apisearch\Repository\WithRepositoryReferenceTrait;
 class QueryLogs implements WithRepositoryReference
 {
     use WithRepositoryReferenceTrait;
+    use WithTokenTrait;
 
     /**
      * @var Query
@@ -53,17 +56,20 @@ class QueryLogs implements WithRepositoryReference
      * DeleteCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
+     * @param Token               $token
      * @param Query               $query
      * @param int|null            $from
      * @param int|null            $to
      */
     public function __construct(
         RepositoryReference $repositoryReference,
+        Token              $token,
         Query $query,
         ?int $from,
         ?int $to
     ) {
         $this->repositoryReference = $repositoryReference;
+        $this->token = $token;
         $this->query = $query;
         $this->from = $from;
         $this->to = $to;

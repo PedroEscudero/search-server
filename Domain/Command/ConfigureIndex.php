@@ -20,8 +20,10 @@ use Apisearch\Config\Config;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Repository\WithTokenTrait;
 use Apisearch\Server\Domain\LoggableCommand;
 use Apisearch\Server\Domain\WriteCommand;
+use Apisearch\Token\Token;
 
 /**
  * Class ConfigureIndex.
@@ -29,6 +31,7 @@ use Apisearch\Server\Domain\WriteCommand;
 class ConfigureIndex implements WithRepositoryReference, WriteCommand, LoggableCommand
 {
     use WithRepositoryReferenceTrait;
+    use WithTokenTrait;
 
     /**
      * @var Config
@@ -41,13 +44,16 @@ class ConfigureIndex implements WithRepositoryReference, WriteCommand, LoggableC
      * DeleteCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
+     * @param Token               $token
      * @param Config              $config
      */
     public function __construct(
         RepositoryReference $repositoryReference,
+        Token              $token,
         Config $config
     ) {
         $this->repositoryReference = $repositoryReference;
+        $this->token = $token;
         $this->config = $config;
     }
 

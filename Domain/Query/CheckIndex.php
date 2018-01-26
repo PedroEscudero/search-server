@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Query;
 
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReferenceAndToken;
 use Apisearch\Server\Domain\WriteCommand;
 
 /**
  * Class CheckIndex.
  */
-class CheckIndex extends CommandWithRepositoryReference implements WriteCommand
+class CheckIndex extends CommandWithRepositoryReferenceAndToken implements WriteCommand
 {
 }

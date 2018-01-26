@@ -97,6 +97,7 @@ class LogsConsumer extends ConsumerCommand
         OutputInterface $output,
         array $data
     ) {
+        var_dump($data);
         $this
             ->logRepository
             ->setRepositoryReference(

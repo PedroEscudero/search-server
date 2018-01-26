@@ -20,8 +20,10 @@ use Apisearch\Model\Item;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use Apisearch\Repository\WithTokenTrait;
 use Apisearch\Server\Domain\LoggableCommand;
 use Apisearch\Server\Domain\WriteCommand;
+use Apisearch\Token\Token;
 
 /**
  * Class IndexItems.
@@ -29,6 +31,7 @@ use Apisearch\Server\Domain\WriteCommand;
 class IndexItems implements WithRepositoryReference, WriteCommand, LoggableCommand
 {
     use WithRepositoryReferenceTrait;
+    use WithTokenTrait;
 
     /**
      * @var Item[]
@@ -41,13 +44,16 @@ class IndexItems implements WithRepositoryReference, WriteCommand, LoggableComma
      * IndexCommand constructor.
      *
      * @param RepositoryReference $repositoryReference
+     * @param Token               $token
      * @param Item[]              $items
      */
     public function __construct(
         RepositoryReference $repositoryReference,
+        Token              $token,
         array $items
     ) {
         $this->repositoryReference = $repositoryReference;
+        $this->token = $token;
         $this->items = $items;
     }
 

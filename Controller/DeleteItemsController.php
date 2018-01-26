@@ -56,6 +56,7 @@ class DeleteItemsController extends ControllerWithBusAndEventRepository
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 ),
+                $query->get('token'),
                 array_map(function (array $object) {
                     return ItemUUID::createFromArray($object);
                 }, json_decode($itemsUUID, true))

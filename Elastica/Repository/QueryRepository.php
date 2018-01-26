@@ -258,12 +258,12 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
             return;
         }
 
-        $it = 1;
+        $it = count($itemsPriorized);
         foreach ($itemsPriorized as $position => $itemUUID) {
             $boolQuery->addShould(new ElasticaQuery\Term([
                 '_id' => [
                     'value' => $itemUUID->composeUUID(),
-                    'boost' => 10 + ($it++ / (count($itemsPriorized) + 1)),
+                    'boost' => 10 + ($it-- / (count($itemsPriorized) + 1)),
                 ],
             ]));
         }

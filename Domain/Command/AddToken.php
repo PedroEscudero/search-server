@@ -17,21 +17,21 @@ declare(strict_types=1);
 namespace Apisearch\Server\Domain\Command;
 
 use Apisearch\Repository\RepositoryReference;
-use Apisearch\Server\Domain\CommandWithRepositoryReference;
+use Apisearch\Server\Domain\CommandWithRepositoryReferenceAndToken;
 use Apisearch\Server\Domain\LoggableCommand;
 use Apisearch\Token\Token;
 
 /**
  * Class AddToken.
  */
-class AddToken extends CommandWithRepositoryReference implements LoggableCommand
+class AddToken extends CommandWithRepositoryReferenceAndToken implements LoggableCommand
 {
     /**
      * @var Token
      *
      * Token
      */
-    private $token;
+    private $newToken;
 
     /**
      * AddToken constructor.
@@ -39,23 +39,28 @@ class AddToken extends CommandWithRepositoryReference implements LoggableCommand
      *
      * @param RepositoryReference $repositoryReference
      * @param Token               $token
+     * @param Token               $newToken
      */
     public function __construct(
         RepositoryReference $repositoryReference,
-        Token $token
+        Token $token,
+        Token $newToken
     ) {
-        parent::__construct($repositoryReference);
+        parent::__construct(
+            $repositoryReference,
+            $token
+        );
 
-        $this->token = $token;
+        $this->newToken = $newToken;
     }
 
     /**
-     * Get Token.
+     * Get new Token.
      *
      * @return Token
      */
-    public function getToken(): Token
+    public function getNewToken(): Token
     {
-        return $this->token;
+        return $this->newToken;
     }
 }

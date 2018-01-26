@@ -44,7 +44,8 @@ class CreateEventsIndexController extends ControllerWithBus
                 RepositoryReference::create(
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
-                )
+                ),
+                $query->get('token')
             ));
 
         return new JsonResponse('Events index created', 200);

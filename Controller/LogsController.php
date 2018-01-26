@@ -52,6 +52,7 @@ class LogsController extends ControllerWithBus
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 ),
+                $query->get('token'),
                 Query::createFromArray(json_decode($plainQuery, true)),
                 $this->castToIntIfNotNull($query, Http::FROM_FIELD),
                 $this->castToIntIfNotNull($query, Http::TO_FIELD)

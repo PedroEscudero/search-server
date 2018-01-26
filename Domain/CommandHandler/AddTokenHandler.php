@@ -33,7 +33,7 @@ class AddTokenHandler extends WithAppRepositoryAndEventPublisher
     public function handle(AddToken $addToken)
     {
         $repositoryReference = $addToken->getRepositoryReference();
-        $token = $addToken->getToken();
+        $token = $addToken->getNewToken();
 
         $this
             ->appRepository
