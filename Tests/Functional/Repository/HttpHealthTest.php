@@ -25,6 +25,15 @@ use Apisearch\Token\TokenUUID;
 trait HttpHealthTest
 {
     /**
+     * Test ping with ping permission.
+     */
+    public function testPingWithPingPermissions()
+    {
+        $this->ping(new Token(TokenUUID::createById($this->getParameter('apisearch_server.ping_token')), self::$appId));
+        $this->assertTrue(true);
+    }
+
+    /**
      * Test ping with invalid token.
      *
      * @expectedException \Apisearch\Exception\InvalidTokenException
@@ -32,6 +41,15 @@ trait HttpHealthTest
     public function testPingWithoutPermissions()
     {
         $this->ping(new Token(TokenUUID::createById('yyy'), self::$appId));
+    }
+
+    /**
+     * Test check health with ping permission.
+     */
+    public function testCheckHealthWithPingPermissions()
+    {
+        $this->checkHealth(new Token(TokenUUID::createById($this->getParameter('apisearch_server.ping_token')), self::$appId));
+        $this->assertTrue(true);
     }
 
     /**

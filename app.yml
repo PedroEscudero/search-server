@@ -29,6 +29,7 @@ config:
 
     apisearch_server:
         god_token: '0e4d75ba-c640-44c1-a745-06ee51db4e93'
+        ping_token: '6326d504-0a5f-f1ae-7344-8e70b75fcde9'
         cluster:
             localhost_9200:
                 host: localhost

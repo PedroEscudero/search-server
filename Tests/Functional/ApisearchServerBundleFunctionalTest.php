@@ -90,6 +90,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                     'middleware_domain_events_service' => 'apisearch_server.middleware.inline_events',
                     'middleware_logs_service' => 'apisearch_server.middleware.inline_logs',
                     'god_token' => 'xxx',
+                    'ping_token' => 'ping_xxx',
                     'config' => [
                         'repository' => [
                             'config_path' => '/tmp/config_{app_id}_{index_id}',

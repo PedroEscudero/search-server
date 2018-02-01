@@ -41,17 +41,27 @@ class TokenValidator
     private $godToken;
 
     /**
+     * @var string
+     *
+     * Ping token
+     */
+    private $pingToken;
+
+    /**
      * TokenValidator constructor.
      *
      * @param TokenLocator $tokenLocator
      * @param string       $godToken
+     * @param string       $pingToken
      */
     public function __construct(
         TokenLocator $tokenLocator,
-        string $godToken
+        string $godToken,
+        string $pingToken
     ) {
         $this->tokenLocator = $tokenLocator;
         $this->godToken = $godToken;
+        $this->pingToken = $pingToken;
     }
 
     /**
@@ -78,6 +88,10 @@ class TokenValidator
     ) {
         if ($tokenReference === $this->godToken) {
             return $this->createGodToken($appId);
+        }
+
+        if ($tokenReference === $this->pingToken) {
+            return $this->createPingToken();
         }
 
         $endpoint = strtolower($verb.'~~'.trim($path, '/'));
@@ -128,6 +142,19 @@ class TokenValidator
         return new Token(
             TokenUUID::createById($this->godToken),
             $appId
+        );
+    }
+
+    /**
+     * Create ping token instance.
+     *
+     * @return Token
+     */
+    private function createPingToken(): Token
+    {
+        return new Token(
+            TokenUUID::createById($this->pingToken),
+            ''
         );
     }
 }

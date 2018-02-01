@@ -102,6 +102,7 @@ class ApisearchServerExtension extends BaseExtension
             'apisearch_server.config.log_repository' => $config['config']['log_repository'],
             'apisearch_server.cluster' => ['servers' => $config['cluster']],
             'apisearch_server.god_token' => $config['god_token'],
+            'apisearch_server.ping_token' => $config['ping_token'],
         ];
     }
 
