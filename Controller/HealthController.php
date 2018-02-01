@@ -35,13 +35,13 @@ class HealthController extends ControllerWithBus
     public function check(): JsonResponse
     {
         /**
-         * @var Health
+         * @var array
          */
         $health = $this
             ->commandBus
             ->handle(new CheckHealth());
 
-        return new JsonResponse($health->getData());
+        return new JsonResponse($health);
     }
 
     /**

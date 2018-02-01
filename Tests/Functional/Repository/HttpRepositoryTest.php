@@ -37,6 +37,7 @@ use Apisearch\User\UserRepository;
 class HttpRepositoryTest extends RepositoryTest
 {
     use TokenTest;
+    use HttpHealthTest;
 
     /**
      * Query using the bus.
@@ -271,8 +272,8 @@ class HttpRepositoryTest extends RepositoryTest
         string $userId,
         string $itemUUIDComposed,
         int $weight,
-        string     $appId,
-        Token     $token
+        string $appId,
+        Token $token
     ) {
         $this
             ->configureUserRepository($appId, $token)
@@ -290,12 +291,47 @@ class HttpRepositoryTest extends RepositoryTest
      * @param Token  $token
      */
     public function deleteAllInteractions(
-        string     $appId,
-        Token     $token = null
+        string $appId,
+        Token $token = null
     ) {
         $this
             ->configureUserRepository($appId, $token)
             ->deleteAllInteractions();
+    }
+
+    /**
+     * Ping.
+     *
+     * @param Token $token
+     *
+     * @return bool
+     */
+    public function ping(Token $token = null): bool
+    {
+        $client = $this->get('test.client');
+        $client->request('get', '/ping', [
+            'token' => $this->getTokenId($token),
+        ]);
+        $response = $client->getResponse();
+
+        return 200 === $response->getStatusCode();
+    }
+
+    /**
+     * Check health.
+     *
+     * @param Token $token
+     *
+     * @return array
+     */
+    public function checkHealth(Token $token = null): array
+    {
+        $client = $this->get('test.client');
+        $client->request('get', '/health', [
+            'token' => $this->getTokenId($token),
+        ]);
+
+        return json_decode($client->getResponse()->getContent(), true);
     }
 
     /**
@@ -408,11 +444,23 @@ class HttpRepositoryTest extends RepositoryTest
                 $appId ?? self::$appId,
                 $index ?? self::$index
             ),
-            (($token instanceof Token)
-                ? $token->getTokenUUID()->composeUUID()
-                : self::getParameter('apisearch_server.god_token'))
+            $this->getTokenId($token)
         );
 
         return $repository;
+    }
+
+    /**
+     * Get token id.
+     *
+     * @param Token $token
+     *
+     * @return string
+     */
+    protected function getTokenId(Token $token = null): string
+    {
+        return ($token instanceof Token)
+                ? $token->getTokenUUID()->composeUUID()
+                : self::getParameter('apisearch_server.god_token');
     }
 }

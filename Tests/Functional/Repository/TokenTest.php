@@ -222,6 +222,5 @@ trait TokenTest
             self::$index,
             $token
         );
-        die();
     }
 }

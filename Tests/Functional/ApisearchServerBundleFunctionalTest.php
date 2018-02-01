@@ -39,7 +39,9 @@ use Apisearch\Server\Domain\Command\DeleteLogsIndex;
 use Apisearch\Server\Domain\Command\DeleteToken;
 use Apisearch\Server\Domain\Command\IndexItems;
 use Apisearch\Server\Domain\Command\ResetIndex;
+use Apisearch\Server\Domain\Query\CheckHealth;
 use Apisearch\Server\Domain\Query\CheckIndex;
+use Apisearch\Server\Domain\Query\Ping;
 use Apisearch\Server\Domain\Query\Query;
 use Apisearch\Server\Domain\Query\QueryEvents;
 use Apisearch\Server\Domain\Query\QueryLogs;
@@ -814,5 +816,29 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                         $appId ?? self::$appId
                     )
             ));
+    }
+
+    /**
+     * Ping.
+     *
+     * @param Token $token
+     *
+     * @return bool
+     */
+    public function ping(Token $token = null): bool
+    {
+        return self::get('tactician.commandbus')->handle(new Ping());
+    }
+
+    /**
+     * Check health.
+     *
+     * @param Token $token
+     *
+     * @return array
+     */
+    public function checkHealth(Token $token = null): array
+    {
+        return self::get('tactician.commandbus')->handle(new CheckHealth());
     }
 }

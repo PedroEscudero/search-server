@@ -18,7 +18,6 @@ namespace Apisearch\Server\Domain\QueryHandler;
 
 use Apisearch\Server\Domain\Query\CheckHealth;
 use Elastica\Client;
-use Elastica\Cluster\Health;
 
 /**
  * Class CheckHealthHandler.
@@ -47,13 +46,17 @@ class CheckHealthHandler
      *
      * @param CheckHealth $checkHealth
      *
-     * @return Health
+     * @return array
      */
-    public function handle(CheckHealth $checkHealth): Health
+    public function handle(CheckHealth $checkHealth): array
     {
-        return $this
+        $health = $this
             ->client
             ->getCluster()
             ->getHealth();
+
+        return [
+            'status' => $health->getStatus(),
+        ];
     }
 }
