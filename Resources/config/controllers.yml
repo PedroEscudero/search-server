@@ -120,3 +120,8 @@ services:
             - "@apisearch_server.token_validator"
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: validateTokenOnKernelRequest }
+
+    apisearch_server.token_cache_over_http:
+        class: Apisearch\Server\Controller\Listener\TokenCacheOverHTTP
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: addCacheControlOnKernelResponse }

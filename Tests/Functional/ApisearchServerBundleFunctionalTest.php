@@ -68,6 +68,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     {
         $imports = [
             ['resource' => '@ApisearchServerBundle/Resources/config/tactician.yml'],
+            ['resource' => '@ApisearchServerBundle/Resources/test/client.yml'],
         ];
 
         if (!static::logDomainEvents()) {
