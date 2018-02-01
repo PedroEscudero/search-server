@@ -38,7 +38,8 @@ class TokenValidatorFactory
 
         return new TokenValidator(
             new TokenRedisRepository($redis),
-            $appConfig['apisearch_server']['god_token']
+            $appConfig['apisearch_server']['god_token'],
+            $appConfig['apisearch_server']['ping_token']
         );
     }
 }
