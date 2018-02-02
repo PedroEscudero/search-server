@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 class TokenCacheOverHTTP
 {
     /**
-     * Add cache control on kernel response
+     * Add cache control on kernel response.
      *
      * @param FilterResponseEvent $event
      */
@@ -42,12 +42,12 @@ class TokenCacheOverHTTP
             $token instanceof Token &&
             $token->getTtl() > 0
         ) {
-            $response->setTtl($token->getTtl());
-            $response->setClientTtl($token->getTtl());
+            $response->setMaxAge($token->getTtl());
+            $response->setSharedMaxAge($token->getTtl());
             $response->setPublic();
         } else {
-            $response->setTtl(0);
-            $response->setClientTtl(0);
+            $response->setMaxAge(0);
+            $response->setSharedMaxAge(0);
             $response->setPrivate();
         }
     }

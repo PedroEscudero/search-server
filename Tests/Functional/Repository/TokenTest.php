@@ -225,7 +225,7 @@ trait TokenTest
     }
 
     /**
-     * Test cache control
+     * Test cache control.
      */
     public function testCacheControl()
     {
