@@ -16,8 +16,10 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Neo4j\UserRepository;
 
+use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\WithRepositoryReference;
 use Apisearch\Repository\WithRepositoryReferenceTrait;
+use GraphAware\Bolt\Exception\IOException;
 use GraphAware\Neo4j\Client\Client;
 
 /**
@@ -42,5 +44,23 @@ abstract class Neo4jRepository implements WithRepositoryReference
     public function __construct($client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Run query and return result.
+     *
+     * @param string $query
+     *
+     * @return mixed
+     */
+    protected function runQuery(string $query)
+    {
+        try {
+            return $this
+                ->client
+                ->run($query);
+        } catch (IOException $exception) {
+            throw ResourceNotAvailableException::engineNotAvailable('Graphs');
+        }
     }
 }

@@ -223,36 +223,4 @@ trait TokenTest
             $token
         );
     }
-
-    /**
-     * Test cache control.
-     */
-    public function testCacheControl()
-    {
-        $token = new Token(
-            TokenUUID::createById('12345'),
-            self::$appId
-        );
-        $token->setTtl(3600);
-        $this->addToken($token, self::$appId);
-
-        $client = $this->get('test.client');
-        $this->query(Query::createMatchAll(), self::$appId, self::$index, $token);
-        $response = $client->getResponse();
-        $this->assertEquals(3600, $response->getMaxAge());
-        $this->assertEquals(3600, $response->headers->getCacheControlDirective('s-maxage'));
-        $this->assertTrue($response->headers->getCacheControlDirective('public'));
-        $this->assertNull($response->headers->getCacheControlDirective('private'));
-
-        $newToken = new Token(
-            TokenUUID::createById('12345'),
-            self::$appId
-        );
-        $this->addToken($newToken, self::$appId);
-        $response = $client->getResponse();
-        $this->assertEquals(0, $response->getMaxAge());
-        $this->assertEquals(0, $response->headers->getCacheControlDirective('s-maxage'));
-        $this->assertNull($response->headers->getCacheControlDirective('public'));
-        $this->assertTrue($response->headers->getCacheControlDirective('private'));
-    }
 }

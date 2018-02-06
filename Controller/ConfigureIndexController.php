@@ -44,7 +44,7 @@ class ConfigureIndexController extends ControllerWithBusAndEventRepository
 
         $plainConfig = $requestBody->get(Http::CONFIG_FIELD, null);
         if (!is_string($plainConfig)) {
-            throw InvalidFormatException::configFormatNotValid($plainConfig);
+            throw InvalidFormatException::configFormatNotValid(json_encode($plainConfig));
         }
 
         $this

@@ -13,6 +13,14 @@
  * @author Marc Morera <yuhu@mmoreram.com>
  */
 
+/**
+ * Errors to Exceptions
+ */
+function error_to_exception($code, $message, $file, $line, $context) {
+    throw new Exception($code, $message, $file, $line, $context);
+}
+set_error_handler( 'error_to_exception' );
+
 $environment = 'prod';
 require __DIR__ . '/../vendor/autoload.php';
 use Apisearch\Socket\FiniteServer;

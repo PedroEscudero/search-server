@@ -45,7 +45,7 @@ class EventsController extends ControllerWithBus
 
         $plainQuery = $query->get(Http::QUERY_FIELD, null);
         if (!is_string($plainQuery)) {
-            throw InvalidFormatException::queryFormatNotValid($plainQuery);
+            throw InvalidFormatException::queryFormatNotValid(json_encode($plainQuery));
         }
 
         $eventsAsArray = $this

@@ -56,13 +56,16 @@ class TokenValidationOverHTTP
             throw InvalidTokenException::createInvalidTokenPermissions('');
         }
 
+        $origin = $request->headers->get('Origin', '');
+        $origin = str_replace(['http://', 'https://'], ['', ''], $origin);
+
         $token = $this
             ->tokenValidator
             ->validateToken(
                 $query->get('app_id', ''),
                 $query->get('index_id', ''),
                 $token,
-                $request->headers->get('Origin', ''),
+                $origin,
                 $request->getPathInfo(),
                 $request->getMethod()
             );

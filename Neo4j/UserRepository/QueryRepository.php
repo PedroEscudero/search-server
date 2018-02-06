@@ -47,7 +47,7 @@ class QueryRepository extends Neo4jRepository implements BaseQueryRepository
                 ORDER BY rel.w DESC
             ";
 
-        $results = $this->client->run($query);
+        $results = $this->runQuery($query);
         $records = $results->records();
 
         return array_map(function (Record $record) {

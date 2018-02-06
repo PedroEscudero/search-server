@@ -46,7 +46,7 @@ class DeleteItemsController extends ControllerWithBusAndEventRepository
 
         $itemsUUID = $requestBody->get(Http::ITEMS_FIELD, null);
         if (!is_string($itemsUUID)) {
-            throw InvalidFormatException::itemsUUIDRepresentationNotValid($itemsUUID);
+            throw InvalidFormatException::itemsUUIDRepresentationNotValid(json_encode($itemsUUID));
         }
 
         $this

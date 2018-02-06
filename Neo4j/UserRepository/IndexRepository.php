@@ -43,7 +43,7 @@ class IndexRepository extends Neo4jRepository implements BaseIndexRepository
             ON MATCH SET rel.w = rel.w + $weight
             ";
 
-        $this->client->run($query);
+        $this->runQuery($query);
     }
 
     /**
@@ -58,6 +58,6 @@ class IndexRepository extends Neo4jRepository implements BaseIndexRepository
             DETACH DELETE n
             ";
 
-        $this->client->run($query);
+        $this->runQuery($query);
     }
 }

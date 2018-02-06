@@ -61,14 +61,17 @@ class ConfigRepository extends ElasticaWrapperWithRepositoryReference implements
             return implode(', ', $synonym->getWords());
         }, $config->getSynonyms());
 
+        $filePath = $this->getConfigPath().'/synonyms.json';
         if (empty($synonymsAsArray)) {
-            @unlink($this->getConfigPath().'/synonyms.json');
+            file_exists($filePath)
+                ? unlink($filePath)
+                : false;
 
             return;
         }
 
         $syonymsAsPlainText = implode("\n", $synonymsAsArray)."\n";
-        $fileHandle = fopen($this->getConfigPath().'/synonyms.json', 'w');
+        $fileHandle = fopen($filePath, 'w');
         fwrite($fileHandle, $syonymsAsPlainText);
         fclose($fileHandle);
     }
@@ -84,13 +87,16 @@ class ConfigRepository extends ElasticaWrapperWithRepositoryReference implements
             ->getCampaigns()
             ->toArray();
 
+        $filePath = $this->getConfigPath().'/campaigns.json';
         if (empty($campaigns)) {
-            @unlink($this->getConfigPath().'/campaigns.json');
+            file_exists($filePath)
+                ? unlink($filePath)
+                : false;
 
             return;
         }
 
-        $fileHandle = fopen($this->getConfigPath().'/campaigns.json', 'w');
+        $fileHandle = fopen($filePath, 'w');
         fwrite($fileHandle, json_encode($config->getCampaigns()->toArray()));
         fclose($fileHandle);
     }
