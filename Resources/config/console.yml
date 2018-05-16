@@ -20,3 +20,23 @@ services:
             - "@rs_queue.publisher"
         tags:
             -  { name: console.command }
+
+
+    apisearch_server.command_with_bus_and_god_token:
+        class: Apisearch\Server\Console\CommandWithBusAndGodToken
+        abstract: true
+        arguments:
+            - "@tactician.commandbus.command"
+            - "%apisearch_server.god_token%"
+
+    apisearch_server.create_index_command:
+        class: Apisearch\Server\Console\CreateIndexCommand
+        parent: apisearch_server.command_with_bus_and_god_token
+        tags:
+            -  { name: console.command }
+
+    apisearch_server.delete_index_command:
+        class: Apisearch\Server\Console\DeleteIndexCommand
+        parent: apisearch_server.command_with_bus_and_god_token
+        tags:
+            -  { name: console.command }

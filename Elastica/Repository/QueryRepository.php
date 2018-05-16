@@ -29,7 +29,6 @@ use Apisearch\Server\Elastica\Builder\ResultBuilder;
 use Apisearch\Server\Elastica\ElasticaWrapper;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
 use Carbon\Carbon;
-use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
 use Elastica\Result as ElasticaResult;
 use Elastica\Suggest;
@@ -59,8 +58,8 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
      *
      * @param ElasticaWrapper $elasticaWrapper
      * @param array           $repositoryConfig
-     * @param QueryBuilder $queryBuilder
-     * @param ResultBuilder $resultBuilder
+     * @param QueryBuilder    $queryBuilder
+     * @param ResultBuilder   $resultBuilder
      */
     public function __construct(
         ElasticaWrapper $elasticaWrapper,
@@ -143,10 +142,9 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
         Query $query,
         array $elasticaResults
     ): Result {
-
         $resultAggregations = [];
 
-        /**
+        /*
          * Build Result instance
          */
         if (
@@ -170,7 +168,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
         }
 
         /**
-         * @var ElasticaResult $elasticaResult
+         * @var ElasticaResult
          */
         foreach ($elasticaResults['results'] as $elasticaResult) {
             $source = $elasticaResult->getSource();
@@ -209,7 +207,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
             );
         }
 
-        /**
+        /*
          * Build suggests
          */
         if (isset($elasticaResults['suggests']['completion']) && $query->areSuggestionsEnabled()) {
@@ -324,7 +322,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
                     ) &&
                     (
                         empty($campaign->getQueryText()) ||
-                        (preg_match('~^'.$campaign->getQueryText().'$~i', $query->getQueryText()) === 1)
+                        (1 === preg_match('~^'.$campaign->getQueryText().'$~i', $query->getQueryText()))
                     ) &&
                     (
                         empty($campaign->getAppliedFilters()) ||
@@ -351,7 +349,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
         }
 
         /**
-         * @var Campaign $enabledCampaign
+         * @var Campaign
          */
         $boolQuery = new ElasticaQuery\BoolQuery();
         foreach ($enabledCampaigns as $enabledCampaign) {
@@ -368,7 +366,7 @@ class QueryRepository extends ElasticaWrapperWithRepositoryReference implements 
                 }
             }
         }
-        $enabledCampaign->getMode() === Campaign::MODE_BOOST
+        Campaign::MODE_BOOST === $enabledCampaign->getMode()
             ? $elasticaQuery->addShould($boolQuery)
             : $elasticaQuery->addMust($boolQuery);
     }
