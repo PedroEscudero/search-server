@@ -34,7 +34,9 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference implements 
      */
     public function createIndex()
     {
-        @mkdir($this->getConfigPath(), 0755, true);
+        is_dir($this->getConfigPath())
+            ? chmod($this->getConfigPath(), 0755)
+            : @mkdir($this->getConfigPath(), 0755, true);
         $this
             ->elasticaWrapper
             ->createIndex(
@@ -60,7 +62,9 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference implements 
             ->deleteIndex($this->getRepositoryReference());
 
         $this->deleteConfigFolder();
-        @rmdir($this->getConfigPath());
+        if (is_dir($this->getConfigPath())) {
+            @rmdir($this->getConfigPath());
+        }
     }
 
     /**

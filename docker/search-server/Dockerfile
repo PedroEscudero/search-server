@@ -25,6 +25,8 @@ RUN apt-get install -y \
     php composer.phar install && \
     cp docker/search-server/app_deploy.yml .
 
-ENTRYPOINT ["/docker/search-server/docker-entrypoint.sh"]
+COPY docker-entrypoint.sh /
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8100

@@ -111,8 +111,8 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
             ['resource' => '@ApisearchServerBundle/Resources/config/tactician.yml'],
             [
                 'resource' => '@ApisearchServerBundle/app_deploy.yml',
-                'ignore_errors' => true
-            ]
+                'ignore_errors' => true,
+            ],
         ];
 
         if (!static::logDomainEvents()) {
@@ -132,8 +132,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                     'test' => true,
                 ],
                 'apisearch_server' => [
-                    'middleware_domain_events_service' => 'apisearch_server.middleware.inline_events',
-                    'middleware_logs_service' => 'apisearch_server.middleware.inline_logs',
+                    'middleware_domain_events_service' => static::saveEvents()
+                        ? 'apisearch_server.middleware.inline_events'
+                        : 'apisearch_server.middleware.ignore_events',
+                    'middleware_logs_service' => static::saveEvents()
+                        ? 'apisearch_server.middleware.inline_logs'
+                        : 'apisearch_server.middleware.ignore_logs',
                     'god_token' => self::$godToken,
                     'ping_token' => self::$pingToken,
                     'config' => [
@@ -231,6 +235,26 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      * @return bool
      */
     protected static function logDomainEvents(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Save events.
+     *
+     * @return bool
+     */
+    protected static function saveEvents(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Save logs.
+     *
+     * @return bool
+     */
+    protected static function saveLogs(): bool
     {
         return true;
     }
