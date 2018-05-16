@@ -22,10 +22,9 @@ RUN apt-get install -y \
     git clone https://github.com/apisearch-io/search-server.git apisearch && \
     cd apisearch && \
     curl -sS https://getcomposer.org/installer | php && \
-    php composer.phar install
+    php composer.phar install && \
+    cp docker/search-server/app_deploy.yml .
 
-COPY docker-entrypoint.sh /
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker/search-server/docker-entrypoint.sh"]
 
 EXPOSE 8100

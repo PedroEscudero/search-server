@@ -16,7 +16,7 @@ services:
             - 9200:9200
 
     redis:
-        image: redis:4
+        image: redis:4-alpine
 
     apisearch:
         build: ./docker/search-server
@@ -25,6 +25,10 @@ services:
             - redis
         ports:
             - 8100:8100
+        links:
+            - redis
+        # volumes:
+        #    - .:/var/www/apisearch
 
 volumes:
     esdata:
