@@ -103,13 +103,11 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
      */
     private function assertExistsIndex()
     {
-        $this->assertCount(
-            0,
-            $this->query(
-                Query::createMatchAll(),
+        $this->assertTrue(
+            $this->checkIndex(
                 self::TEST_APP_ID,
                 self::TEST_INDEX
-            )->getItems()
+            )
         );
     }
 
@@ -118,11 +116,11 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
      */
     private function assertNotExistsIndex()
     {
-        try {
-            $this->assertExistsIndex();
-            $this->fail('Index shouldn\'t exist');
-        } catch (Exception $e) {
-            // OK
-        }
+        $this->assertFalse(
+            $this->checkIndex(
+                self::TEST_APP_ID,
+                self::TEST_INDEX
+            )
+        );
     }
 }
