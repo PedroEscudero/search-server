@@ -1,0 +1,10 @@
+rs_queue:
+    server:
+        redis:
+            host: redis
+
+apisearch_server:
+    cluster:
+        docker_elasticsearch_service:
+            host: elasticsearch
+            port: 9200

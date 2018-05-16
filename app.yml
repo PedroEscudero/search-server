@@ -4,6 +4,7 @@ routes:
 config:
     imports:
         - { resource: "@ApisearchServerBundle/Resources/config/tactician.yml"}
+        - { resource: "app_deploy.yml", ignore_errors: true }
 
     parameters:
         kernel.secret: nsdjkfhdsupoifjñksd
@@ -21,19 +22,29 @@ config:
                 path: '%kernel.logs_dir%/%kernel.environment%.log'
                 level: debug
 
-    rs_queue:
-        server:
-            redis:
-                cluster: false
-                port: 6379
+    #
+    # Enable for Redis Cluster
+    #
+    # rs_queue:
+    #     server:
+    #         redis:
+    #             cluster: true
+    #             port: 6379
+    #
 
     apisearch_server:
         god_token: '0e4d75ba-c640-44c1-a745-06ee51db4e93'
         ping_token: '6326d504-0a5f-f1ae-7344-8e70b75fcde9'
+
+        #
+        # Enable for Elasticsearch Cluster
+        #
         # cluster:
-        #     localhost_9200:
-        #         host: localhost
-        #         port: 9200
+        #    localhost_9200:
+        #        host: localhost
+        #        port: 9200
+        #
+
         config:
             repository:
                 config_path: '/tmp/config_{app_id}_{index_id}'
@@ -67,3 +78,14 @@ config:
                     in_memory: false
                 indexes:
                     default: default
+
+            #
+            # Enable for custom HTTP endpoint
+            #
+            # remote:
+            #     endpoint: __endpoint__
+            #     app_id: __app_id__
+            #     token: __token__
+            #     indexes:
+            #         default: __default_index__
+            #
