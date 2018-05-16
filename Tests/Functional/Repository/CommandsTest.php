@@ -86,6 +86,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         ));
 
         $this->assertExistsIndex();
+        $this->assertNotExistsEventsIndex();
+        $this->assertNotExistsLogsIndex();
 
         static::$application->run(new ArrayInput(
             [
@@ -99,9 +101,115 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
     }
 
     /**
-     * Assert exists.
+     * Test create index command with events.
      */
-    private function assertExistsIndex()
+    public function testCreateIndexWithEventsCommand()
+    {
+        $this->assertNotExistsIndex();
+        $this->assertNotExistsEventsIndex();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:create-index',
+                '--app-id' => self::TEST_APP_ID,
+                '--index' => self::TEST_INDEX,
+                '--with-events' => true,
+            ]
+        ));
+
+        $this->assertExistsIndex();
+        $this->assertExistsEventsIndex();
+        $this->assertNotExistsLogsIndex();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:delete-index',
+                '--app-id' => self::TEST_APP_ID,
+                '--index' => self::TEST_INDEX,
+                '--with-events' => true,
+            ]
+        ));
+
+        $this->assertNotExistsIndex();
+        $this->assertNotExistsEventsIndex();
+    }
+
+    /**
+     * Test create index command with logs.
+     */
+    public function testCreateIndexWithLogsCommand()
+    {
+        $this->assertNotExistsIndex();
+        $this->assertNotExistsLogsIndex();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:create-index',
+                '--app-id' => self::TEST_APP_ID,
+                '--index' => self::TEST_INDEX,
+                '--with-logs' => true,
+            ]
+        ));
+
+        $this->assertExistsIndex();
+        $this->assertNotExistsEventsIndex();
+        $this->assertExistsLogsIndex();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:delete-index',
+                '--app-id' => self::TEST_APP_ID,
+                '--index' => self::TEST_INDEX,
+                '--with-logs' => true,
+            ]
+        ));
+
+        $this->assertNotExistsIndex();
+        $this->assertNotExistsLogsIndex();
+    }
+
+    /**
+     * Test create all indices command.
+     */
+    public function testCreateAllIndicesCommand()
+    {
+        $this->assertNotExistsIndex();
+        $this->assertNotExistsEventsIndex();
+        $this->assertNotExistsLogsIndex();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:create-index',
+                '--app-id' => self::TEST_APP_ID,
+                '--index' => self::TEST_INDEX,
+                '--with-events' => true,
+                '--with-logs' => true,
+            ]
+        ));
+
+        $this->assertExistsIndex();
+        $this->assertExistsEventsIndex();
+        $this->assertExistsLogsIndex();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:delete-index',
+                '--app-id' => self::TEST_APP_ID,
+                '--index' => self::TEST_INDEX,
+                '--with-events' => true,
+                '--with-logs' => true,
+            ]
+        ));
+
+        $this->assertNotExistsIndex();
+        $this->assertNotExistsEventsIndex();
+        $this->assertNotExistsLogsIndex();
+    }
+
+    /**
+     * Assert index exists.
+     */
+    protected function assertExistsIndex()
     {
         $this->assertTrue(
             $this->checkIndex(
@@ -112,9 +220,9 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
     }
 
     /**
-     * Assert exists.
+     * Assert index not exists.
      */
-    private function assertNotExistsIndex()
+    protected function assertNotExistsIndex()
     {
         $this->assertFalse(
             $this->checkIndex(
@@ -122,5 +230,59 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 self::TEST_INDEX
             )
         );
+    }
+
+    /**
+     * Assert index exists.
+     */
+    protected function assertExistsEventsIndex()
+    {
+        $this->queryEvents(
+            Query::createMatchAll(),
+            null,
+            null,
+            self::TEST_APP_ID,
+            self::TEST_INDEX
+        );
+    }
+
+    /**
+     * Assert index not exists.
+     */
+    protected function assertNotExistsEventsIndex()
+    {
+        try {
+            $this->assertExistsEventsIndex();
+            $this->fail('Events index should not exist');
+        } catch (Exception $e) {
+            // OK
+        }
+    }
+
+    /**
+     * Assert index exists.
+     */
+    protected function assertExistsLogsIndex()
+    {
+        $this->queryEvents(
+            Query::createMatchAll(),
+            null,
+            null,
+            self::TEST_APP_ID,
+            self::TEST_INDEX
+        );
+    }
+
+    /**
+     * Assert index not exists.
+     */
+    protected function assertNotExistsLogsIndex()
+    {
+        try {
+            $this->assertExistsLogsIndex();
+            $this->fail('Logs index should not exist');
+        } catch (Exception $e) {
+            // OK
+        }
     }
 }

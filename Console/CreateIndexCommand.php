@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Apisearch\Server\Console;
 
 use Apisearch\Repository\RepositoryReference;
+use Apisearch\Server\Domain\Command\CreateEventsIndex;
 use Apisearch\Server\Domain\Command\CreateIndex;
+use Apisearch\Server\Domain\Command\CreateLogsIndex;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,14 +40,26 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
             ->addOption(
                 'app-id',
                 'a',
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_REQUIRED,
                 'App id'
             )
             ->addOption(
                 'index',
                 'i',
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_REQUIRED,
                 'Index'
+            )
+            ->addOption(
+                'with-events',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Create events as well'
+            )
+            ->addOption(
+                'with-logs',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Create logs as well'
             );
     }
 
@@ -69,6 +83,62 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
                     $input->getOption('index')
                 ),
                 $this->createGodToken($input->getOption('app-id'))
+            ));
+
+        if ($input->hasOption('with-events')) {
+            $this->createEvents(
+                $input->getOption('app-id'),
+                $input->getOption('index')
+            );
+        }
+
+        if ($input->hasOption('with-logs')) {
+            $this->createLogs(
+                $input->getOption('app-id'),
+                $input->getOption('index')
+            );
+        }
+    }
+
+    /**
+     * Create events index.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    private function createEvents(
+        string $appId,
+        string $index
+    ) {
+        $this
+            ->commandBus
+            ->handle(new CreateEventsIndex(
+                RepositoryReference::create(
+                    $appId,
+                    $index
+                ),
+                $this->createGodToken($appId)
+            ));
+    }
+
+    /**
+     * Create logs index.
+     *
+     * @param string $appId
+     * @param string $index
+     */
+    private function createLogs(
+        string $appId,
+        string $index
+    ) {
+        $this
+            ->commandBus
+            ->handle(new CreateLogsIndex(
+                RepositoryReference::create(
+                    $appId,
+                    $index
+                ),
+                $this->createGodToken($appId)
             ));
     }
 }
