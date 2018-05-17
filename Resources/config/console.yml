@@ -40,3 +40,15 @@ services:
         parent: apisearch_server.command_with_bus_and_god_token
         tags:
             -  { name: console.command }
+
+    apisearch_server.add_token_command:
+        class: Apisearch\Server\Console\AddTokenCommand
+        parent: apisearch_server.command_with_bus_and_god_token
+        tags:
+            -  { name: console.command }
+
+    apisearch_server.delete_token_command:
+        class: Apisearch\Server\Console\DeleteTokenCommand
+        parent: apisearch_server.command_with_bus_and_god_token
+        tags:
+            -  { name: console.command }

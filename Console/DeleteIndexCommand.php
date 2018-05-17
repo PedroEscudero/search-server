@@ -20,6 +20,7 @@ use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\DeleteEventsIndex;
 use Apisearch\Server\Domain\Command\DeleteIndex;
 use Apisearch\Server\Domain\Command\DeleteLogsIndex;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,16 +38,14 @@ class DeleteIndexCommand extends CommandWithBusAndGodToken
         $this
             ->setName('apisearch:delete-index')
             ->setDescription('Delete an index')
-            ->addOption(
+            ->addArgument(
                 'app-id',
-                'a',
-                InputOption::VALUE_REQUIRED,
+                InputArgument::REQUIRED,
                 'App id'
             )
-            ->addOption(
+            ->addArgument(
                 'index',
-                'i',
-                InputOption::VALUE_REQUIRED,
+                InputArgument::REQUIRED,
                 'Index'
             )
             ->addOption(
@@ -79,23 +78,23 @@ class DeleteIndexCommand extends CommandWithBusAndGodToken
             ->commandBus
             ->handle(new DeleteIndex(
                 RepositoryReference::create(
-                    $input->getOption('app-id'),
-                    $input->getOption('index')
+                    $input->getArgument('app-id'),
+                    $input->getArgument('index')
                 ),
-                $this->createGodToken($input->getOption('app-id'))
+                $this->createGodToken($input->getArgument('app-id'))
             ));
 
         if ($input->hasOption('with-events')) {
             $this->deleteEvents(
-                $input->getOption('app-id'),
-                $input->getOption('index')
+                $input->getArgument('app-id'),
+                $input->getArgument('index')
             );
         }
 
         if ($input->hasOption('with-logs')) {
             $this->deleteLogs(
-                $input->getOption('app-id'),
-                $input->getOption('index')
+                $input->getArgument('app-id'),
+                $input->getArgument('index')
             );
         }
     }

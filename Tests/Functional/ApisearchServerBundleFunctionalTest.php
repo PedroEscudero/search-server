@@ -56,6 +56,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 
 set_error_handler(function ($code, $message, $file, $line, $context) {
+    if (0 == error_reporting()) {
+        return;
+    }
+
     throw new ErrorException($message, $code);
 });
 
