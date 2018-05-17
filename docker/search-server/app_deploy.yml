@@ -4,6 +4,8 @@ rs_queue:
             host: redis
 
 apisearch_server:
+    middleware_domain_events_service: apisearch_server.middleware.ignore_events
+    middleware_logs_service: apisearch_server.middleware.ignore_logs
     cluster:
         docker_elasticsearch_service:
             host: elasticsearch

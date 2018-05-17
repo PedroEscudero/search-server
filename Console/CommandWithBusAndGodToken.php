@@ -38,7 +38,7 @@ class CommandWithBusAndGodToken extends Command
      *
      * God token
      */
-    private $godToken;
+    protected $godToken;
 
     /**
      * Controller constructor.
@@ -57,6 +57,24 @@ class CommandWithBusAndGodToken extends Command
     }
 
     /**
+     * Create token instance.
+     *
+     * @param string $uuid
+     * @param string $appId
+     *
+     * @return Token
+     */
+    protected function createToken(
+        string $uuid,
+        string $appId
+    ): Token {
+        return new Token(
+            TokenUUID::createById($uuid),
+            $appId
+        );
+    }
+
+    /**
      * Create god token instance.
      *
      * @param string $appId
@@ -65,8 +83,8 @@ class CommandWithBusAndGodToken extends Command
      */
     protected function createGodToken(string $appId): Token
     {
-        return new Token(
-            TokenUUID::createById($this->godToken),
+        return $this->createToken(
+            $this->godToken,
             $appId
         );
     }

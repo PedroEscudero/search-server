@@ -20,6 +20,7 @@ services:
 
     apisearch:
         build: ./docker/search-server
+
         depends_on:
             - elasticsearch
             - redis
@@ -27,8 +28,6 @@ services:
             - 8100:8100
         links:
             - redis
-        # volumes:
-        #    - .:/var/www/apisearch
 
 volumes:
     esdata:
