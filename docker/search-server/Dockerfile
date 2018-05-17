@@ -6,6 +6,7 @@ RUN apt-get update && \
     apt-get install -y \
         libzip-dev \
         zip \
+        supervisor \
     && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install zip bcmath
 
@@ -24,6 +25,8 @@ RUN apt-get install -y \
     curl -sS https://getcomposer.org/installer | php && \
     php composer.phar install && \
     cp docker/search-server/app_deploy.yml .
+
+COPY supervisor-search-server.conf /etc/supervisor/conf.d/search-server.conf
 
 COPY docker-entrypoint.sh /
 
