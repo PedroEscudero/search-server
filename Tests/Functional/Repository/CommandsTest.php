@@ -19,6 +19,8 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Query\Query;
 use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
+use Apisearch\Token\Token;
+use Apisearch\Token\TokenUUID;
 use Exception;
 use Symfony\Component\Console\Input\ArrayInput;
 
@@ -36,6 +38,11 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
      * @var string
      */
     const TEST_INDEX = '67890-test';
+
+    /**
+     * @var string
+     */
+    const TEST_TOKEN = '93ede225-224b-c6fd-899a-61d2e1905444';
 
     /**
      * Save events.
@@ -67,6 +74,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         try {
             static::deleteIndex(self::TEST_APP_ID, self::TEST_INDEX);
         } catch (ResourceNotAvailableException $e) {
+            // Silent pass
         }
     }
 
@@ -80,8 +88,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:create-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
             ]
         ));
 
@@ -92,8 +100,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:delete-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
             ]
         ));
 
@@ -111,8 +119,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:create-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
                 '--with-events' => true,
             ]
         ));
@@ -124,8 +132,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:delete-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
                 '--with-events' => true,
             ]
         ));
@@ -145,8 +153,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:create-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
                 '--with-logs' => true,
             ]
         ));
@@ -158,8 +166,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:delete-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
                 '--with-logs' => true,
             ]
         ));
@@ -180,8 +188,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:create-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
                 '--with-events' => true,
                 '--with-logs' => true,
             ]
@@ -194,8 +202,8 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         static::$application->run(new ArrayInput(
             [
                 'command' => 'apisearch:delete-index',
-                '--app-id' => self::TEST_APP_ID,
-                '--index' => self::TEST_INDEX,
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
                 '--with-events' => true,
                 '--with-logs' => true,
             ]
@@ -284,5 +292,80 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
         } catch (Exception $e) {
             // OK
         }
+    }
+
+    /**
+     * Assert token is valid.
+     */
+    protected function assertTokenExists()
+    {
+        $this->assertTrue(
+            $this->checkIndex(
+                self::TEST_APP_ID,
+                self::TEST_INDEX,
+                new Token(
+                    TokenUUID::createById(self::TEST_TOKEN),
+                    self::TEST_APP_ID
+                )
+            )
+        );
+    }
+
+    /**
+     * Assert token does not exist.
+     */
+    protected function assertTokenNotExists()
+    {
+        try {
+            $this->assertTokenExists();
+            $this->fail('Token should not exist');
+        } catch (Exception $e) {
+            // OK
+        }
+    }
+
+    /**
+     * Test token creation.
+     */
+    public function testTokenCreation()
+    {
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:create-index',
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
+            ]
+        ));
+
+        $this->assertTokenNotExists();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:add-token',
+                'uuid' => self::TEST_TOKEN,
+                'app-id' => self::TEST_APP_ID,
+                '--index' => [self::TEST_INDEX],
+            ]
+        ));
+
+        $this->assertTokenExists();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:delete-token',
+                'uuid' => self::TEST_TOKEN,
+                'app-id' => self::TEST_APP_ID,
+            ]
+        ));
+
+        $this->assertTokenNotExists();
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:delete-index',
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
+            ]
+        ));
     }
 }

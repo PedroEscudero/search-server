@@ -20,6 +20,7 @@ use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\CreateEventsIndex;
 use Apisearch\Server\Domain\Command\CreateIndex;
 use Apisearch\Server\Domain\Command\CreateLogsIndex;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,28 +38,26 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
         $this
             ->setName('apisearch:create-index')
             ->setDescription('Create an index')
-            ->addOption(
+            ->addArgument(
                 'app-id',
-                'a',
-                InputOption::VALUE_REQUIRED,
+                InputArgument::REQUIRED,
                 'App id'
             )
-            ->addOption(
+            ->addArgument(
                 'index',
-                'i',
-                InputOption::VALUE_REQUIRED,
+                InputArgument::REQUIRED,
                 'Index'
             )
             ->addOption(
                 'with-events',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_NONE,
                 'Create events as well'
             )
             ->addOption(
                 'with-logs',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_NONE,
                 'Create logs as well'
             );
     }
@@ -79,23 +78,23 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
             ->commandBus
             ->handle(new CreateIndex(
                 RepositoryReference::create(
-                    $input->getOption('app-id'),
-                    $input->getOption('index')
+                    $input->getArgument('app-id'),
+                    $input->getArgument('index')
                 ),
-                $this->createGodToken($input->getOption('app-id'))
+                $this->createGodToken($input->getArgument('app-id'))
             ));
 
         if ($input->hasOption('with-events')) {
             $this->createEvents(
-                $input->getOption('app-id'),
-                $input->getOption('index')
+                $input->getArgument('app-id'),
+                $input->getArgument('index')
             );
         }
 
         if ($input->hasOption('with-logs')) {
             $this->createLogs(
-                $input->getOption('app-id'),
-                $input->getOption('index')
+                $input->getArgument('app-id'),
+                $input->getArgument('index')
             );
         }
     }
