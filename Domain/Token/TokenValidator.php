@@ -85,7 +85,7 @@ class TokenValidator
         string $referrer,
         string $path,
         string $verb
-    ) {
+    ): Token {
         if ($tokenReference === $this->godToken) {
             return $this->createGodToken($appId);
         }

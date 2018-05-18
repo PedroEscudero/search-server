@@ -24,7 +24,7 @@ use Apisearch\Query\Query;
 trait HighlightTest
 {
     /**
-     * public function.
+     * Test that highlight.
      */
     public function testBasic()
     {
@@ -35,6 +35,25 @@ trait HighlightTest
 
         $this->assertEquals(
             'Code da <em>vinci</em>',
+            $result->getFirstItem()->getHighlight('title')
+        );
+    }
+
+    /**
+     * Test that highlight is not enabled when searchable_metadata is not stored.
+     */
+    public function testWithSearchableMetadataNotStored()
+    {
+        self::changeConfig([
+            'store_searchable_metadata' => false,
+        ]);
+
+        $result = $this->query(
+            Query::create('v')
+                ->enableHighlights()
+        );
+
+        $this->assertNull(
             $result->getFirstItem()->getHighlight('title')
         );
     }

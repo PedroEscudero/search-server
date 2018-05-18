@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Model\Coordinate;
 use Apisearch\Model\Item;
 use Apisearch\Server\Domain\Repository\Repository\IndexRepository as IndexRepositoryInterface;
@@ -31,23 +32,30 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference implements 
 {
     /**
      * Create the index.
+     *
+     * @param ImmutableConfig $config
      */
-    public function createIndex()
+    public function createIndex(ImmutableConfig $config)
     {
         is_dir($this->getConfigPath())
             ? chmod($this->getConfigPath(), 0755)
             : @mkdir($this->getConfigPath(), 0755, true);
+
         $this
             ->elasticaWrapper
             ->createIndex(
                 $this->getRepositoryReference(),
+                $config,
                 $this->repositoryConfig['shards'],
                 $this->repositoryConfig['replicas']
             );
 
         $this
             ->elasticaWrapper
-            ->createIndexMapping($this->getRepositoryReference());
+            ->createIndexMapping(
+                $this->getRepositoryReference(),
+                $config
+            );
 
         $this->refresh();
     }

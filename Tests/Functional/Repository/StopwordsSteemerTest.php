@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Apisearch\Config\Config;
 use Apisearch\Query\Query;
 
 /**
@@ -40,13 +39,32 @@ trait StopwordsSteemerTest
     /**
      * test finding without stopwords language.
      */
-    public function testSearchWithtopwords()
+    public function testSearchWithStopwords()
     {
-        $config = Config::createFromArray([
+        self::changeConfig([
             'language' => 'es',
         ]);
-        $this->configureIndex($config);
+
         $this->assertEmpty(
+            $this->query(
+                Query::create('de', 1, 1)
+                    ->disableAggregations()
+            )->getItems()
+        );
+
+        self::resetScenario();
+    }
+
+    /**
+     * Test finding with another language stopwords.
+     */
+    public function testSearchWithAnotherStopwords()
+    {
+        self::changeConfig([
+            'language' => 'en',
+        ]);
+
+        $this->assertNotEmpty(
             $this->query(
                 Query::create('de', 1, 1)
                     ->disableAggregations()

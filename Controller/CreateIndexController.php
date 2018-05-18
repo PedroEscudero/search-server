@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Controller;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Http\Http;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\CreateIndex;
@@ -45,7 +46,8 @@ class CreateIndexController extends ControllerWithBus
                     $query->get(Http::APP_ID_FIELD),
                     $query->get(Http::INDEX_FIELD)
                 ),
-                $query->get('token')
+                $query->get(Http::TOKEN_FIELD),
+                ImmutableConfig::createFromArray($query->get(Http::CONFIG_FIELD, []))
             ));
 
         return new JsonResponse('Index created', 200);

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Console;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Domain\Command\CreateEventsIndex;
 use Apisearch\Server\Domain\Command\CreateIndex;
@@ -59,6 +60,20 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
                 null,
                 InputOption::VALUE_NONE,
                 'Create logs as well'
+            )
+            ->addOption(
+                'language',
+                null,
+                InputOption::VALUE_NONE,
+                'Index language',
+                null
+            )
+            ->addOption(
+                'store-searchable-metadata',
+                null,
+                InputOption::VALUE_NONE,
+                'Store searchable metadata',
+                true
             );
     }
 
@@ -81,7 +96,11 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
                     $input->getArgument('app-id'),
                     $input->getArgument('index')
                 ),
-                $this->createGodToken($input->getArgument('app-id'))
+                $this->createGodToken($input->getArgument('app-id')),
+                ImmutableConfig::createFromArray([
+                    'language' => $input->getOption('language'),
+                    'store_searchable_metadata' => $input->getOption('store-searchable-metadata'),
+                ])
             ));
 
         if ($input->hasOption('with-events')) {

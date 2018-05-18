@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Apisearch\Server\Tests\Functional;
 
 use Apisearch\Config\Config;
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
@@ -144,6 +145,12 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                         : 'apisearch_server.middleware.ignore_logs',
                     'god_token' => self::$godToken,
                     'ping_token' => self::$pingToken,
+                    'cluster' => [
+                        'localhost' => [
+                            'host' => 'localhost',
+                            'port' => 9210,
+                        ],
+                    ],
                     'config' => [
                         'repository' => [
                             'config_path' => '/tmp/config_{app_id}_{index_id}',
@@ -350,6 +357,14 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         static::createEventsIndex(self::$anotherAppId, '');
         static::createIndex(self::$anotherAppId);
 
+        static::indexTestingItems();
+    }
+
+    /**
+     * Index test data.
+     */
+    protected static function indexTestingItems()
+    {
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
         foreach ($items['items'] as $item) {
@@ -403,6 +418,23 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
         } catch (ResourceNotAvailableException $e) {
         } catch (ErrorException $e) {
         }
+    }
+
+    /**
+     * Change index config.
+     *
+     * @param array $config
+     */
+    public function changeConfig(array $config)
+    {
+        self::deleteIndex();
+        self::createIndex(
+            null,
+            null,
+            null,
+            ImmutableConfig::createFromArray($config)
+        );
+        static::indexTestingItems();
     }
 
     /**
@@ -523,14 +555,16 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
     /**
      * Create index using the bus.
      *
-     * @param string $appId
-     * @param string $index
-     * @param Token  $token
+     * @param string          $appId
+     * @param string          $index
+     * @param Token           $token
+     * @param ImmutableConfig $config
      */
     public static function createIndex(
         string $appId = null,
         string $index = null,
-        Token $token = null
+        Token $token = null,
+        ImmutableConfig $config = null
     ) {
         self::getStatic('tactician.commandbus')
             ->handle(new CreateIndex(
@@ -542,7 +576,8 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                     new Token(
                         TokenUUID::createById(self::getParameterStatic('apisearch_server.god_token')),
                         $appId ?? self::$appId
-                    )
+                    ),
+                $config ?? ImmutableConfig::createFromArray([])
             ));
     }
 

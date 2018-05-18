@@ -28,7 +28,7 @@ class ElasticaLanguages
      *
      * @return string
      */
-    public static function getStopwordsLanguageByIso(? string $iso): string
+    public static function getStopwordsLanguageByIso(? string $iso): ? string
     {
         return (string) ([
             '_' => '_arabic_',
@@ -62,7 +62,7 @@ class ElasticaLanguages
             '_' => '_swedish_',
             '_' => '_thai_',
             '_' => '_turkish_',
-        ][$iso] ?? '_none_');
+        ][$iso] ?? null);
     }
 
     /**

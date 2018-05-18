@@ -18,6 +18,7 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 
 use Apisearch\App\AppRepository;
 use Apisearch\Config\Config;
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Event\EventRepository;
 use Apisearch\Model\Item;
 use Apisearch\Model\ItemUUID;
@@ -119,17 +120,21 @@ class HttpRepositoryTest extends RepositoryTest
     /**
      * Create index using the bus.
      *
-     * @param string $appId
-     * @param string $index
-     * @param Token  $token
+     * @param string          $appId
+     * @param string          $index
+     * @param Token           $token
+     * @param ImmutableConfig $config
      */
     public static function createIndex(
         string $appId = null,
         string $index = null,
-        Token $token = null
+        Token $token = null,
+        ImmutableConfig $config = null
     ) {
         self::configureRepository($appId, $index, $token)
-            ->createIndex();
+            ->createIndex(
+                $config ?? ImmutableConfig::createFromArray([])
+            );
     }
 
     /**

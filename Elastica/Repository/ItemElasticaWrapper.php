@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\Repository;
 
+use Apisearch\Config\Config;
+use Apisearch\Config\ImmutableConfig;
+use Apisearch\Config\Synonym;
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryReference;
@@ -77,16 +80,19 @@ class ItemElasticaWrapper extends ElasticaWrapper
     /**
      * Get index configuration.
      *
-     * @param int $shards
-     * @param int $replicas
+     * @param ImmutableConfig $config
+     * @param int             $shards
+     * @param int             $replicas
      *
      * @return array
      */
     public function getIndexConfiguration(
+        ImmutableConfig $config,
         int $shards,
         int $replicas
     ): array {
-        return [
+        $language = $config->getLanguage();
+        $indexConfiguration = [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
             'max_result_window' => 50000,
@@ -131,15 +137,49 @@ class ItemElasticaWrapper extends ElasticaWrapper
                 ],
             ],
         ];
+
+        $stopWordsLanguage = ElasticaLanguages::getStopwordsLanguageByIso($language);
+        if (!is_null($stopWordsLanguage)) {
+            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'stop_words';
+            $indexConfiguration['analysis']['filter']['stop_words'] = [
+                'type' => 'stop',
+                'stopwords' => $stopWordsLanguage,
+            ];
+        }
+
+        $stemmer = ElasticaLanguages::getStemmerLanguageByIso($language);
+        if (!is_null($stemmer)) {
+            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
+            $indexConfiguration['analysis']['filter']['stemmer'] = [
+                'type' => 'stemmer',
+                'name' => $stemmer,
+            ];
+        }
+
+        $synonyms = $config->getSynonyms();
+        if (!empty($synonyms)) {
+            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'synonym';
+            $indexConfiguration['analysis']['filter']['synonym'] = [
+                'type' => 'synonym',
+                'synonyms' => array_map(function (Synonym $synonym) {
+                    return $synonym->expand();
+                }, $synonyms),
+            ];
+        }
+
+        return $indexConfiguration;
     }
 
     /**
      * Build index mapping.
      *
-     * @param Mapping $mapping
+     * @param Mapping         $mapping
+     * @param ImmutableConfig $config
      */
-    public function buildIndexMapping(Mapping $mapping)
-    {
+    public function buildIndexMapping(
+        Mapping $mapping,
+        ImmutableConfig $config
+    ) {
         $mapping->setParam('dynamic_templates', [
             [
                 'dynamic_metadata_as_keywords' => [
@@ -161,6 +201,16 @@ class ItemElasticaWrapper extends ElasticaWrapper
                 ],
             ],
         ]);
+
+        if (!is_null($config->getLanguage())) {
+        }
+
+        $sourceExcludes = ['exact_matching_metadata'];
+        if (!$config->shouldSearchableMetadataBeStored()) {
+            $sourceExcludes[] = 'searchable_metadata';
+        }
+
+        $mapping->setSource(['excludes' => $sourceExcludes]);
 
         $mapping->setProperties([
             'uuid' => [
@@ -206,53 +256,24 @@ class ItemElasticaWrapper extends ElasticaWrapper
      *
      * @param RepositoryReference $repositoryReference
      * @param string              $configPath
-     * @param null|string         $language
+     * @param Config              $config
      */
     public function updateIndexSettings(
         RepositoryReference $repositoryReference,
         string $configPath,
-        ? string $language
+        Config $config
     ) {
+        return;
+
+        /*
+         * Nothing to do ATM
+         *
+         * If Index settings change in this method, you should uncomment next
+         * code in order to update these settings while the index is closed
+         */
+
+        /*
         $searchIndex = $this->getIndex($repositoryReference);
-        $indexSettings = [
-            'analysis' => [
-                'analyzer' => [
-                    'search_analyzer' => [
-                        'type' => 'custom',
-                        'tokenizer' => 'standard',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                            'stop_words',
-                        ],
-                    ],
-                ],
-                'filter' => [
-                    'stop_words' => [
-                        'type' => 'stop',
-                        'stopwords' => ElasticaLanguages::getStopwordsLanguageByIso($language),
-                    ],
-                ],
-            ],
-        ];
-
-        $synonymPath = $configPath.'/synonyms.txt';
-        if (file_exists($synonymPath)) {
-            $indexSettings['analysis']['analyzer']['search_analyzer']['filter'][] = 'synonym';
-            $indexSettings['analysis']['filter']['synonym'] = [
-                'type' => 'synonym',
-                'synonyms_path' => $synonymPath,
-            ];
-        }
-
-        $stemmer = ElasticaLanguages::getStemmerLanguageByIso($language);
-        if (!is_null($stemmer)) {
-            $indexSettings['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
-            $indexSettings['analysis']['filter']['stemmer'] = [
-                'type' => 'stemmer',
-                'name' => $stemmer,
-            ];
-        }
 
         try {
             $searchIndex->close();
@@ -260,11 +281,9 @@ class ItemElasticaWrapper extends ElasticaWrapper
             $searchIndex->open();
             sleep(1);
         } catch (ResponseException $exception) {
-            /*
-             * The index resource cannot be deleted.
-             * This means that the resource is not available
-             */
+
             throw ResourceExistsException::indexExists();
         }
+        */
     }
 }
