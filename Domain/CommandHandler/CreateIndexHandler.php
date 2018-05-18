@@ -39,6 +39,6 @@ class CreateIndexHandler extends WithRepositoryAndEventPublisher
 
         $this
             ->repository
-            ->createIndex();
+            ->createIndex($createIndex->getConfig());
     }
 }

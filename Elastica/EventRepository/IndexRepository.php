@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\EventRepository;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Event\Event;
 use Apisearch\Server\Domain\Repository\EventRepository\IndexRepository as IndexRepositoryInterface;
 use Apisearch\Server\Elastica\Builder\TimeFormatBuilder;
@@ -65,13 +66,17 @@ class IndexRepository extends ElasticaWrapperWithRepositoryReference implements 
             ->elasticaWrapper
             ->createIndex(
                 $this->getRepositoryReference(),
+                ImmutableConfig::createEmpty(),
                 $this->repositoryConfig['shards'],
                 $this->repositoryConfig['replicas']
             );
 
         $this
             ->elasticaWrapper
-            ->createIndexMapping($this->getRepositoryReference());
+            ->createIndexMapping(
+                $this->getRepositoryReference(),
+                ImmutableConfig::createEmpty()
+            );
 
         $this->refresh();
     }

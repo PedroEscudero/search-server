@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Exception\ResourceExistsException;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryReference;
@@ -78,12 +79,14 @@ abstract class ElasticaWrapper
     /**
      * Get index configuration.
      *
-     * @param int $shards
-     * @param int $replicas
+     * @param ImmutableConfig $config
+     * @param int             $shards
+     * @param int             $replicas
      *
      * @return array
      */
     abstract public function getIndexConfiguration(
+        ImmutableConfig $config,
         int $shards,
         int $replicas
     ): array;
@@ -91,9 +94,13 @@ abstract class ElasticaWrapper
     /**
      * Build index mapping.
      *
-     * @param Mapping $mapping
+     * @param Mapping         $mapping
+     * @param ImmutableConfig $config
      */
-    abstract public function buildIndexMapping(Mapping $mapping);
+    abstract public function buildIndexMapping(
+        Mapping $mapping,
+        ImmutableConfig $config
+    );
 
     /**
      * Get search index.
@@ -180,6 +187,7 @@ abstract class ElasticaWrapper
      * Create index.
      *
      * @param RepositoryReference $repositoryReference
+     * @param ImmutableConfig     $config
      * @param int                 $shards
      * @param int                 $replicas
      *
@@ -187,6 +195,7 @@ abstract class ElasticaWrapper
      */
     public function createIndex(
         RepositoryReference $repositoryReference,
+        ImmutableConfig $config,
         int $shards,
         int $replicas
     ) {
@@ -194,6 +203,7 @@ abstract class ElasticaWrapper
 
         try {
             $searchIndex->create($this->getIndexConfiguration(
+                $config,
                 $shards,
                 $replicas
             ));
@@ -278,15 +288,18 @@ abstract class ElasticaWrapper
      * Create mapping.
      *
      * @param RepositoryReference $repositoryReference
+     * @param ImmutableConfig     $config
      *
      * @throws ResourceExistsException
      */
-    public function createIndexMapping(RepositoryReference $repositoryReference)
-    {
+    public function createIndexMapping(
+        RepositoryReference $repositoryReference,
+        ImmutableConfig $config
+    ) {
         try {
             $itemMapping = new Mapping();
             $itemMapping->setType($this->getType($repositoryReference, $this->getItemType()));
-            $this->buildIndexMapping($itemMapping);
+            $this->buildIndexMapping($itemMapping, $config);
             $itemMapping->send();
         } catch (ResponseException $exception) {
             /*

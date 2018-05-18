@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Tests\Functional\Repository;
 
-use Apisearch\Config\Config;
 use Apisearch\Query\Query;
 
 /**
@@ -29,14 +28,12 @@ trait SynonymsTest
      */
     public function testSynonyms()
     {
-        $this->markTestSkipped('Revise synonyms');
-        $config = Config::createFromArray([
+        self::changeConfig([
             'synonyms' => [
                 ['words' => ['percebeiro', 'alfaguarra']],
             ],
         ]);
 
-        $this->configureIndex($config);
         $result = $this->query(Query::create('alfaguarra'));
         $this->assertCount(1, $result->getItems());
         $this->assertEquals(1, $result->getFirstItem()->getId());

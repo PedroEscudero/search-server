@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Elastica\LogRepository;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Repository\RepositoryReference;
 use Apisearch\Server\Elastica\ElasticaWrapper;
@@ -73,12 +74,14 @@ class LogElasticaWrapper extends ElasticaWrapper
     /**
      * Get index configuration.
      *
-     * @param int $shards
-     * @param int $replicas
+     * @param ImmutableConfig $config
+     * @param int             $shards
+     * @param int             $replicas
      *
      * @return array
      */
     public function getIndexConfiguration(
+        ImmutableConfig $config,
         int $shards,
         int $replicas
     ): array {
@@ -91,10 +94,13 @@ class LogElasticaWrapper extends ElasticaWrapper
     /**
      * Build index mapping.
      *
-     * @param Mapping $mapping
+     * @param Mapping         $mapping
+     * @param ImmutableConfig $config
      */
-    public function buildIndexMapping(Mapping $mapping)
-    {
+    public function buildIndexMapping(
+        Mapping $mapping,
+        ImmutableConfig $config
+    ) {
         $mapping->setProperties([
             'uuid' => [
                 'type' => 'object',

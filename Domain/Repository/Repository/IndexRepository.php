@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Apisearch\Server\Domain\Repository\Repository;
 
+use Apisearch\Config\ImmutableConfig;
 use Apisearch\Model\Item;
 
 /**
@@ -25,8 +26,10 @@ interface IndexRepository
 {
     /**
      * Create the index.
+     *
+     * @param ImmutableConfig $config
      */
-    public function createIndex();
+    public function createIndex(ImmutableConfig $config);
 
     /**
      * Delete the index.

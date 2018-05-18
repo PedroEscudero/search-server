@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Apisearch\Server\Elastica\Repository;
 
 use Apisearch\Config\Config;
-use Apisearch\Config\Synonym;
 use Apisearch\Exception\ResourceNotAvailableException;
 use Apisearch\Server\Domain\Repository\Repository\ConfigRepository as ConfigRepositoryInterface;
 use Apisearch\Server\Elastica\ElasticaWrapperWithRepositoryReference;
@@ -37,7 +36,6 @@ class ConfigRepository extends ElasticaWrapperWithRepositoryReference implements
     public function configureIndex(Config $config)
     {
         $this->writeCampaigns($config);
-        $this->writeSynonyms($config);
 
         if ($this->elasticaWrapper instanceof ItemElasticaWrapper) {
             $this
@@ -45,35 +43,9 @@ class ConfigRepository extends ElasticaWrapperWithRepositoryReference implements
                 ->updateIndexSettings(
                     $this->getRepositoryReference(),
                     $this->getConfigPath(),
-                    $config->getLanguage()
+                    $config
                 );
         }
-    }
-
-    /**
-     * Write synonyms.
-     *
-     * @param Config $config
-     */
-    private function writeSynonyms(Config $config)
-    {
-        $synonymsAsArray = array_map(function (Synonym $synonym) {
-            return implode(', ', $synonym->getWords());
-        }, $config->getSynonyms());
-
-        $filePath = $this->getConfigPath().'/synonyms.json';
-        if (empty($synonymsAsArray)) {
-            file_exists($filePath)
-                ? unlink($filePath)
-                : false;
-
-            return;
-        }
-
-        $syonymsAsPlainText = implode("\n", $synonymsAsArray)."\n";
-        $fileHandle = fopen($filePath, 'w');
-        fwrite($fileHandle, $syonymsAsPlainText);
-        fclose($fileHandle);
     }
 
     /**
