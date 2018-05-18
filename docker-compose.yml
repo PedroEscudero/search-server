@@ -18,14 +18,24 @@ services:
     redis:
         image: redis:4-alpine
 
+    haproxy:
+        build: ./docker/haproxy
+        ports:
+            - 8100:8100
+        links:
+            - apisearch
+
     apisearch:
         build: ./docker/search-server
-
         depends_on:
             - elasticsearch
             - redis
         ports:
-            - 8100:8100
+            - 8200:8200
+            - 8201:8201
+            - 8202:8202
+            - 8203:8203
+            - 8204:8204
         links:
             - redis
 
