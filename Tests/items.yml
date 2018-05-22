@@ -1,5 +1,5 @@
 items:
-    prod_1:
+    1_product:
         uuid:
             id: 1
             type: product
@@ -44,7 +44,7 @@ items:
             editorial: "Alfaguarra"
             boosting: "boosting"
 
-    prod_2:
+    2_product:
         uuid:
             id: 2
             type: product
@@ -90,7 +90,7 @@ items:
                 - "boosting"
                 - "anotherboosting"
 
-    book_1:
+    3_book:
         uuid:
             id: 3
             type: book
@@ -144,7 +144,7 @@ items:
         suggest:
             - Engonga
 
-    bike_1:
+    4_bike:
         uuid:
             id: 4
             type: bike
@@ -179,7 +179,7 @@ items:
         suggest:
             - Eleuterio
 
-    gum_1:
+    5_gum:
         uuid:
             id: 5
             type: gum

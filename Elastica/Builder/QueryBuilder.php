@@ -155,8 +155,7 @@ class QueryBuilder
 
                 $match
                     ->setFields($filterFields)
-                    ->setQuery($queryString)
-                    ->setType('phrase');
+                    ->setQuery($queryString);
             }
             $boolQuery->addMust($match);
 

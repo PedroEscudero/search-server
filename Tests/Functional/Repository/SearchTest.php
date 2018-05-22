@@ -149,4 +149,28 @@ trait SearchTest
                 ->getId()
         );
     }
+
+    /**
+     * Test specific cases.
+     */
+    public function testSpecificCases()
+    {
+        $this->assertEquals(
+            '3~book',
+            $this
+                ->query(Query::create('Da Vinci'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+
+        $this->assertEquals(
+            '3~book',
+            $this
+                ->query(Query::create('code Da Vinci'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+    }
 }

@@ -24,6 +24,7 @@ use Apisearch\Server\Tests\Functional\ApisearchServerBundleFunctionalTest;
  */
 abstract class RepositoryTest extends ApisearchServerBundleFunctionalTest
 {
+    use SearchTest;
     use HealthTest;
     use MachineLearningTest;
     use IndexStatusTest;
@@ -43,7 +44,6 @@ abstract class RepositoryTest extends ApisearchServerBundleFunctionalTest
     use LocationFiltersTest;
     use SortTest;
     use SuggestTest;
-    use SearchTest;
     use StopwordsSteemerTest;
 
     /**
