@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f4b5924d8a7455baf946c53c99192ff",
+    "content-hash": "f4c876ee9bab7c7a449fd3ab8d7a32b1",
     "packages": [
         {
             "name": "apisearch-io/apisearch-bundle",
-            "version": "0.1.5",
+            "version": "0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/apisearch-bundle.git",
-                "reference": "a7e7c50177c1c1cfda8f49c45dbd957682e21bb3"
+                "reference": "87f0725fa601865e37e4dfe684e72486201569ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/a7e7c50177c1c1cfda8f49c45dbd957682e21bb3",
-                "reference": "a7e7c50177c1c1cfda8f49c45dbd957682e21bb3",
+                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/87f0725fa601865e37e4dfe684e72486201569ad",
+                "reference": "87f0725fa601865e37e4dfe684e72486201569ad",
                 "shasum": ""
             },
             "require": {
@@ -28,8 +28,11 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.5.0",
+                "mmoreram/base-bundle": "^1.0",
                 "mmoreram/php-formatter": "1.3.1",
-                "phpunit/phpunit": "^5.6.4"
+                "mmoreram/symfony-bundle-dependencies": "^2.1",
+                "phpunit/phpunit": "^5.6.4",
+                "symfony/browser-kit": "^3.4|^4.0"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -51,20 +54,20 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2018-01-31T20:34:53+00:00"
+            "time": "2018-05-22T09:03:29+00:00"
         },
         {
             "name": "apisearch-io/php-client",
-            "version": "0.1.11",
+            "version": "0.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/php-client.git",
-                "reference": "a4678ec69eea43ca7271110a07fab4f06ce73a3e"
+                "reference": "3e845a789dd3d99d54bf8b3c6cdfdc95f7ac0dbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/a4678ec69eea43ca7271110a07fab4f06ce73a3e",
-                "reference": "a4678ec69eea43ca7271110a07fab4f06ce73a3e",
+                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/3e845a789dd3d99d54bf8b3c6cdfdc95f7ac0dbc",
+                "reference": "3e845a789dd3d99d54bf8b3c6cdfdc95f7ac0dbc",
                 "shasum": ""
             },
             "require": {
@@ -101,7 +104,7 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2018-05-18T15:11:04+00:00"
+            "time": "2018-05-22T09:20:01+00:00"
         },
         {
             "name": "apisearch-io/react-socket-middleware-finite-server",
@@ -1809,16 +1812,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.27.0",
+            "version": "1.28.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "ef81c39b67200dcd7401c24363dcac05ac3a4fe9"
+                "reference": "00149d95fc91ef10f19d3a66889bc3bb7500fa7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/ef81c39b67200dcd7401c24363dcac05ac3a4fe9",
-                "reference": "ef81c39b67200dcd7401c24363dcac05ac3a4fe9",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/00149d95fc91ef10f19d3a66889bc3bb7500fa7b",
+                "reference": "00149d95fc91ef10f19d3a66889bc3bb7500fa7b",
                 "shasum": ""
             },
             "require": {
@@ -1853,7 +1856,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-04-23T09:02:57+00:00"
+            "time": "2018-05-18T15:26:18+00:00"
         },
         {
             "name": "one-bundle-app/one-bundle-app",

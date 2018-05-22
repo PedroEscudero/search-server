@@ -100,7 +100,7 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
                     $this->createGodToken($input->getArgument('app-id')),
                     ImmutableConfig::createFromArray([
                         'language' => $input->getOption('language'),
-                        'store_searchable_metadata' => !$input->hasOption('store-searchable-metadata'),
+                        'store_searchable_metadata' => !$input->getOption('no-store-searchable-metadata'),
                     ])
                 ));
         } catch (ResourceNotAvailableException $exception) {

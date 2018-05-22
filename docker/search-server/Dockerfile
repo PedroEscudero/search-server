@@ -31,6 +31,3 @@ COPY supervisor-search-server.conf /etc/supervisor/conf.d/search-server.conf
 COPY docker-entrypoint.sh /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-
-EXPOSE 8100
-EXPOSE 1936

@@ -148,7 +148,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                     'cluster' => [
                         'localhost' => [
                             'host' => 'localhost',
-                            'port' => 9210,
+                            'port' => 9200,
                         ],
                     ],
                     'config' => [
@@ -170,6 +170,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 'apisearch' => [
                     'repositories' => [
                         'main' => [
+                            'adapter' => 'http_test',
                             'endpoint' => '~',
                             'app_id' => self::$appId,
                             'token' => '~',
@@ -180,26 +181,22 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             ],
                             'search' => [
                                 'repository_service' => 'apisearch_server.items_repository',
-                                'in_memory' => false,
                             ],
                             'app' => [
                                 'repository_service' => 'apisearch_server.app_repository',
-                                'in_memory' => false,
                             ],
                             'user' => [
                                 'repository_service' => 'apisearch_server.user_repository',
-                                'in_memory' => false,
                             ],
                             'event' => [
                                 'repository_service' => 'apisearch_server.events_repository',
-                                'in_memory' => false,
                             ],
                             'log' => [
                                 'repository_service' => 'apisearch_server.logs_repository',
-                                'in_memory' => false,
                             ],
                         ],
                         'search_http' => [
+                            'adapter' => 'http_test',
                             'endpoint' => '~',
                             'app_id' => self::$appId,
                             'token' => '~',
@@ -208,20 +205,9 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                                 self::$index => self::$index,
                                 self::$anotherIndex => self::$anotherIndex,
                             ],
-                            'search' => [
-                                'in_memory' => false,
-                            ],
-                            'app' => [
-                                'in_memory' => false,
-                            ],
-                            'event' => [
-                                'in_memory' => false,
-                            ],
-                            'log' => [
-                                'in_memory' => false,
-                            ],
                         ],
                         'search_socket' => [
+                            'adapter' => 'http',
                             'endpoint' => 'http://127.0.0.1:8999',
                             'app_id' => self::$appId,
                             'token' => self::$godToken,
