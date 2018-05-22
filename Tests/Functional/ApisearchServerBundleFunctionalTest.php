@@ -170,15 +170,11 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                 'apisearch' => [
                     'repositories' => [
                         'main' => [
-                            'adapter' => 'http_test',
+                            'adapter' => 'service',
                             'endpoint' => '~',
                             'app_id' => self::$appId,
                             'token' => '~',
                             'test' => true,
-                            'indexes' => [
-                                self::$index => self::$index,
-                                self::$anotherIndex => self::$anotherIndex,
-                            ],
                             'search' => [
                                 'repository_service' => 'apisearch_server.items_repository',
                             ],
@@ -193,6 +189,10 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             ],
                             'log' => [
                                 'repository_service' => 'apisearch_server.logs_repository',
+                            ],
+                            'indexes' => [
+                                self::$index => self::$index,
+                                self::$anotherIndex => self::$anotherIndex,
                             ],
                         ],
                         'search_http' => [
@@ -211,6 +211,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
                             'endpoint' => 'http://127.0.0.1:8999',
                             'app_id' => self::$appId,
                             'token' => self::$godToken,
+                            'test' => true,
                             'indexes' => [
                                 self::$index => self::$index,
                                 self::$anotherIndex => self::$anotherIndex,

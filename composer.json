@@ -57,10 +57,13 @@
             "vendor/bin/php-formatter f:u:s . --exclude=vendor --exclude=web --exclude=bin --exclude=var"
         ],
         "clean-for-test": [
-            "curl -XDELETE http://127.0.0.1:9210/apisearch_item_test_default",
-            "curl -XDELETE http://127.0.0.1:9210/apisearch_item_test_default_events",
-            "curl -XDELETE http://127.0.0.1:9210/apisearch_item_another_test_default",
-            "curl -XDELETE http://127.0.0.1:9210/apisearch_item_another_test_default_events"
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_item_test_default",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_item_test_default_events",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_item_another_test_default",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_item_another_test_default_events",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_item_12345_test_67890_test",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_events_12345_test_67890_test",
+            "curl -XDELETE http://127.0.0.1:9200/apisearch_log_12345_test_67890_test"
         ],
         "test": [
             "vendor/bin/phpunit"
