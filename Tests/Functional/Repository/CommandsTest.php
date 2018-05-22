@@ -32,12 +32,12 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
     /**
      * @var string
      */
-    const TEST_APP_ID = '12345-test';
+    const TEST_APP_ID = '12345_test';
 
     /**
      * @var string
      */
-    const TEST_INDEX = '67890-test';
+    const TEST_INDEX = '67890_test';
 
     /**
      * @var string
@@ -90,6 +90,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'command' => 'apisearch:create-index',
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
+                '--quiet' => true,
             ]
         ));
 
@@ -102,6 +103,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'command' => 'apisearch:delete-index',
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
+                '--quiet' => true,
             ]
         ));
 
@@ -122,6 +124,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
                 '--with-events' => true,
+                '--quiet' => true,
             ]
         ));
 
@@ -135,6 +138,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
                 '--with-events' => true,
+                '--quiet' => true,
             ]
         ));
 
@@ -156,6 +160,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
                 '--with-logs' => true,
+                '--quiet' => true,
             ]
         ));
 
@@ -169,6 +174,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
                 '--with-logs' => true,
+                '--quiet' => true,
             ]
         ));
 
@@ -192,6 +198,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'index' => self::TEST_INDEX,
                 '--with-events' => true,
                 '--with-logs' => true,
+                '--quiet' => true,
             ]
         ));
 
@@ -206,6 +213,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'index' => self::TEST_INDEX,
                 '--with-events' => true,
                 '--with-logs' => true,
+                '--quiet' => true,
             ]
         ));
 
@@ -272,7 +280,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
      */
     protected function assertExistsLogsIndex()
     {
-        $this->queryEvents(
+        $this->queryLogs(
             Query::createMatchAll(),
             null,
             null,
@@ -334,6 +342,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'command' => 'apisearch:create-index',
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
+                '--quiet' => true,
             ]
         ));
 
@@ -345,6 +354,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'uuid' => self::TEST_TOKEN,
                 'app-id' => self::TEST_APP_ID,
                 '--index' => [self::TEST_INDEX],
+                '--quiet' => true,
             ]
         ));
 
@@ -355,6 +365,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'command' => 'apisearch:delete-token',
                 'uuid' => self::TEST_TOKEN,
                 'app-id' => self::TEST_APP_ID,
+                '--quiet' => true,
             ]
         ));
 
@@ -365,6 +376,7 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
                 'command' => 'apisearch:delete-index',
                 'app-id' => self::TEST_APP_ID,
                 'index' => self::TEST_INDEX,
+                '--quiet' => true,
             ]
         ));
     }

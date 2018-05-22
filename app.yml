@@ -60,22 +60,17 @@ config:
     apisearch:
         repositories:
             main:
-                http: false
+                adapter: service
                 search:
                     repository_service: "apisearch_server.items_repository"
-                    in_memory: false
                 app:
                     repository_service: "apisearch_server.app_repository"
-                    in_memory: false
                 user:
                     repository_service: "apisearch_server.user_repository"
-                    in_memory: false
                 event:
                     repository_service: "apisearch_server.events_repository"
-                    in_memory: false
                 log:
                     repository_service: "apisearch_server.logs_repository"
-                    in_memory: false
                 indexes:
                     default: default
 
@@ -83,6 +78,7 @@ config:
             # Enable for custom HTTP endpoint
             #
             # remote:
+            #     adapter: http
             #     endpoint: __endpoint__
             #     app_id: __app_id__
             #     token: __token__

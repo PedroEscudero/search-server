@@ -19,7 +19,7 @@ namespace Apisearch\Server\Tests\Functional\Repository;
 /**
  * Class HttpRepositoryTest.
  */
-class SocketRepositoryTest extends HttpRepositoryTest
+class SocketRepositoryTestDisabled extends HttpRepositoryTest
 {
     /**
      * Get repository name.

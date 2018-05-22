@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "apisearch-io/apisearch-bundle",
-            "version": "0.1.6",
+            "version": "0.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/apisearch-bundle.git",
-                "reference": "87f0725fa601865e37e4dfe684e72486201569ad"
+                "reference": "629f95c39fb44b55492c5b692591c584dbb586e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/87f0725fa601865e37e4dfe684e72486201569ad",
-                "reference": "87f0725fa601865e37e4dfe684e72486201569ad",
+                "url": "https://api.github.com/repos/apisearch-io/apisearch-bundle/zipball/629f95c39fb44b55492c5b692591c584dbb586e1",
+                "reference": "629f95c39fb44b55492c5b692591c584dbb586e1",
                 "shasum": ""
             },
             "require": {
@@ -54,20 +54,20 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2018-05-22T09:03:29+00:00"
+            "time": "2018-05-22T11:13:18+00:00"
         },
         {
             "name": "apisearch-io/php-client",
-            "version": "0.1.13",
+            "version": "0.1.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/php-client.git",
-                "reference": "3e845a789dd3d99d54bf8b3c6cdfdc95f7ac0dbc"
+                "reference": "fd0155f2b605f835e050a681ef439793051f22df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/3e845a789dd3d99d54bf8b3c6cdfdc95f7ac0dbc",
-                "reference": "3e845a789dd3d99d54bf8b3c6cdfdc95f7ac0dbc",
+                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/fd0155f2b605f835e050a681ef439793051f22df",
+                "reference": "fd0155f2b605f835e050a681ef439793051f22df",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2018-05-22T09:20:01+00:00"
+            "time": "2018-05-22T10:43:23+00:00"
         },
         {
             "name": "apisearch-io/react-socket-middleware-finite-server",
