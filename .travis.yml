@@ -12,11 +12,15 @@ cache:
   directories:
     - $HOME/.composer/cache/files
 
-before_install:
+install:
   - composer install --no-interaction
-  - docker-compose build
-  - docker-compose up -d
+
+before_script:
+  - docker-compose up --build -d
   - chmod +x docker/run-tests
 
 script:
   - docker exec -i -t $(docker ps -qf "name=apisearch") /var/www/apisearch/docker/run-tests
+
+after_script:
+  - docker-compose down
