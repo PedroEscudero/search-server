@@ -40,6 +40,7 @@ items:
             other_field_for_boosting_test:
                 - one
                 - two
+            relevance: 50
         searchable_metadata:
             editorial: "Alfaguarra"
             specific: "Stylestep"
@@ -85,6 +86,7 @@ items:
                 - one
                 - two
                 - three
+            relevance: 10
         searchable_metadata:
             editorial: "Matutano"
             specific: "This style of the steep is not good, and the steep of the style, neither. Set this style, and the step."
@@ -138,6 +140,7 @@ items:
             other_field_for_boosting_test:
                 - one
                 - four
+            relevance: 30
         searchable_metadata:
             title: Code da vinci
             description: Código de Hernando
@@ -176,6 +179,7 @@ items:
             other_field_for_boosting_test:
                 - two
                 - four
+            relevance: 50
         searchable_metadata:
             title: álamo
         suggest:
@@ -215,6 +219,7 @@ items:
                 - three
             other_field_for_boosting_test:
                 - three
+            relevance: 100
         searchable_metadata:
             title: barcelona
             description: badalona

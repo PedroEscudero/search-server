@@ -202,9 +202,6 @@ class ItemElasticaWrapper extends ElasticaWrapper
             ],
         ]);
 
-        if (!is_null($config->getLanguage())) {
-        }
-
         $sourceExcludes = ['exact_matching_metadata'];
         if (!$config->shouldSearchableMetadataBeStored()) {
             $sourceExcludes[] = 'searchable_metadata';

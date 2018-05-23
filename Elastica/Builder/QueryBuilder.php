@@ -24,9 +24,11 @@ use Apisearch\Query\Aggregation as QueryAggregation;
 use Apisearch\Query\Filter;
 use Apisearch\Query\Query;
 use Apisearch\Query\Range;
+use Apisearch\Query\ScoreStrategy;
 use Apisearch\Query\SortBy;
 use Elastica\Aggregation as ElasticaAggregation;
 use Elastica\Query as ElasticaQuery;
+use Elastica\Script\Script;
 
 /**
  * File header placeholder.
@@ -46,6 +48,7 @@ class QueryBuilder
         ElasticaQuery\BoolQuery $boolQuery
     ) {
         $this->addFilters(
+            $query,
             $boolQuery,
             $query->getFilters(),
             $query->getFilterFields(),
@@ -54,6 +57,7 @@ class QueryBuilder
         );
 
         $this->addFilters(
+            $query,
             $boolQuery,
             $query->getUniverseFilters(),
             $query->getFilterFields(),
@@ -82,6 +86,7 @@ class QueryBuilder
 
         if ($query->areAggregationsEnabled()) {
             $this->addAggregations(
+                $query,
                 $mainQuery,
                 $query->getAggregations(),
                 $query->getUniverseFilters(),
@@ -94,6 +99,7 @@ class QueryBuilder
     /**
      * Add filters to a Query.
      *
+     * @param Query                   $query
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter[]                $filters
      * @param string[]                $filterFields
@@ -101,6 +107,7 @@ class QueryBuilder
      * @param bool                    $takeInAccountDefinedTermFilter
      */
     private function addFilters(
+        Query $query,
         ElasticaQuery\BoolQuery $boolQuery,
         array $filters,
         array $filterFields,
@@ -114,6 +121,7 @@ class QueryBuilder
             );
 
             $this->addFilter(
+                $query,
                 $boolQuery,
                 $filter,
                 $filterFields,
@@ -126,6 +134,7 @@ class QueryBuilder
     /**
      * Add filters to a Query.
      *
+     * @param Query                   $query
      * @param ElasticaQuery\BoolQuery $boolQuery
      * @param Filter                  $filter
      * @param string[]                $filterFields
@@ -133,6 +142,7 @@ class QueryBuilder
      * @param bool                    $takeInAccountDefinedTermFilter
      */
     private function addFilter(
+        Query $query,
         ElasticaQuery\BoolQuery $boolQuery,
         Filter $filter,
         array $filterFields,
@@ -141,22 +151,11 @@ class QueryBuilder
     ) {
         if (Filter::TYPE_QUERY === $filter->getFilterType()) {
             $queryString = $filter->getValues()[0];
-
-            if (empty($queryString)) {
-                $match = new ElasticaQuery\MatchAll();
-            } else {
-                $match = new ElasticaQuery\MultiMatch();
-                $filterFields = empty($filterFields)
-                    ? [
-                        'searchable_metadata.*',
-                        'exact_matching_metadata^5',
-                    ]
-                    : $filterFields;
-
-                $match
-                    ->setFields($filterFields)
-                    ->setQuery($queryString);
-            }
+            $match = $this->createMainQueryObject(
+                $query,
+                $queryString,
+                $filterFields
+            );
             $boolQuery->addMust($match);
 
             return;
@@ -409,6 +408,7 @@ class QueryBuilder
     /**
      * Add aggregations.
      *
+     * @param Query              $query
      * @param ElasticaQuery      $elasticaQuery
      * @param QueryAggregation[] $aggregations
      * @param Filter[]           $universeFilters
@@ -416,6 +416,7 @@ class QueryBuilder
      * @param string[]           $filterFields
      */
     private function addAggregations(
+        Query $query,
         ElasticaQuery $elasticaQuery,
         array $aggregations,
         array $universeFilters,
@@ -426,6 +427,7 @@ class QueryBuilder
         $universeAggregation = new ElasticaAggregation\Filter('universe');
         $aggregationBoolQuery = new ElasticaQuery\BoolQuery();
         $this->addFilters(
+            $query,
             $aggregationBoolQuery,
             $universeFilters,
             $filterFields,
@@ -450,6 +452,7 @@ class QueryBuilder
             $filteredAggregation = new ElasticaAggregation\Filter($aggregation->getName());
             $boolQuery = new ElasticaQuery\BoolQuery();
             $this->addFilters(
+                $query,
                 $boolQuery,
                 $filters,
                 $filterFields,
@@ -511,5 +514,84 @@ class QueryBuilder
         }
 
         return $rangeAggregation;
+    }
+
+    /**
+     * Create main query object.
+     *
+     * @param Query  $query
+     * @param string $queryString
+     * @param array  $filterFields
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function createMainQueryObject(
+        Query $query,
+        string $queryString,
+        array $filterFields
+    ): ElasticaQuery\AbstractQuery {
+        if (empty($queryString)) {
+            $match = new ElasticaQuery\MatchAll();
+        } else {
+            $match = new ElasticaQuery\MultiMatch();
+            $filterFields = empty($filterFields)
+                ? [
+                    'searchable_metadata.*',
+                    'exact_matching_metadata^5',
+                ]
+                : $filterFields;
+
+            $match
+                ->setFields($filterFields)
+                ->setQuery($queryString);
+        }
+
+        $match = $this->setScoreType(
+            $query,
+            $match
+        );
+
+        return $match;
+    }
+
+    /**
+     * Set score type.
+     *
+     * @param Query                       $query
+     * @param ElasticaQuery\AbstractQuery $elasticaQuery
+     *
+     * @return ElasticaQuery\AbstractQuery
+     */
+    private function setScoreType(
+        Query $query,
+        ElasticaQuery\AbstractQuery $elasticaQuery
+    ): ElasticaQuery\AbstractQuery {
+        $scoreStrategy = $query->getScoreStrategy();
+        if (
+            !($scoreStrategy instanceof ScoreStrategy) ||
+            ScoreStrategy::DEFAULT === $scoreStrategy->getType()
+        ) {
+            return $elasticaQuery;
+        }
+
+        $newQuery = new ElasticaQuery\FunctionScore();
+        $newQuery->setQuery($elasticaQuery);
+        $newQuery->setBoostMode('replace');
+
+        if (ScoreStrategy::BOOSTING_RELEVANCE_FIELD === $scoreStrategy->getType()) {
+            $newQuery->addScriptScoreFunction(
+                new Script(
+                    "_score + (10 * doc['indexed_metadata.relevance'].value / 100)"
+                )
+            );
+        }
+
+        if (ScoreStrategy::CUSTOM_FUNCTION === $scoreStrategy->getType()) {
+            $newQuery->addScriptScoreFunction(
+                new Script($scoreStrategy->getFunction())
+            );
+        }
+
+        return $newQuery;
     }
 }
