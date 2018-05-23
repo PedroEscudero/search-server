@@ -149,4 +149,58 @@ trait SearchTest
                 ->getId()
         );
     }
+
+    /**
+     * Test specific cases.
+     */
+    public function testSpecificCases()
+    {
+        $this->assertEquals(
+            '3~book',
+            $this
+                ->query(Query::create('Da Vinci'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+
+        $this->assertEquals(
+            '3~book',
+            $this
+                ->query(Query::create('code Da Vinci'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+    }
+
+    /**
+     * Test split words.
+     */
+    public function testSplitWords()
+    {
+        $this->assertEquals(
+            '2~product',
+            $this
+                ->query(Query::create('Style step'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+
+        self::changeConfig([
+            'synonyms' => [
+                ['words' => ['Style step', 'Stylestep']],
+            ],
+        ]);
+
+        $this->assertEquals(
+            '1~product',
+            $this
+                ->query(Query::create('Style step'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+    }
 }
