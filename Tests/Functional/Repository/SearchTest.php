@@ -173,4 +173,34 @@ trait SearchTest
                 ->composeUUID()
         );
     }
+
+    /**
+     * Test split words.
+     */
+    public function testSplitWords()
+    {
+        $this->assertEquals(
+            '2~product',
+            $this
+                ->query(Query::create('Style step'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+
+        self::changeConfig([
+            'synonyms' => [
+                ['words' => ['Style step', 'Stylestep']],
+            ],
+        ]);
+
+        $this->assertEquals(
+            '1~product',
+            $this
+                ->query(Query::create('Style step'))
+                ->getFirstItem()
+                ->getUuid()
+                ->composeUUID()
+        );
+    }
 }

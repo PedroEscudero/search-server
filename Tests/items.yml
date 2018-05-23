@@ -42,6 +42,7 @@ items:
                 - two
         searchable_metadata:
             editorial: "Alfaguarra"
+            specific: "Stylestep"
             boosting: "boosting"
 
     2_product:
@@ -86,6 +87,7 @@ items:
                 - three
         searchable_metadata:
             editorial: "Matutano"
+            specific: "This style of the steep is not good, and the steep of the style, neither. Set this style, and the step."
             boosting:
                 - "boosting"
                 - "anotherboosting"
