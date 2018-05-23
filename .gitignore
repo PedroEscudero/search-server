@@ -2,3 +2,4 @@ vendor
 /var
 /bin/console
 /web
+app_deploy.yml

@@ -17,17 +17,14 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/4.
     && mv phpredis-4.0.2 /usr/src/php/ext/redis \
     && docker-php-ext-install redis
 
-RUN apt-get install -y \
-        git-core \
-        curl && \
-    git clone https://github.com/apisearch-io/search-server.git apisearch && \
-    cd apisearch && \
+RUN apt-get install -y curl && \
     curl -sS https://getcomposer.org/installer | php && \
-    php composer.phar install && \
-    cp docker/search-server/app_deploy.yml .
+    mv composer.phar /usr/bin/composer
+
+RUN mkdir /var/www/apisearch
+VOLUME /var/www/apisearch
 
 COPY supervisor-search-server.conf /etc/supervisor/conf.d/search-server.conf
-
 COPY docker-entrypoint.sh /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

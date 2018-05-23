@@ -1,0 +1,22 @@
+sudo: required
+
+services:
+  - docker
+language: php
+php:
+  - 7.1
+  - 7.2
+
+## Cache composer bits
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+before_install:
+  - composer install --no-interaction
+  - docker-compose build
+  - docker-compose up -d
+  - chmod +x docker/run-tests
+
+script:
+  - docker exec -i -t $(docker ps -qf "name=apisearch") /var/www/apisearch/docker/run-tests
