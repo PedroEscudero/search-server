@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f4c876ee9bab7c7a449fd3ab8d7a32b1",
+    "content-hash": "91bf5604f18a4b0c640731ce383d1648",
     "packages": [
         {
             "name": "apisearch-io/apisearch-bundle",
@@ -58,16 +58,16 @@
         },
         {
             "name": "apisearch-io/php-client",
-            "version": "0.1.14",
+            "version": "0.1.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apisearch-io/php-client.git",
-                "reference": "fd0155f2b605f835e050a681ef439793051f22df"
+                "reference": "ff3fdb13676b9f1c8dbbda3acda4a4a514698963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/fd0155f2b605f835e050a681ef439793051f22df",
-                "reference": "fd0155f2b605f835e050a681ef439793051f22df",
+                "url": "https://api.github.com/repos/apisearch-io/php-client/zipball/ff3fdb13676b9f1c8dbbda3acda4a4a514698963",
+                "reference": "ff3fdb13676b9f1c8dbbda3acda4a4a514698963",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                     "email": "hello@puntmig.com"
                 }
             ],
-            "time": "2018-05-22T10:43:23+00:00"
+            "time": "2018-05-23T18:10:44+00:00"
         },
         {
             "name": "apisearch-io/react-socket-middleware-finite-server",
