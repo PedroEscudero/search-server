@@ -92,6 +92,18 @@ class ItemElasticaWrapper extends ElasticaWrapper
         int $replicas
     ): array {
         $language = $config->getLanguage();
+
+        $defaultAnalyzerFilter = [
+            5 => 'lowercase',
+            20 => 'asciifolding',
+            50 => 'ngram_filter',
+        ];
+
+        $searchAnalyzerFilter = [
+            5 => 'lowercase',
+            50 => 'asciifolding',
+        ];
+
         $indexConfiguration = [
             'number_of_shards' => $shards,
             'number_of_replicas' => $replicas,
@@ -101,19 +113,12 @@ class ItemElasticaWrapper extends ElasticaWrapper
                     'default' => [
                         'type' => 'custom',
                         'tokenizer' => 'standard',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                            'ngram_filter',
-                        ],
+                        'filter' => [],
                     ],
                     'search_analyzer' => [
                         'type' => 'custom',
                         'tokenizer' => 'standard',
-                        'filter' => [
-                            'lowercase',
-                            'asciifolding',
-                        ],
+                        'filter' => [],
                     ],
                 ],
                 'filter' => [
@@ -140,7 +145,8 @@ class ItemElasticaWrapper extends ElasticaWrapper
 
         $stopWordsLanguage = ElasticaLanguages::getStopwordsLanguageByIso($language);
         if (!is_null($stopWordsLanguage)) {
-            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'stop_words';
+            $defaultAnalyzerFilter[30] = 'stop_words';
+            $searchAnalyzerFilter[30] = 'stop_words';
             $indexConfiguration['analysis']['filter']['stop_words'] = [
                 'type' => 'stop',
                 'stopwords' => $stopWordsLanguage,
@@ -149,7 +155,7 @@ class ItemElasticaWrapper extends ElasticaWrapper
 
         $stemmer = ElasticaLanguages::getStemmerLanguageByIso($language);
         if (!is_null($stemmer)) {
-            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'stemmer';
+            $searchAnalyzerFilter[35] = 'stemmer';
             $indexConfiguration['analysis']['filter']['stemmer'] = [
                 'type' => 'stemmer',
                 'name' => $stemmer,
@@ -158,7 +164,7 @@ class ItemElasticaWrapper extends ElasticaWrapper
 
         $synonyms = $config->getSynonyms();
         if (!empty($synonyms)) {
-            $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'][] = 'synonym';
+            $defaultAnalyzerFilter[40] = 'synonym';
             $indexConfiguration['analysis']['filter']['synonym'] = [
                 'type' => 'synonym',
                 'synonyms' => array_map(function (Synonym $synonym) {
@@ -166,6 +172,11 @@ class ItemElasticaWrapper extends ElasticaWrapper
                 }, $synonyms),
             ];
         }
+
+        ksort($defaultAnalyzerFilter, SORT_NUMERIC);
+        ksort($searchAnalyzerFilter, SORT_NUMERIC);
+        $indexConfiguration['analysis']['analyzer']['default']['filter'] = array_values($defaultAnalyzerFilter);
+        $indexConfiguration['analysis']['analyzer']['search_analyzer']['filter'] = array_values($searchAnalyzerFilter);
 
         return $indexConfiguration;
     }

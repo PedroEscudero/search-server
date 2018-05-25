@@ -40,5 +40,14 @@ trait SynonymsTest
         $result = $this->query(Query::create('percebeiro'));
         $this->assertCount(1, $result->getItems());
         $this->assertEquals(1, $result->getFirstItem()->getId());
+        $result = $this->query(Query::create('percebe'));
+        $this->assertCount(1, $result->getItems());
+        $this->assertEquals(1, $result->getFirstItem()->getId());
+        $result = $this->query(Query::create('perc'));
+        $this->assertCount(1, $result->getItems());
+        $this->assertEquals(1, $result->getFirstItem()->getId());
+        $result = $this->query(Query::create('alfaguar'));
+        $this->assertCount(1, $result->getItems());
+        $this->assertEquals(1, $result->getFirstItem()->getId());
     }
 }

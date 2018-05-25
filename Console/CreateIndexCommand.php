@@ -74,6 +74,12 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
                 null,
                 InputOption::VALUE_NONE,
                 'Create logs as well'
+            )
+            ->addOption(
+                'synonym',
+                null,
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'Synonym'
             );
     }
 
@@ -101,6 +107,9 @@ class CreateIndexCommand extends CommandWithBusAndGodToken
                     ImmutableConfig::createFromArray([
                         'language' => $input->getOption('language'),
                         'store_searchable_metadata' => !$input->getOption('no-store-searchable-metadata'),
+                        'synonyms' => array_map(function (string $synonym) {
+                            return ['words' => array_map('trim', explode(',', $synonym))];
+                        }, $input->getOption('synonym')),
                     ])
                 ));
         } catch (ResourceNotAvailableException $exception) {

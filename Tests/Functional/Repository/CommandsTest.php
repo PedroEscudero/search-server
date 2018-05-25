@@ -223,6 +223,48 @@ class CommandsTest extends ApisearchServerBundleFunctionalTest
     }
 
     /**
+     * Test create index with synonyms.
+     */
+    public function testCreateIndexCommandWithSynonyms()
+    {
+        $this->assertNotExistsIndex();
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:create-index',
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
+                '--synonym' => [
+                    'alfaguarra, percebeiro, engonga',
+                ],
+                '--quiet' => true,
+            ]
+        ));
+        $this->indexTestingItems(self::TEST_APP_ID, self::TEST_INDEX);
+
+        $result = $this->query(Query::create('alfaguar'), self::TEST_APP_ID, self::TEST_INDEX);
+        $this->assertCount(1, $result->getItems());
+        $this->assertEquals(1, $result->getFirstItem()->getId());
+
+        $result = $this->query(Query::create('engong'), self::TEST_APP_ID, self::TEST_INDEX);
+        $this->assertCount(1, $result->getItems());
+        $this->assertEquals(1, $result->getFirstItem()->getId());
+
+        $result = $this->query(Query::create('perceb'), self::TEST_APP_ID, self::TEST_INDEX);
+        $this->assertCount(1, $result->getItems());
+        $this->assertEquals(1, $result->getFirstItem()->getId());
+
+        static::$application->run(new ArrayInput(
+            [
+                'command' => 'apisearch:delete-index',
+                'app-id' => self::TEST_APP_ID,
+                'index' => self::TEST_INDEX,
+                '--quiet' => true,
+            ]
+        ));
+        $this->assertNotExistsIndex();
+    }
+
+    /**
      * Assert index exists.
      */
     protected function assertExistsIndex()
