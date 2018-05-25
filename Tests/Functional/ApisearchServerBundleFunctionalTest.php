@@ -349,9 +349,14 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
 
     /**
      * Index test data.
+     *
+     * @param string $appId
+     * @param string $index
      */
-    protected static function indexTestingItems()
-    {
+    protected static function indexTestingItems(
+        string $appId = null,
+        string $index = null
+    ) {
         $items = Yaml::parse(file_get_contents(__DIR__.'/../items.yml'));
         $itemsInstances = [];
         foreach ($items['items'] as $item) {
@@ -361,7 +366,7 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
             }
             $itemsInstances[] = Item::createFromArray($item);
         }
-        static::indexItems($itemsInstances, self::$appId);
+        static::indexItems($itemsInstances, $appId, $index);
     }
 
     /**
@@ -494,9 +499,9 @@ abstract class ApisearchServerBundleFunctionalTest extends BaseFunctionalTest
      */
     public static function indexItems(
         array $items,
-        string $appId = null,
-        string $index = null,
-        Token $token = null
+        ?string $appId = null,
+        ?string $index = null,
+        ?Token $token = null
     ) {
         self::getStatic('tactician.commandbus')
             ->handle(new IndexItems(
